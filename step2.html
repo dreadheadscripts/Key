@@ -1,34 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Step 2 - Continue</title>
   <meta charset="UTF-8">
+  <title>Script Maniac Hub KeySystem - Step 2</title>
   <style>
-    /* same style reused */
-    body { font-family: Arial, sans-serif; background-color: #f9f9f9; text-align: center; padding: 50px; }
-    .box { background-color: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-    h1 { font-size: 24px; }
-    p { font-size: 16px; margin: 20px 0; }
-    button { padding: 12px 24px; font-size: 16px; border: none; border-radius: 8px; background-color: #007bff; color: white; cursor: pointer; }
-    button:hover { background-color: #0062cc; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #6e00a3;
+      border: 10px solid #002f6c;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00c3ff;
+    }
+
+    .container {
+      background-color: #000;
+      border: 4px solid #002f6c;
+      color: #00c3ff;
+      padding: 60px;
+      border-radius: 25px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+      max-width: 550px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .container h1 {
+      font-size: 30px;
+      margin-bottom: 15px;
+    }
+
+    .container p {
+      font-size: 18px;
+      margin-bottom: 35px;
+    }
+
+    .container button {
+      background-color: #007bff;
+      color: white;
+      font-size: 17px;
+      padding: 14px 28px;
+      border: 2px solid white;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .container button:hover {
+      background-color: #005ec2;
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>Step 2 - Final Verification</h1>
-    <p>You're almost done! Click below to verify one more time.</p>
-    <button onclick="continueToFinal()">Continue (Linkvertise)</button>
+
+  <div class="container">
+    <h1>Script Maniac Hub KeySystem</h1>
+    <p>CheckPoint Two: Key</p>
+    <button onclick="redirectToFinal()">Get Final Key</button>
   </div>
 
   <script>
-    const ref = new URLSearchParams(window.location.search).get("ref");
-    if (ref !== "link") {
-      document.body.innerHTML = "<h2>Access Denied</h2><p>Please go through the full verification flow.</p>";
-    }
-
-    function continueToFinal() {
-      window.location.href = "https://link-target.net/1365830/linkvertise-step2"; // Replace with Linkvertise #2
+    function redirectToFinal() {
+      // Replace with your actual Linkvertise Step 2 URL
+      window.location.href = "https://link-target.net/1365830/linkvertise-step2";
     }
   </script>
+
 </body>
 </html>
