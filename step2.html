@@ -1,75 +1,137 @@
-<!DOCT<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Script Maniac Hub KeySystem</title>
-  <style>
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      background-color: #1a0030; /* Very dark purple */
-      border: 10px solid #002f6c;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex; align-items: center; justify-content: center;
-      color: #00c3ff;
-    }
-    .container {
-      background-color: #000;
-      border: 4px solid #002f6c;
-      color: #00c3ff;
-      padding: 60px;
-      border-radius: 25px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
-      max-width: 550px;
-      width: 90%;
-      text-align: center;
-    }
-    h1 { font-size: 30px; margin-bottom: 15px; }
-    p { font-size: 18px; margin-bottom: 35px; }
-    button {
-      background-color: #007bff;
-      color: white;
-      font-size: 17px;
-      padding: 14px 28px;
-      border: 2px solid white;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-    button:hover {
-      background-color: #005ec2;
-      transform: scale(1.05);
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Script Maniac Hub KeySystem</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background-color: #1a0030;
+    border: 10px solid #002f6c;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    color: #00c3ff;
+  }
+  .container {
+    background-color: #000;
+    border: 4px solid #002f6c;
+    color: #00c3ff;
+    padding: 50px 40px 60px;
+    border-radius: 25px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+    max-width: 550px;
+    width: 90%;
+    text-align: center;
+  }
+  h1 {
+    font-size: 28px;
+    margin-bottom: 5px;
+  }
+  p {
+    font-size: 18px;
+    margin: 5px 0 35px;
+  }
+  .progress {
+    font-size: 14px;
+    margin-bottom: 30px;
+    opacity: 0.6;
+  }
+  .timer {
+    font-size: 16px;
+    margin-bottom: 25px;
+    font-weight: 600;
+  }
+  button {
+    background-color: #007bff;
+    color: white;
+    font-size: 17px;
+    padding: 14px 28px;
+    border: 2px solid white;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  button:hover {
+    background-color: #005ec2;
+    transform: scale(1.05);
+  }
+  .restart-btn {
+    background: transparent;
+    border: none;
+    color: #00c3ff;
+    font-size: 14px;
+    margin-top: 25px;
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: 0.7;
+  }
+  .restart-btn:hover {
+    opacity: 1;
+  }
+  @media (max-width: 600px) {
+    h1 { font-size: 24px; }
+    button { font-size: 16px; padding: 12px 24px; }
+  }
+</style>
 </head>
 <body>
   <div class="container">
+    <div class="progress">Step 2 of 3</div>
     <h1>Script Maniac Hub KeySystem</h1>
     <p>Final Checkpoint: Key</p>
-    <button onclick="goToFinal()">Complete Verification</button>
+    <div class="timer" id="countdown">Loading timer...</div>
+    <button id="nextBtn">Complete Verification</button>
+    <button class="restart-btn" id="restartBtn">Restart Process</button>
   </div>
 
-  <script>
-    const MAX_TIME = 3 * 60 * 60 * 1000;
-    const now = Date.now();
-    const startTime = localStorage.getItem("startTime");
-    const key = localStorage.getItem("generatedKey");
+<script>
+  const MAX_TIME = 3 * 60 * 60 * 1000;
+  const now = Date.now();
+  const startTime = localStorage.getItem("startTime");
+  const key = localStorage.getItem("generatedKey");
 
-    if (!startTime || (!key && now - parseInt(startTime) > MAX_TIME)) {
+  if (!startTime || (!key && now - parseInt(startTime) > MAX_TIME)) {
+    alert("Session expired. Please restart the process.");
+    localStorage.clear();
+    window.location.href = "index.html";
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("ref") !== "link") {
+    alert("Access denied. Please use the correct Linkvertise link.");
+    window.location.href = "index.html";
+  }
+
+  const countdownElem = document.getElementById("countdown");
+  function updateCountdown() {
+    const now = Date.now();
+    const elapsed = now - parseInt(localStorage.getItem("startTime"));
+    const remaining = MAX_TIME - elapsed;
+    if (remaining <= 0 && !localStorage.getItem("generatedKey")) {
       alert("Session expired. Please restart the process.");
       localStorage.clear();
       window.location.href = "index.html";
+      return;
     }
+    const hrs = Math.floor(remaining / (1000*60*60));
+    const mins = Math.floor((remaining % (1000*60*60)) / (1000*60));
+    const secs = Math.floor((remaining % (1000*60)) / 1000);
+    countdownElem.textContent = `Time remaining: ${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("ref") !== "link") {
-      alert("Access denied. Please use the correct Linkvertise link.");
+  document.getElementById("nextBtn").onclick = () => {
+    window.location.href = "https://link-target.net/1365830/final?ref=link";
+  };
+  document.getElementById("restartBtn").onclick = () => {
+    if(confirm("Are you sure you want to restart the process? This will clear your session.")) {
+      localStorage.clear();
       window.location.href = "index.html";
     }
-
-    function goToFinal() {
-      window.location.href = "https://link-target.net/1365830/final?ref=link";
-    }
-  </script>
+  };
+</script>
 </body>
 </html>
