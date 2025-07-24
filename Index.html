@@ -1,54 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Step 1 - Start Key Process</title>
   <meta charset="UTF-8">
+  <title>Script Maniac Hub KeySystem</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(to bottom right, #007bff, #003d80);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00c3ff;
+    }
+
+    .container {
+      background-color: #000;
+      color: #00c3ff;
+      padding: 60px 60px;
+      border-radius: 25px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+      max-width: 550px;
+      width: 90%;
       text-align: center;
-      padding: 50px;
+      animation: fadeIn 0.4s ease;
     }
-    .box {
-      background-color: white;
-      padding: 30px;
-      border-radius: 12px;
-      display: inline-block;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+
+    .container h1 {
+      font-size: 30px;
+      margin-bottom: 15px;
     }
-    h1 {
-      font-size: 24px;
+
+    .container p {
+      font-size: 18px;
+      margin-bottom: 35px;
     }
-    p {
-      font-size: 16px;
-      margin: 20px 0;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background-color: #28a745;
+
+    .container button {
+      background-color: #007bff;
       color: white;
+      font-size: 17px;
+      padding: 14px 28px;
+      border: 2px solid white;
+      border-radius: 12px;
       cursor: pointer;
+      transition: all 0.25s ease;
     }
-    button:hover {
-      background-color: #218838;
+
+    .container button:hover {
+      background-color: #005ec2;
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>Welcome to the Key System</h1>
-    <p>Click the button below to start the verification process.</p>
-    <button onclick="startLinkvertise()">Start (Linkvertise)</button>
+
+  <div class="container">
+    <h1>Script Maniac Hub KeySystem</h1>
+    <p>CheckPoint One: Key</p>
+    <button onclick="startLinkvertise()">Get Key</button>
   </div>
 
   <script>
     function startLinkvertise() {
-      window.location.href = "https://link-target.net/1365830/linkvertise-step1"; // Replace with your real Linkvertise link
+      // Replace with your actual Linkvertise Step 1 URL
+      window.location.href = "https://link-target.net/1365830/linkvertise-step1";
     }
   </script>
+
 </body>
 </html>
