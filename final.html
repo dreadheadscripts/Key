@@ -1,23 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Script Maniac Hub KeySystem - Final</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background-color: #2b0040; /* Darker purple */
+      margin: 0; padding: 0; height: 100%;
+      background-color: #1a0030; /* Very dark purple */
       border: 10px solid #002f6c;
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; align-items: center; justify-content: center;
       color: #00c3ff;
     }
-
     .container {
       background-color: #000;
       border: 4px solid #002f6c;
@@ -28,20 +23,21 @@
       max-width: 550px;
       width: 90%;
       text-align: center;
-      animation: fadeIn 0.4s ease;
     }
-
-    .container h1 {
-      font-size: 30px;
-      margin-bottom: 15px;
+    h1 { font-size: 30px; margin-bottom: 15px; }
+    p { font-size: 18px; margin-bottom: 25px; }
+    .key-box {
+      background-color: #111;
+      border: 2px dashed #00c3ff;
+      color: #00c3ff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 20px;
+      margin-bottom: 25px;
+      word-break: break-all;
+      user-select: all;
     }
-
-    .container p {
-      font-size: 18px;
-      margin-bottom: 35px;
-    }
-
-    .container button {
+    button {
       background-color: #007bff;
       color: white;
       font-size: 17px;
@@ -51,34 +47,64 @@
       cursor: pointer;
       transition: all 0.25s ease;
     }
-
-    .container button:hover {
+    button:hover {
       background-color: #005ec2;
       transform: scale(1.05);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
     <h1>Script Maniac Hub KeySystem</h1>
-    <p>Your Key is Ready!</p>
-    <button onclick="generateKey()">Copy Key</button>
+    <p id="statusText">Generating your key...</p>
+    <div id="keyBox" class="key-box" style="display:none;"></div>
+    <button id="copyBtn" style="display:none;" onclick="copyKey()">Copy Key</button>
   </div>
 
   <script>
-    function generateKey() {
-      const key = "SMH-" + Math.random().toString(36).substring(2, 12).toUpperCase();
+    const MAX_TIME = 3 * 60 * 60 * 1000;
+    const now = Date.now();
+    const startTime = localStorage.getItem("startTime");
+    let key = localStorage.getItem("generatedKey");
+
+    if (!startTime || (!key && now - parseInt(startTime) > MAX_TIME)) {
+      alert("Session expired. Please restart the process.");
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("ref") !== "link") {
+      alert("Access denied. Please use the correct Linkvertise link.");
+      window.location.href = "index.html";
+    }
+
+    const statusText = document.getElementById("statusText");
+    const keyBox = document.getElementById("keyBox");
+    const copyBtn = document.getElementById("copyBtn");
+
+    if (key) {
+      statusText.textContent = "You have already created a key:";
+      keyBox.textContent = key;
+      keyBox.style.display = "block";
+      copyBtn.style.display = "inline-block";
+    } else {
+      key = "SMH-" + Math.random().toString(36).substring(2, 12).toUpperCase();
+      localStorage.setItem("generatedKey", key);
+
+      statusText.textContent = "Your key is ready:";
+      keyBox.textContent = key;
+      keyBox.style.display = "block";
+      copyBtn.style.display = "inline-block";
+    }
+
+    function copyKey() {
       navigator.clipboard.writeText(key).then(() => {
-        alert("Your key has been copied: " + key);
+        alert("Key copied to clipboard!");
+      }).catch(() => {
+        alert("Failed to copy key. Please copy manually.");
       });
     }
   </script>
-
 </body>
 </html>
