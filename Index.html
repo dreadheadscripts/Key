@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Get Your Script Key</title>
+  <title>Step 1 - Start Key Process</title>
   <meta charset="UTF-8">
   <style>
     body {
@@ -41,19 +41,13 @@
 <body>
   <div class="box">
     <h1>Welcome to the Key System</h1>
-    <p>Click the button below to start the process and unlock your script key.</p>
-    <button onclick="startKeyFlow()">Start via Linkvertise</button>
+    <p>Click the button below to start the verification process.</p>
+    <button onclick="startLinkvertise()">Start (Linkvertise)</button>
   </div>
 
   <script>
-    function startKeyFlow() {
-      // Redirect to Linkvertise first
-      // Replace this with your real Linkvertise URL
-      const linkvertiseUrl = "https://link-target.net/1365830/jbmFBL31tLzy";
-
-      // After the user completes Linkvertise, redirect them back to step2.html?ref=link
-      // You'll configure this inside Linkvertise as the final destination URL
-      window.location.href = linkvertiseUrl;
+    function startLinkvertise() {
+      window.location.href = "https://link-target.net/1365830/linkvertise-step1"; // Replace with your real Linkvertise link
     }
   </script>
 </body>
