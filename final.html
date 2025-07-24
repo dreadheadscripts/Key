@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Final Step - Get Your Key</title>
+  <meta charset="UTF-8">
+  <style>
+    /* same style reused */
+    body { font-family: Arial, sans-serif; background-color: #f9f9f9; text-align: center; padding: 50px; }
+    .box { background-color: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    h1 { font-size: 24px; }
+    p, #key-label { font-size: 16px; margin: 20px 0; }
+    #key { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+    button { padding: 12px 24px; font-size: 16px; border: none; border-radius: 8px; background-color: #6f42c1; color: white; cursor: pointer; }
+    button:hover { background-color: #5936a2; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>🎉 Final Step Complete</h1>
+    <p id="key-label">Loading your key...</p>
+    <div id="key">Please wait...</div>
+    <button onclick="copyKey()">Copy Key</button>
+  </div>
+
+  <script>
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref !== "link") {
+      document.body.innerHTML = "<h2>Access Denied</h2><p>You must complete all verification steps.</p>";
+    }
+
+    function generateKey() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let key = "";
+      for (let i = 0; i < 32; i++) key += chars.charAt(Math.floor(Math.random() * chars.length));
+      return key;
+    }
+
+    function copyKey() {
+      const key = document.getElementById("key").innerText;
+      navigator.clipboard.writeText(key);
+      alert("Key copied!");
+    }
+
+    window.onload = function () {
+      const now = Date.now();
+      let data = JSON.parse(localStorage.getItem("userKeyData"));
+      const valid = data && now - data.createdAt < 3 * 60 * 60 * 1000;
+
+      const keyEl = document.getElementById("key");
+      const label = document.getElementById("key-label");
+
+      if (valid) {
+        label.innerText = "You already created a key:";
+        keyEl.innerText = data.key;
+      } else {
+        const newKey = generateKey();
+        localStorage.setItem("userKeyData", JSON.stringify({ key: newKey, createdAt: now }));
+        label.innerText = "Your new key is:";
+        keyEl.innerText = newKey;
+      }
+    };
+  </script>
+</body>
+</html>
