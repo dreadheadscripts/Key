@@ -140,4 +140,98 @@
   }
 
   const countdownElem = document.getElementById("countdown");
-  const statusText = document.getElementById("
+  const statusText = document.getElementById("statusText");
+  const keyBox = document.getElementById("keyBox");
+  const copyBtn = document.getElementById("copyBtn");
+  const captchaContainer = document.getElementById("captchaContainer");
+  const captchaQuestion = document.getElementById("captchaQuestion");
+  const captchaInput = document.getElementById("captchaInput");
+  const captchaSubmitBtn = document.getElementById("captchaSubmitBtn");
+  const restartBtn = document.getElementById("restartBtn");
+
+  function updateCountdown() {
+    const now = Date.now();
+    const elapsed = now - parseInt(localStorage.getItem("startTime"));
+    const remaining = MAX_TIME - elapsed;
+    if (remaining <= 0 && !localStorage.getItem("generatedKey")) {
+      alert("Session expired. Please restart the process.");
+      localStorage.clear();
+      window.location.href = "index.html";
+      return;
+    }
+    const hrs = Math.floor(remaining / (1000*60*60));
+    const mins = Math.floor((remaining % (1000*60*60)) / (1000*60));
+    const secs = Math.floor((remaining % (1000*60)) / 1000);
+    countdownElem.textContent = `Time remaining: ${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // Captcha setup: simple math addition
+  let num1, num2;
+  function generateCaptcha() {
+    num1 = Math.floor(Math.random() * 10) + 1;
+    num2 = Math.floor(Math.random() * 10) + 1;
+    captchaQuestion.textContent = `What is ${num1} + ${num2}?`;
+    captchaInput.value = "";
+    captchaSubmitBtn.disabled = true;
+  }
+  generateCaptcha();
+
+  captchaInput.addEventListener("input", () => {
+    const val = captchaInput.value.trim();
+    captchaSubmitBtn.disabled = val !== (num1 + num2).toString();
+  });
+
+  captchaSubmitBtn.addEventListener("click", () => {
+    // Generate key if not already generated
+    if (!key) {
+      key = generateKey();
+      localStorage.setItem("generatedKey", key);
+    }
+    showKey();
+  });
+
+  copyBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(key).then(() => {
+      alert("Key copied to clipboard!");
+    }).catch(() => {
+      alert("Failed to copy key. Please copy manually.");
+    });
+  });
+
+  restartBtn.onclick = () => {
+    if(confirm("Are you sure you want to restart the process? This will clear your session.")) {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+  };
+
+  function generateKey() {
+    // Format: SMH-AB12-CD34-EF56
+    function segment() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let str = '';
+      for(let i=0; i<4; i++) {
+        str += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return str;
+    }
+    return `SMH-${segment()}-${segment()}-${segment()}`;
+  }
+
+  function showKey() {
+    statusText.textContent = "Your key is ready:";
+    captchaContainer.style.display = "none";
+    keyBox.textContent = key;
+    keyBox.style.display = "block";
+    copyBtn.style.display = "inline-block";
+  }
+
+  // If key exists already show it immediately and hide captcha
+  if (key) {
+    showKey();
+  }
+</script>
+</body>
+</html>
