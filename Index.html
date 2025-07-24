@@ -1,23 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Script Maniac Hub KeySystem</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background-color: #2b0040; /* Darker purple */
-      border: 10px solid #002f6c;
+      margin: 0; padding: 0; height: 100%;
+      background-color: #1a0030; /* Very dark purple */
+      border: 10px solid #002f6c; /* Dark blue outline */
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; align-items: center; justify-content: center;
       color: #00c3ff;
     }
-
     .container {
       background-color: #000;
       border: 4px solid #002f6c;
@@ -28,20 +23,10 @@
       max-width: 550px;
       width: 90%;
       text-align: center;
-      animation: fadeIn 0.4s ease;
     }
-
-    .container h1 {
-      font-size: 30px;
-      margin-bottom: 15px;
-    }
-
-    .container p {
-      font-size: 18px;
-      margin-bottom: 35px;
-    }
-
-    .container button {
+    h1 { font-size: 30px; margin-bottom: 15px; }
+    p { font-size: 18px; margin-bottom: 35px; }
+    button {
       background-color: #007bff;
       color: white;
       font-size: 17px;
@@ -51,31 +36,36 @@
       cursor: pointer;
       transition: all 0.25s ease;
     }
-
-    .container button:hover {
+    button:hover {
       background-color: #005ec2;
       transform: scale(1.05);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-
   <div class="container">
     <h1>Script Maniac Hub KeySystem</h1>
     <p>CheckPoint One: Key</p>
-    <button onclick="startLinkvertise()">Get Key</button>
+    <button onclick="startRedirect()">Get Key</button>
   </div>
 
   <script>
-    function startLinkvertise() {
-      window.location.href = "https://link-target.net/1365830/linkvertise-step1";
+    const MAX_TIME = 3 * 60 * 60 * 1000; // 3 hours
+    const now = Date.now();
+    const startTime = localStorage.getItem("startTime");
+    const key = localStorage.getItem("generatedKey");
+
+    if (!startTime) {
+      localStorage.setItem("startTime", now);
+    } else if (!key && (now - parseInt(startTime)) > MAX_TIME) {
+      alert("Session expired. Please restart the process.");
+      localStorage.clear();
+      location.reload();
+    }
+
+    function startRedirect() {
+      window.location.href = "https://link-target.net/1365830/step2?ref=link";
     }
   </script>
-
 </body>
 </html>
