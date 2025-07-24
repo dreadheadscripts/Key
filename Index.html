@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Your Script Key</title>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding: 50px;
+    }
+    .box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      display: inline-block;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 24px;
+    }
+    p {
+      font-size: 16px;
+      margin: 20px 0;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Welcome to the Key System</h1>
+    <p>Click the button below to start the process and unlock your script key.</p>
+    <button onclick="startKeyFlow()">Start via Linkvertise</button>
+  </div>
+
+  <script>
+    function startKeyFlow() {
+      // Redirect to Linkvertise first
+      // Replace this with your real Linkvertise URL
+      const linkvertiseUrl = "https://link-target.net/1365830/jbmFBL31tLzy";
+
+      // After the user completes Linkvertise, redirect them back to step2.html?ref=link
+      // You'll configure this inside Linkvertise as the final destination URL
+      window.location.href = linkvertiseUrl;
+    }
+  </script>
+</body>
+</html>
