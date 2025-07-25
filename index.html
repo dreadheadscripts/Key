@@ -186,6 +186,57 @@ button:focus-visible {
   outline-offset: 2px;
 }
 </style>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-analytics.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp,
+  } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+    authDomain: "smh-keysystem.firebaseapp.com",
+    projectId: "smh-keysystem",
+    storageBucket: "smh-keysystem.firebasestorage.app",
+    messagingSenderId: "619718800070",
+    appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
+    measurementId: "G-QBXKHSRKT0",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  // Generate or load persistent user ID
+  function getUserId() {
+    let userId = localStorage.getItem("smh_userId");
+    if (!userId) {
+      userId = crypto.randomUUID();
+      localStorage.setItem("smh_userId", userId);
+    }
+    return userId;
+  }
+
+  const userId = getUserId();
+
+  // Firestore document ref for this user
+  const userDocRef = doc(db, "keys", userId);
+
+  // Export for use in main script below
+  window.firebaseAPI = {
+    userDocRef,
+    getDoc,
+    setDoc,
+    serverTimestamp,
+  };
+</script>
 </head>
 <body>
 <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
@@ -207,52 +258,41 @@ button:focus-visible {
   <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
-  authDomain: "smh-keysystem.firebaseapp.com",
-  projectId: "smh-keysystem",
-  storageBucket: "smh-keysystem.firebasestorage.app",
-  messagingSenderId: "619718800070",
-  appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
-  measurementId: "G-QBXKHSRKT0"
-};
-
-// Initialize Firebase and Firestore
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+<script>
 (() => {
+  // Your original code variables and functions preserved:
   const body = document.body;
-  const darkToggle = document.getElementById('darkToggle');
-  const countdown = document.getElementById('countdown');
-  const nextBtn = document.getElementById('nextBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const keyBox = document.getElementById('keyBox');
-  const keyActiveSection = document.getElementById('keyActiveSection');
-  const captchaContainer = document.getElementById('captchaContainer');
-  const messageText = document.getElementById('messageText');
+  const darkToggle = document.getElementById("darkToggle");
+  const countdown = document.getElementById("countdown");
+  const nextBtn = document.getElementById("nextBtn");
+  const copyBtn = document.getElementById("copyBtn");
+  const keyBox = document.getElementById("keyBox");
+  const keyActiveSection = document.getElementById("keyActiveSection");
+  const captchaContainer = document.getElementById("captchaContainer");
+  const messageText = document.getElementById("messageText");
 
   // Dark mode toggle and save preference
   function updateDarkToggleText() {
-    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+    darkToggle.textContent = body.classList.contains("light-mode")
+      ? "Dark Mode"
+      : "Light Mode";
   }
   darkToggle.onclick = () => {
-    body.classList.toggle('light-mode');
-    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
+    body.classList.toggle("light-mode");
+    localStorage.setItem(
+      "smh_darkMode",
+      body.classList.contains("light-mode") ? "1" : "0"
+    );
     updateDarkToggleText();
   };
-  if (localStorage.getItem('smh_darkMode') === '1') {
-    body.classList.add('light-mode');
+  if (localStorage.getItem("smh_darkMode") === "1") {
+    body.classList.add("light-mode");
   }
   updateDarkToggleText();
 
   // Session timer (3 hours max)
   const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const sessionStartKey = 'smh_sessionStart';
+  const sessionStartKey = "smh_sessionStart";
 
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
@@ -260,105 +300,137 @@ const db = getFirestore(app);
 
   // Key info
   const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
+  const keyStorageKey = "smh_key";
+  const keyTimeKey = "smh_keyTime";
 
+  // Firestore references from firebaseAPI
+  const { userDocRef, getDoc, setDoc, serverTimestamp } = window.firebaseAPI;
+
+  // Format milliseconds to hh:mm:ss
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    return `${h.toString().padStart(2, "0")}:${m
+      .toString()
+      .padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   }
 
-  // Check key state from Firestore by device/IP
-  async function checkKeyFirestore() {
+  // Load key and time from Firestore and sync localStorage
+  async function syncKeyFromFirestore() {
     try {
-      const docRef = doc(db, 'keys', 'deviceKey'); // you can use device fingerprint or IP hashed as ID here
-      const docSnap = await getDoc(docRef);
-
+      const docSnap = await getDoc(userDocRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
-        const key = data.key;
-        const keyTimestamp = data.timestamp.toMillis ? data.timestamp.toMillis() : data.timestamp;
-
-        const now = Date.now();
-        const elapsed = now - keyTimestamp;
-        const remaining = MAX_KEY_MS - elapsed;
-
-        if (remaining > 0) {
-          showKeyUI(key);
-          updateKeyTimerFirestore(remaining);
+        if (data.key && data.keyTime) {
+          localStorage.setItem(keyStorageKey, data.key);
+          localStorage.setItem(keyTimeKey, data.keyTime.toString());
           return true;
-        } else {
-          // expired key, remove from Firestore
-          await setDoc(docRef, {}, { merge: true });
-          showNormalUI();
-          return false;
         }
-      } else {
-        showNormalUI();
-        return false;
       }
     } catch (e) {
-      console.error("Firestore read error:", e);
-      showNormalUI();
-      return false;
+      console.error("Firestore sync failed:", e);
     }
+    return false;
   }
 
-  // Update countdown for Firestore key
-  function updateKeyTimerFirestore(remaining) {
-    document.getElementById('keyTimer').textContent = formatTime(remaining);
-  }
-
+  // Update session timer UI
   function updateSessionTimer() {
     const now = Date.now();
     const start = parseInt(localStorage.getItem(sessionStartKey), 10);
     const elapsed = now - start;
     if (elapsed > MAX_SESSION_MS) {
-      alert('Session expired. Please restart the process.');
+      alert("Session expired. Please restart the process.");
       localStorage.clear();
-      location.href = 'index.html';
+      location.href = "index.html";
       return;
     }
     const remaining = MAX_SESSION_MS - elapsed;
     countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
   }
 
+  // Update key timer UI from localStorage
+  function updateKeyTimer() {
+    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const now = Date.now();
+    const elapsed = now - storedKeyTime;
+    const remaining = MAX_KEY_MS - elapsed;
+
+    if (remaining <= 0) {
+      // Key expired - clear key and show normal UI
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      showNormalUI();
+      return false;
+    }
+
+    document.getElementById("keyTimer").textContent = formatTime(remaining);
+    return true;
+  }
+
+  // Show UI when key is active
   function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
+    messageText.style.display = "none";
+    captchaContainer.style.display = "none";
+    keyActiveSection.style.display = "block";
     keyBox.textContent = key;
   }
 
+  // Show UI when no valid key
   function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
-    keyActiveSection.style.display = 'none';
+    messageText.style.display = "block";
+    captchaContainer.style.display = "block";
+    keyActiveSection.style.display = "none";
   }
 
   // Copy button event
   copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
-    });
+    navigator.clipboard
+      .writeText(keyBox.textContent)
+      .then(() => {
+        alert("Key copied to clipboard!");
+      })
+      .catch(() => {
+        alert("Failed to copy key.");
+      });
   };
 
+  // Check key validity and update UI
+  async function checkKey() {
+    const localKey = localStorage.getItem(keyStorageKey);
+    const localKeyTime = localStorage.getItem(keyTimeKey);
+
+    // If no local data, try syncing Firestore first
+    if (!localKey || !localKeyTime) {
+      const synced = await syncKeyFromFirestore();
+      if (!synced) {
+        showNormalUI();
+        return false;
+      }
+    }
+
+    const valid = updateKeyTimer();
+    if (valid) {
+      showKeyUI(localStorage.getItem(keyStorageKey));
+      return true;
+    }
+    showNormalUI();
+    return false;
+  }
+
+  // On next button click, go to external link
   nextBtn.onclick = () => {
-    window.location.href = 'https://link-hub.net/1365830/kMSTNmMeRrxy?ref=link';
+    window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy?ref=link";
   };
 
-  // Run timers
-  updateSessionTimer();
-  setInterval(updateSessionTimer, 1000);
-
-  // Check key on load and every 5 sec
-  checkKeyFirestore();
-  setInterval(checkKeyFirestore, 5000);
+  // Run timers and checks continuously
+  async function mainLoop() {
+    await checkKey();
+    updateSessionTimer();
+  }
+  mainLoop();
+  setInterval(mainLoop, 1000);
 })();
 </script>
 </body>
