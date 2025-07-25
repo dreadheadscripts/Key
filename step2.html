@@ -188,6 +188,23 @@ button:focus-visible {
 </style>
 </head>
 <body>
+<script>
+(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const refParam = urlParams.get("ref");
+  const referrer = document.referrer;
+
+  const hasRefParam = refParam === "link";
+  const cameFromLinkvertise = referrer.includes("linkvertise.com");
+
+  if (!hasRefParam && !cameFromLinkvertise) {
+    // Silent redirect to index.html without alert
+    window.location.href = "index.html";
+    return;
+  }
+})();
+</script>
+
 <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
 <div class="container" role="main" aria-label="Key System Step 2">
   <h1>Script Maniac Hub KeySystem</h1>
@@ -209,18 +226,6 @@ button:focus-visible {
 
 <script>
 (() => {
-  // Redirect check (must come from Linkvertise redirect)
-  const urlParams = new URLSearchParams(window.location.search);
-  const refParam = urlParams.get("ref");
-  const referrer = document.referrer;
-  const hasRefParam = refParam === "link";
-  const cameFromLinkvertise = referrer.includes("linkvertise.com");
-  if (!hasRefParam && !cameFromLinkvertise) {
-    alert('Please access this page through the Linkvertise redirect link.');
-    window.location.href = 'index.html';
-    return;
-  }
-
   const body = document.body;
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
