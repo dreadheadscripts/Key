@@ -3,95 +3,77 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Script Maniac Hub KeySystem</title>
+<title>Script Maniac Hub KeySystem - Start</title>
 <style>
   html, body {
-    margin: 0; padding: 0; height: 100%;
-    background-color: #1a0030;
-    border: 10px solid #002f6c;
-    box-sizing: border-box;
+    height: 100%;
+    margin: 0; padding: 0;
+    background-color: #3a0066; /* darker purple */
+    border: 10px solid #001a4d; /* dark blue border */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex; align-items: center; justify-content: center;
-    color: #00c3ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #66ccff;
     transition: background-color 0.3s ease;
   }
   body.light-mode {
     background-color: #e0e7ff;
     color: #003366;
-    border-color: #004080;
+    border-color: #003366;
   }
   .container {
     background-color: #000;
-    border: 4px solid #002f6c;
-    color: #00c3ff;
-    padding: 50px 40px 60px;
+    border: 4px solid #001a4d;
     border-radius: 25px;
     box-shadow: 0 15px 30px rgba(0,0,0,0.6);
-    max-width: 550px;
-    width: 90%;
+    width: 550px;
+    max-width: 90vw;
+    padding: 50px 40px 60px;
     text-align: center;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
   body.light-mode .container {
     background-color: #f0f4ff;
-    color: #004080;
-    border-color: #004080;
+    border-color: #003366;
+    color: #003366;
     box-shadow: 0 15px 30px rgba(0,0,50,0.3);
   }
   h1 {
     font-size: 28px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
   }
   p {
     font-size: 18px;
-    margin: 5px 0 35px;
-  }
-  .progress {
-    font-size: 14px;
-    margin-bottom: 30px;
-    opacity: 0.6;
-  }
-  .timer {
-    font-size: 16px;
-    margin-bottom: 25px;
-    font-weight: 600;
+    margin: 10px 0 40px;
   }
   button {
     background-color: #007bff;
     color: white;
-    font-size: 17px;
-    padding: 14px 28px;
     border: 2px solid white;
     border-radius: 12px;
+    padding: 15px 40px;
+    font-size: 18px;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
     user-select: none;
   }
   button:hover {
     background-color: #005ec2;
     transform: scale(1.05);
   }
-  .restart-btn {
-    background: transparent;
-    border: none;
-    color: #00c3ff;
-    font-size: 14px;
-    margin-top: 25px;
-    cursor: pointer;
-    text-decoration: underline;
-    opacity: 0.7;
-    user-select: none;
-  }
-  .restart-btn:hover {
-    opacity: 1;
+  #countdown {
+    font-weight: 600;
+    margin-top: 30px;
+    font-size: 16px;
   }
   #darkToggle {
     position: fixed;
     top: 15px;
     right: 20px;
     background: transparent;
-    border: 2px solid #00c3ff;
-    color: #00c3ff;
+    border: 2px solid #66ccff;
+    color: #66ccff;
     padding: 8px 14px;
     border-radius: 12px;
     cursor: pointer;
@@ -104,119 +86,71 @@
     color: white;
     border-color: #005ec2;
   }
-  .footer {
-    margin-top: 35px;
-    font-size: 13px;
-    opacity: 0.5;
-  }
-  .security-badge {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #0f9d58;
-    font-weight: 600;
-    user-select: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-  }
-  .security-badge svg {
-    fill: #0f9d58;
-    width: 18px;
-    height: 18px;
-  }
-  @media (max-width: 600px) {
-    h1 { font-size: 24px; }
-    button { font-size: 16px; padding: 12px 24px; }
-  }
 </style>
 </head>
 <body>
-  <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
-  <div class="container" role="main" aria-label="Key System Step 1">
-    <div class="progress" aria-live="polite">Step 1 of 3</div>
-    <h1>Script Maniac Hub KeySystem</h1>
-    <p>CheckPoint One: Key</p>
-    <div class="timer" id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
-    <button id="nextBtn" aria-label="Proceed to Step 2 Linkvertise Verification">Get Key</button>
-    <button class="restart-btn" id="restartBtn" aria-label="Restart the entire process">Restart Process</button>
-    <div class="security-badge" aria-hidden="true" title="Security Verified by Script Maniac Hub">
-      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.8 9 11 5.2-1.2 9-6 9-11V5l-9-4zM10 16l-4-4 1.4-1.4 2.6 2.6 5.6-5.6L16 9l-6 7z"/></svg>
-      Security Verified
-    </div>
-    <div class="footer" aria-hidden="true">© 2025 Script Maniac Hub</div>
-  </div>
+<button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
+<div class="container" role="main" aria-label="Key System Start Page">
+  <h1>Script Maniac Hub KeySystem</h1>
+  <p>CheckPoint One: Key</p>
+  <button id="startBtn">Get Key</button>
+  <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
+</div>
 
 <script>
-  (() => {
-    // Dark mode toggle
-    const darkToggle = document.getElementById('darkToggle');
-    const body = document.body;
-    function updateDarkToggleText() {
-      darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
-    }
-    darkToggle.onclick = () => {
-      body.classList.toggle('light-mode');
-      updateDarkToggleText();
-      localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
-    };
-    // Initialize dark mode based on saved preference
-    if (localStorage.getItem('smh_darkMode') === '1') {
-      body.classList.add('light-mode');
-    }
+(() => {
+  const body = document.body;
+  const darkToggle = document.getElementById('darkToggle');
+  const countdown = document.getElementById('countdown');
+  const startBtn = document.getElementById('startBtn');
+
+  // Dark mode toggle and save preference
+  function updateDarkToggleText() {
+    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+  }
+  darkToggle.onclick = () => {
+    body.classList.toggle('light-mode');
+    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
     updateDarkToggleText();
+  };
+  if (localStorage.getItem('smh_darkMode') === '1') {
+    body.classList.add('light-mode');
+  }
+  updateDarkToggleText();
 
-    // Constants
-    const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-    const startTimeKey = 'smh_startTime';
-    const generatedKey = localStorage.getItem('generatedKey');
+  // Session timer (3 hours max)
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const sessionStartKey = 'smh_sessionStart';
 
-    // Initialize or check session start time
-    let startTime = localStorage.getItem(startTimeKey);
-    if (!startTime) {
-      startTime = Date.now().toString();
-      localStorage.setItem(startTimeKey, startTime);
-    } else {
-      const elapsed = Date.now() - parseInt(startTime, 10);
-      if (!generatedKey && elapsed > MAX_SESSION_MS) {
-        alert('Session expired. Please restart the process.');
-        localStorage.clear();
-        location.reload();
-        return;
-      }
+  // Set start time if none exists
+  if (!localStorage.getItem(sessionStartKey)) {
+    localStorage.setItem(sessionStartKey, Date.now().toString());
+  }
+
+  function updateTimer() {
+    const now = Date.now();
+    const start = parseInt(localStorage.getItem(sessionStartKey), 10);
+    const elapsed = now - start;
+    if (elapsed > MAX_SESSION_MS) {
+      alert('Session expired. Please restart the process.');
+      localStorage.clear();
+      location.reload();
+      return;
     }
+    const remaining = MAX_SESSION_MS - elapsed;
+    const h = Math.floor(remaining / (1000 * 60 * 60));
+    const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((remaining % (1000 * 60)) / 1000);
+    countdown.textContent = `⏳ Time remaining: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+  updateTimer();
+  setInterval(updateTimer, 1000);
 
-    // Countdown timer element
-    const countdown = document.getElementById('countdown');
-    function updateCountdown() {
-      const now = Date.now();
-      const elapsed = now - parseInt(localStorage.getItem(startTimeKey), 10);
-      const remaining = MAX_SESSION_MS - elapsed;
-      if (remaining <= 0 && !localStorage.getItem('generatedKey')) {
-        alert('Session expired. Please restart the process.');
-        localStorage.clear();
-        location.reload();
-        return;
-      }
-      const hrs = Math.floor(remaining / (1000 * 60 * 60));
-      const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((remaining % (1000 * 60)) / 1000);
-      countdown.textContent = `Time remaining: ${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-
-    // Buttons
-    document.getElementById('nextBtn').onclick = () => {
-      window.location.href = 'https://link-hub.net/1365830/kMSTNmMeRrxy?ref=link';
-    };
-    document.getElementById('restartBtn').onclick = () => {
-      if (confirm('Are you sure you want to restart the process? This will clear your session.')) {
-        localStorage.clear();
-        location.href = 'index.html';
-      }
-    };
-  })();
+  // Start button redirects to Linkvertise redirect + step2.html
+  startBtn.onclick = () => {
+    window.location.href = 'https://link-hub.net/1365830/kMSTNmMeRrxy?ref=link';
+  };
+})();
 </script>
 </body>
 </html>
