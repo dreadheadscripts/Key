@@ -198,6 +198,7 @@ button:focus-visible {
   const cameFromLinkvertise = referrer.includes("linkvertise.com");
 
   if (!hasRefParam && !cameFromLinkvertise) {
+    // Silent redirect to index.html without alert
     window.location.href = "index.html";
     return;
   }
@@ -339,6 +340,27 @@ button:focus-visible {
     return false;
   }
 
+  function generateKey() {
+    // Generate key like SMH-XXXXXXXX (8 alphanumeric)
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let key = "SMH-";
+    for(let i=0; i<8; i++) {
+      key += chars.charAt(Math.floor(Math.random()*chars.length));
+    }
+    return key;
+  }
+
+  generateBtn.onclick = () => {
+    if (checkKey()) {
+      alert("You already have an active key.");
+      return;
+    }
+    const newKey = generateKey();
+    localStorage.setItem(keyStorageKey, newKey);
+    localStorage.setItem(keyTimeKey, Date.now().toString());
+    showKeyUI(newKey);
+  };
+
   updateSessionTimer();
   setInterval(updateSessionTimer, 1000);
 
@@ -348,28 +370,16 @@ button:focus-visible {
     }
   }, 1000);
 
-  generateBtn.onclick = () => {
-    if (checkKey()) {
-      alert('You already have a key active.');
-      return;
-    }
-    // Generate a simple random key (can be replaced with better logic)
-    const newKey = 'SMH-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-    localStorage.setItem(keyStorageKey, newKey);
-    localStorage.setItem(keyTimeKey, Date.now().toString());
-    showKeyUI(newKey);
-  };
-
   checkKey();
 })();
 </script>
 
-<!-- Firebase SDK and logging -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js"></script>
+
 <script>
-  // Your Firebase config
+  // Your Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
     authDomain: "smh-keysystem.firebaseapp.com",
@@ -381,38 +391,8 @@ button:focus-visible {
   };
 
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const analytics = firebase.analytics();
-  const db = firebase.firestore();
-
-  // Log page visit
-  db.collection("visits").add({
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    page: "final",
-    userAgent: navigator.userAgent,
-    referrer: document.referrer,
-    url: window.location.href
-  });
-
-  // Log key info if exists and update regularly
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-
-  function logKeyData() {
-    const key = localStorage.getItem(keyStorageKey);
-    const keyTime = localStorage.getItem(keyTimeKey);
-    if (key && keyTime) {
-      db.collection("keys").add({
-        key: key,
-        createdAt: new Date(parseInt(keyTime)),
-        userAgent: navigator.userAgent,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        page: "final"
-      });
-    }
-  }
-
-  logKeyData();
+  const app = firebase.initializeApp(firebaseConfig);
+  const analytics = firebase.getAnalytics(app);
 </script>
 </body>
 </html>
