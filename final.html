@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Script Maniac Hub KeySystem - Final</title>
+<title>Script Maniac Hub KeySystem - Final Step</title>
 <style>
 /* Reset & base */
 html, body {
   height: 100%;
   margin: 0; padding: 0;
-  background-color: #2a0050; /* Slightly richer dark purple */
-  border: 12px solid #001a4d; /* thick dark blue border */
+  background-color: #2a0050; /* Dark purple */
+  border: 10px solid #001a4d; /* thick dark blue border */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #66ccff;
   display: flex;
@@ -18,6 +18,9 @@ html, body {
   align-items: center;
   transition: background-color 0.4s ease;
   user-select: none;
+  scroll-behavior: smooth;
+  min-width: 320px;
+  box-sizing: border-box;
 }
 
 body.light-mode {
@@ -29,20 +32,20 @@ body.light-mode {
 /* Container */
 .container {
   background: linear-gradient(145deg, #000000, #111122);
-  border: 4px solid #003366;
-  border-radius: 30px;
+  border: 3px solid #003366;
+  border-radius: 24px;
   box-shadow:
-    0 8px 24px rgba(0, 0, 77, 0.8),
+    0 8px 20px rgba(0, 0, 77, 0.8),
     inset 0 -3px 10px #002244;
-  width: 580px;
+  width: 450px;
   max-width: 90vw;
-  padding: 60px 45px 70px;
+  padding: 48px 36px 60px;
   text-align: center;
   transition: background-color 0.3s ease, border-color 0.3s ease;
   position: relative;
+  user-select: text;
 }
 
-/* Light mode container */
 body.light-mode .container {
   background: linear-gradient(145deg, #f5f8ff, #dbe2ff);
   border-color: #003366;
@@ -54,15 +57,16 @@ body.light-mode .container {
 
 /* Headings & Text */
 h1 {
-  font-size: 2.2rem;
-  margin-bottom: 12px;
-  letter-spacing: 1.2px;
+  font-size: 2rem;
+  margin-bottom: 14px;
+  letter-spacing: 1.3px;
   font-weight: 700;
+  user-select: text;
 }
 
 p {
-  font-size: 1.1rem;
-  margin: 14px 0 45px;
+  font-size: 1.05rem;
+  margin: 14px 0 40px;
   line-height: 1.5;
   font-weight: 500;
   user-select: text;
@@ -73,9 +77,9 @@ button {
   background-color: #007bff;
   color: white;
   border: 2.5px solid white;
-  border-radius: 16px;
-  padding: 16px 48px;
-  font-size: 1.15rem;
+  border-radius: 18px;
+  padding: 14px 44px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.35s ease;
@@ -83,6 +87,7 @@ button {
   box-shadow:
     0 6px 15px rgba(0, 123, 255, 0.6);
   outline-offset: 3px;
+  min-width: 140px;
 }
 
 button:hover,
@@ -90,27 +95,27 @@ button:focus-visible {
   background-color: #005ec2;
   box-shadow:
     0 8px 25px rgba(0, 94, 194, 0.85);
-  transform: translateY(-3px);
   outline: none;
+  transform: translateY(-2.5px);
 }
 
 button:active {
-  transform: translateY(-1px);
+  transform: translateY(-1.5px);
   box-shadow:
     0 4px 12px rgba(0, 94, 194, 0.7);
 }
 
 /* Key box */
 #keyBox {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   background-color: #12121a;
   border-radius: 20px;
-  padding: 18px 22px;
-  margin: 30px auto 18px;
-  max-width: 440px;
+  padding: 20px 26px;
+  margin: 28px auto 16px;
+  max-width: 400px;
   user-select: all;
   word-break: break-word;
-  box-shadow: inset 0 0 15px #005ec2;
+  box-shadow: inset 0 0 16px #005ec2;
 }
 
 /* Copy button */
@@ -119,8 +124,8 @@ button:active {
   background-color: #007bff;
   color: white;
   border: 2.5px solid white;
-  border-radius: 16px;
-  padding: 12px 38px;
+  border-radius: 18px;
+  padding: 12px 40px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -128,6 +133,8 @@ button:active {
     0 6px 15px rgba(0, 123, 255, 0.6);
   transition: all 0.35s ease;
   user-select: none;
+  min-width: 120px;
+  margin-bottom: 20px;
 }
 
 #copyBtn:hover,
@@ -141,10 +148,11 @@ button:active {
 
 /* Countdown */
 #countdown {
-  margin-top: 38px;
+  margin-top: 36px;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   letter-spacing: 0.04em;
+  user-select: none;
 }
 
 /* Dark/Light Mode toggle button */
@@ -155,14 +163,15 @@ button:active {
   background: transparent;
   border: 3px solid #66ccff;
   color: #66ccff;
-  padding: 9px 18px;
-  border-radius: 20px;
+  padding: 10px 20px;
+  border-radius: 22px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   cursor: pointer;
   user-select: none;
   transition: all 0.3s ease;
   box-shadow: 0 0 6px #66ccff88;
+  z-index: 9999;
 }
 
 #darkToggle:hover,
@@ -185,6 +194,73 @@ button:focus-visible {
   outline: 3px solid #99ccff;
   outline-offset: 2px;
 }
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .container {
+    width: 90vw;
+    padding: 40px 30px 50px;
+  }
+  h1 {
+    font-size: 1.7rem;
+  }
+  p {
+    font-size: 1rem;
+    margin: 12px 0 35px;
+  }
+  button {
+    padding: 12px 36px;
+    font-size: 1rem;
+    min-width: 120px;
+  }
+  #keyBox {
+    font-size: 1.15rem;
+    max-width: 90vw;
+    padding: 16px 20px;
+    margin: 24px auto 14px;
+  }
+  #copyBtn {
+    padding: 10px 32px;
+    font-size: 0.95rem;
+    min-width: 110px;
+  }
+  #countdown {
+    font-size: 1rem;
+  }
+  #darkToggle {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .container {
+    padding: 36px 24px 40px;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
+  p {
+    font-size: 0.95rem;
+  }
+  button {
+    padding: 10px 28px;
+    font-size: 0.95rem;
+    min-width: 100px;
+  }
+  #copyBtn {
+    padding: 8px 28px;
+    font-size: 0.9rem;
+    min-width: 100px;
+  }
+  #countdown {
+    font-size: 0.9rem;
+  }
+  #darkToggle {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+}
 </style>
 </head>
 <body>
@@ -198,7 +274,6 @@ button:focus-visible {
   const cameFromLinkvertise = referrer.includes("linkvertise.com");
 
   if (!hasRefParam && !cameFromLinkvertise) {
-    // Silent redirect to index.html without alert
     window.location.href = "index.html";
     return;
   }
@@ -208,11 +283,9 @@ button:focus-visible {
 <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
 <div class="container" role="main" aria-label="Key System Final Step">
   <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Final Step: Generate Your Key</p>
+  <p>Final Step: Generate your key below.</p>
 
-  <div id="captchaContainer">
-    <button id="generateBtn">Generate Key</button>
-  </div>
+  <button id="generateBtn">Generate Key</button>
 
   <div id="keyActiveSection" style="display:none;">
     <p><strong>You have already created a key.</strong></p>
@@ -233,8 +306,6 @@ button:focus-visible {
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
   const keyActiveSection = document.getElementById('keyActiveSection');
-  const captchaContainer = document.getElementById('captchaContainer');
-  const messageText = document.getElementById('messageText');
 
   // Dark mode toggle and save preference
   function updateDarkToggleText() {
@@ -304,16 +375,25 @@ button:focus-visible {
   }
 
   function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
     keyActiveSection.style.display = 'block';
     keyBox.textContent = key;
+    generateBtn.style.display = 'none';
   }
 
   function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
     keyActiveSection.style.display = 'none';
+    generateBtn.style.display = 'inline-block';
+    keyBox.textContent = '';
+  }
+
+  // Generate random key
+  function generateKey() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = 'SMH-';
+    for (let i = 0; i < 16; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   }
 
   // Copy button event
@@ -354,8 +434,8 @@ button:focus-visible {
       alert('You already have a key active.');
       return;
     }
-    // Generate a simple random key (can be replaced with better logic)
-    const newKey = 'SMH-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    // Generate key and save
+    const newKey = generateKey();
     localStorage.setItem(keyStorageKey, newKey);
     localStorage.setItem(keyTimeKey, Date.now().toString());
     showKeyUI(newKey);
