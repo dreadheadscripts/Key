@@ -198,7 +198,6 @@ button:focus-visible {
   const cameFromLinkvertise = referrer.includes("linkvertise.com");
 
   if (!hasRefParam && !cameFromLinkvertise) {
-    // Silent redirect to index.html without alert
     window.location.href = "index.html";
     return;
   }
@@ -208,10 +207,10 @@ button:focus-visible {
 <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
 <div class="container" role="main" aria-label="Key System Step 2">
   <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Final Checkpoint: Key</p>
+  <p id="messageText">Step 2: Verify and Generate Key</p>
 
   <div id="captchaContainer">
-    <button id="nextBtn">Continue</button>
+    <button id="generateBtn">Generate Key</button>
   </div>
 
   <div id="keyActiveSection" style="display:none;">
@@ -224,12 +223,28 @@ button:focus-visible {
   <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+  authDomain: "smh-keysystem.firebaseapp.com",
+  projectId: "smh-keysystem",
+  storageBucket: "smh-keysystem.firebasestorage.app",
+  messagingSenderId: "619718800070",
+  appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
+  measurementId: "G-QBXKHSRKT0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 (() => {
   const body = document.body;
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
-  const nextBtn = document.getElementById('nextBtn');
+  const generateBtn = document.getElementById('generateBtn');
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
   const keyActiveSection = document.getElementById('keyActiveSection');
@@ -271,6 +286,45 @@ button:focus-visible {
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
+  // Check key state from Firestore by device/IP
+  async function checkKeyFirestore() {
+    try {
+      const docRef = doc(db, 'keys', 'deviceKey'); // Replace with your logic for device or IP identifier
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const key = data.key;
+        const keyTimestamp = data.timestamp.toMillis ? data.timestamp.toMillis() : data.timestamp;
+
+        const now = Date.now();
+        const elapsed = now - keyTimestamp;
+        const remaining = MAX_KEY_MS - elapsed;
+
+        if (remaining > 0) {
+          showKeyUI(key);
+          updateKeyTimerFirestore(remaining);
+          return true;
+        } else {
+          await setDoc(docRef, {}, { merge: true });
+          showNormalUI();
+          return false;
+        }
+      } else {
+        showNormalUI();
+        return false;
+      }
+    } catch (e) {
+      console.error("Firestore read error:", e);
+      showNormalUI();
+      return false;
+    }
+  }
+
+  function updateKeyTimerFirestore(remaining) {
+    document.getElementById('keyTimer').textContent = formatTime(remaining);
+  }
+
   function updateSessionTimer() {
     const now = Date.now();
     const start = parseInt(localStorage.getItem(sessionStartKey), 10);
@@ -283,24 +337,6 @@ button:focus-visible {
     }
     const remaining = MAX_SESSION_MS - elapsed;
     countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
-  }
-
-  function updateKeyTimer() {
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const now = Date.now();
-    const elapsed = now - storedKeyTime;
-    const remaining = MAX_KEY_MS - elapsed;
-
-    if (remaining <= 0) {
-      // Key expired - clear key and show normal UI
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      showNormalUI();
-      return false;
-    }
-
-    document.getElementById('keyTimer').textContent = formatTime(remaining);
-    return true;
   }
 
   function showKeyUI(key) {
@@ -325,57 +361,16 @@ button:focus-visible {
     });
   };
 
-  // Check if key exists and valid
-  function checkKey() {
-    const storedKey = localStorage.getItem(keyStorageKey);
-    const storedKeyTime = localStorage.getItem(keyTimeKey);
-    if (storedKey && storedKeyTime) {
-      const valid = updateKeyTimer();
-      if (valid) {
-        showKeyUI(storedKey);
-        return true;
-      }
-    }
-    showNormalUI();
-    return false;
-  }
+  generateBtn.onclick = () => {
+    alert('Key generation logic goes here or redirect to final step.');
+    // You can implement key generation logic and Firestore write here
+  };
 
   updateSessionTimer();
   setInterval(updateSessionTimer, 1000);
-
-  setInterval(() => {
-    if (!checkKey()) {
-      // no valid key, do nothing
-    }
-  }, 1000);
-
-  nextBtn.onclick = () => {
-    window.location.href = 'final.html?ref=link';
-  };
-
-  checkKey();
+  checkKeyFirestore();
+  setInterval(checkKeyFirestore, 5000);
 })();
-</script>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js"></script>
-
-<script>
-  // Your Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
-    authDomain: "smh-keysystem.firebaseapp.com",
-    projectId: "smh-keysystem",
-    storageBucket: "smh-keysystem.firebasestorage.app",
-    messagingSenderId: "619718800070",
-    appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
-    measurementId: "G-QBXKHSRKT0"
-  };
-
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const analytics = firebase.getAnalytics(app);
 </script>
 </body>
 </html>
