@@ -198,6 +198,7 @@ button:focus-visible {
   const cameFromLinkvertise = referrer.includes("linkvertise.com");
 
   if (!hasRefParam && !cameFromLinkvertise) {
+    // Silent redirect to index.html without alert
     window.location.href = "index.html";
     return;
   }
@@ -207,10 +208,10 @@ button:focus-visible {
 <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
 <div class="container" role="main" aria-label="Key System Step 2">
   <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Step 2: Continue the process</p>
+  <p id="messageText">Final Checkpoint: Key</p>
 
-  <div id="continueSection">
-    <button id="continueBtn">Continue</button>
+  <div id="captchaContainer">
+    <button id="nextBtn">Continue</button>
   </div>
 
   <div id="keyActiveSection" style="display:none;">
@@ -228,11 +229,11 @@ button:focus-visible {
   const body = document.body;
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
-  const continueBtn = document.getElementById('continueBtn');
+  const nextBtn = document.getElementById('nextBtn');
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
   const keyActiveSection = document.getElementById('keyActiveSection');
-  const continueSection = document.getElementById('continueSection');
+  const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
 
   // Dark mode toggle and save preference
@@ -291,6 +292,7 @@ button:focus-visible {
     const remaining = MAX_KEY_MS - elapsed;
 
     if (remaining <= 0) {
+      // Key expired - clear key and show normal UI
       localStorage.removeItem(keyStorageKey);
       localStorage.removeItem(keyTimeKey);
       showNormalUI();
@@ -303,14 +305,14 @@ button:focus-visible {
 
   function showKeyUI(key) {
     messageText.style.display = 'none';
-    continueSection.style.display = 'none';
+    captchaContainer.style.display = 'none';
     keyActiveSection.style.display = 'block';
     keyBox.textContent = key;
   }
 
   function showNormalUI() {
     messageText.style.display = 'block';
-    continueSection.style.display = 'block';
+    captchaContainer.style.display = 'block';
     keyActiveSection.style.display = 'none';
   }
 
@@ -347,20 +349,20 @@ button:focus-visible {
     }
   }, 1000);
 
-  continueBtn.onclick = () => {
-    window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu?ref=link';
+  nextBtn.onclick = () => {
+    window.location.href = 'final.html?ref=link';
   };
 
   checkKey();
 })();
 </script>
 
-<!-- Firebase SDK and logging -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js"></script>
+
 <script>
-  // Your Firebase config
+  // Your Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
     authDomain: "smh-keysystem.firebaseapp.com",
@@ -372,38 +374,8 @@ button:focus-visible {
   };
 
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const analytics = firebase.analytics();
-  const db = firebase.firestore();
-
-  // Log page visit
-  db.collection("visits").add({
-    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    page: "step2",
-    userAgent: navigator.userAgent,
-    referrer: document.referrer,
-    url: window.location.href
-  });
-
-  // Log key info if exists and update regularly
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-
-  function logKeyData() {
-    const key = localStorage.getItem(keyStorageKey);
-    const keyTime = localStorage.getItem(keyTimeKey);
-    if (key && keyTime) {
-      db.collection("keys").add({
-        key: key,
-        createdAt: new Date(parseInt(keyTime)),
-        userAgent: navigator.userAgent,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        page: "step2"
-      });
-    }
-  }
-
-  logKeyData();
+  const app = firebase.initializeApp(firebaseConfig);
+  const analytics = firebase.getAnalytics(app);
 </script>
 </body>
 </html>
