@@ -209,6 +209,12 @@ button:focus-visible {
 
 <script>
 (() => {
+  // Redirect to index.html if no ?ref=link param present
+  if (!location.search.includes('ref=link')) {
+    window.location.href = 'index.html';
+    return;
+  }
+
   const body = document.body;
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
@@ -218,12 +224,6 @@ button:focus-visible {
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
-
-  // Redirect check (must come from Linkvertise redirect)
-  if (!location.search.includes('ref=link')) {
-    alert('Please access this page through the Linkvertise redirect link.');
-    window.location.href = 'index.html';
-  }
 
   // Dark mode toggle and save preference
   function updateDarkToggleText() {
@@ -305,6 +305,17 @@ button:focus-visible {
     keyActiveSection.style.display = 'none';
   }
 
+  // Generate key function
+  function generateKey() {
+    // Simple example: generate random 16 char hex string
+    const chars = 'ABCDEF0123456789';
+    let key = '';
+    for (let i = 0; i < 16; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  }
+
   // Copy button event
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
@@ -322,10 +333,12 @@ button:focus-visible {
       const valid = updateKeyTimer();
       if (valid) {
         showKeyUI(storedKey);
+        generateBtn.disabled = true;
         return true;
       }
     }
     showNormalUI();
+    generateBtn.disabled = false;
     return false;
   }
 
@@ -339,15 +352,13 @@ button:focus-visible {
   }, 1000);
 
   generateBtn.onclick = () => {
-    if (checkKey()) {
-      alert('You already have a key active.');
-      return;
-    }
-    // Generate a simple random key (can be replaced with better logic)
-    const newKey = 'SMH-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    if (checkKey()) return; // already have a key
+
+    const newKey = generateKey();
     localStorage.setItem(keyStorageKey, newKey);
     localStorage.setItem(keyTimeKey, Date.now().toString());
     showKeyUI(newKey);
+    generateBtn.disabled = true;
   };
 
   checkKey();
