@@ -9,8 +9,8 @@
 html, body {
   height: 100%;
   margin: 0; padding: 0;
-  background-color: #2a0050; /* Slightly richer dark purple */
-  border: 12px solid #001a4d; /* thick dark blue border */
+  background-color: #1a0033; /* darker purple */
+  border: 12px solid #001a4d; /* dark blue border */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #66ccff;
   display: flex;
@@ -194,7 +194,7 @@ button:focus-visible {
   <p id="messageText">Final Checkpoint: Key</p>
 
   <div id="captchaContainer">
-    <button id="nextBtn">Continue</button>
+    <button id="nextBtn">Next</button>
   </div>
 
   <div id="keyActiveSection" style="display:none;">
@@ -209,6 +209,12 @@ button:focus-visible {
 
 <script>
 (() => {
+  // Redirect to index.html if no ?ref=link param present
+  if (!location.search.includes('ref=link')) {
+    window.location.href = 'index.html';
+    return;
+  }
+
   const body = document.body;
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
@@ -218,12 +224,6 @@ button:focus-visible {
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
-
-  // Redirect check (must come from Linkvertise redirect)
-  if (!location.search.includes('ref=link')) {
-    alert('Please access this page through the Linkvertise redirect link.');
-    window.location.href = 'index.html';
-  }
 
   // Dark mode toggle and save preference
   function updateDarkToggleText() {
