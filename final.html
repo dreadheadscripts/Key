@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Script Maniac Hub KeySystem - Final Step</title>
 <style>
+  /* Same styles as previous pages */
   html, body {
     height: 100%;
     margin: 0; padding: 0;
@@ -45,7 +46,7 @@
   }
   p {
     font-size: 18px;
-    margin: 10px 0 30px;
+    margin: 10px 0 40px;
   }
   button {
     background-color: #007bff;
@@ -67,15 +68,27 @@
     font-size: 20px;
     background: #111;
     padding: 15px;
-    margin: 20px 0 10px;
+    margin: 20px auto 10px;
     border-radius: 12px;
     user-select: all;
     word-break: break-all;
+    max-width: 400px;
   }
-  #countdown {
-    font-weight: 600;
-    margin-top: 15px;
+  #copyBtn {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: 2px solid white;
+    border-radius: 12px;
+    padding: 10px 30px;
     font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  #copyBtn:hover {
+    background-color: #005ec2;
   }
   #darkToggle {
     position: fixed;
@@ -102,13 +115,21 @@
 <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
 <div class="container" role="main" aria-label="Key System Final Step">
   <h1>Script Maniac Hub KeySystem</h1>
-  <p>Final Checkpoint: Key</p>
+  <p id="messageText">Final Checkpoint: Key</p>
+
   <div id="captchaContainer">
     <button id="generateBtn">Generate Key</button>
   </div>
-  <div id="keyBox" aria-live="polite" aria-atomic="true"></div>
-  <button id="copyBtn" style="display:none;">Copy Key</button>
+
+  <div id="keyActiveSection" style="display:none;">
+    <p><strong>You have already created a key.</strong></p>
+    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+    <div id="keyBox"></div>
+    <button id="copyBtn">Copy Key</button>
+  </div>
+
   <button id="restartBtn">Restart</button>
+
   <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
 </div>
 
@@ -121,6 +142,9 @@
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
   const restartBtn = document.getElementById('restartBtn');
+  const keyActiveSection = document.getElementById('keyActiveSection');
+  const captchaContainer = document.getElementById('captchaContainer');
+  const messageText = document.getElementById('messageText');
 
   // Dark mode toggle and save preference
   function updateDarkToggleText() {
@@ -155,10 +179,8 @@
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Key cooldowns and expiration
+  // Key info
   const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours
-  const COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12h cooldown between generation attempts
-
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
 
@@ -167,10 +189,10 @@
     const h = Math.floor(totalSec / 3600);
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
-    return `${h}h ${m}m ${s}s`;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
-  function updateTimer() {
+  function updateSessionTimer() {
     const now = Date.now();
     const start = parseInt(localStorage.getItem(sessionStartKey), 10);
     const elapsed = now - start;
@@ -181,10 +203,41 @@
       return;
     }
     const remaining = MAX_SESSION_MS - elapsed;
-    countdown.textContent = `⏳ Session Time Left: ${formatTime(remaining)}`;
+    countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
   }
 
-  // Key handling
+  function updateKeyTimer() {
+    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const now = Date.now();
+    const elapsed = now - storedKeyTime;
+    const remaining = MAX_KEY_MS - elapsed;
+
+    if (remaining <= 0) {
+      // Key expired - clear key and show generate button
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      showNormalUI();
+      return false;
+    }
+
+    document.getElementById('keyTimer').textContent = formatTime(remaining);
+    return true;
+  }
+
+  function showKeyUI(key) {
+    messageText.style.display = 'none';
+    captchaContainer.style.display = 'none';
+    keyActiveSection.style.display = 'block';
+    keyBox.textContent = key;
+  }
+
+  function showNormalUI() {
+    messageText.style.display = 'block';
+    captchaContainer.style.display = 'block';
+    keyActiveSection.style.display = 'none';
+  }
+
+  // Generate Key function
   function generateKey() {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let key = "";
@@ -194,54 +247,28 @@
     return key;
   }
 
-  function showKey(k) {
-    keyBox.textContent = k;
-    keyBox.style.display = 'block';
-    copyBtn.style.display = 'inline-block';
-    generateBtn.style.display = 'none';
-  }
-
-  function checkKey() {
-    const storedKey = localStorage.getItem(keyStorageKey);
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const now = Date.now();
-
-    if (storedKey && storedKeyTime && now - storedKeyTime < MAX_KEY_MS) {
-      showKey(storedKey);
-      return true;
-    }
-    // expired key, clear it
-    localStorage.removeItem(keyStorageKey);
-    localStorage.removeItem(keyTimeKey);
-    return false;
-  }
-
-  function canGenerateKey() {
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const now = Date.now();
-    if (storedKeyTime && now - storedKeyTime < COOLDOWN_MS) {
-      return false;
-    }
-    return true;
-  }
-
-  generateBtn.onclick = () => {
-    if (!canGenerateKey()) {
-      alert('You must wait before generating a new key (12 hour cooldown).');
-      return;
-    }
-    const newKey = generateKey();
-    localStorage.setItem(keyStorageKey, newKey);
-    localStorage.setItem(keyTimeKey, Date.now().toString());
-    showKey(newKey);
-  };
-
+  // Copy button event
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
     }).catch(() => {
       alert('Failed to copy key.');
     });
+  };
+
+  // Generate button click
+  generateBtn.onclick = () => {
+    // Check if cooldown passed (12h)
+    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const now = Date.now();
+    if (storedKeyTime && now - storedKeyTime < 12 * 60 * 60 * 1000) {
+      alert('You must wait before generating a new key (12 hour cooldown).');
+      return;
+    }
+    const newKey = generateKey();
+    localStorage.setItem(keyStorageKey, newKey);
+    localStorage.setItem(keyTimeKey, Date.now().toString());
+    showKeyUI(newKey);
   };
 
   restartBtn.onclick = () => {
@@ -251,17 +278,35 @@
     }
   };
 
+  updateSessionTimer();
+  setInterval(updateSessionTimer, 1000);
+
+  setInterval(() => {
+    if (!checkKey()) {
+      // no valid key, do nothing
+    }
+  }, 1000);
+
+  // Check if key exists and valid
+  function checkKey() {
+    const storedKey = localStorage.getItem(keyStorageKey);
+    const storedKeyTime = localStorage.getItem(keyTimeKey);
+    if (storedKey && storedKeyTime) {
+      const valid = updateKeyTimer();
+      if (valid) {
+        showKeyUI(storedKey);
+        return true;
+      }
+    }
+    showNormalUI();
+    return false;
+  }
+
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Run timers
-  updateTimer();
-  setInterval(updateTimer, 1000);
-
-  // Show key if exists
   checkKey();
-
 })();
 </script>
 </body>
