@@ -198,8 +198,9 @@ button:focus-visible {
   const cameFromLinkvertise = referrer.includes("linkvertise.com");
 
   if (!hasRefParam && !cameFromLinkvertise) {
-    alert("You must access this page through the Linkvertise redirect.");
+    // Silent redirect to index.html without alert
     window.location.href = "index.html";
+    return;
   }
 })();
 </script>
