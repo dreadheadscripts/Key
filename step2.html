@@ -145,42 +145,30 @@
 </div>
 
 <script type="module">
-  // Referral check
-  (function redirectCheck() {
-    const allowedReferrers = [
-      "link-target.net",
-      "linkvertise.com",
-      "your-index-domain.com"
-    ];
-    const referrer = document.referrer.toLowerCase();
-    if (!allowedReferrers.some(domain => referrer.includes(domain))) {
-      window.location.href = 'index.html';
-    }
+  // Referrer enforcement
+  (() => {
+    const allowed = ["linkvertise.com", "link-target.net", "your-index-domain.com"];
+    const ref = document.referrer.toLowerCase();
+    if (!allowed.some(d => ref.includes(d))) window.location.href = "index.html";
   })();
-
-  // Firebase
-  const db = window.firestoreDB;
-
-  // Constants
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
-
-  // Storage Keys
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-  const sessionStartKey = 'smh_sessionStart';
 
   // Elements
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
-  const finishBtn = document.getElementById('finishBtn');
-  const copyBtn = document.getElementById('copyBtn');
   const continueBtn = document.getElementById('continueBtn');
+  const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
+  const keyTimer = document.getElementById('keyTimer');
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
   const body = document.body;
+
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
+  const keyStorageKey = 'smh_key';
+  const keyTimeKey = 'smh_keyTime';
+  const sessionStartKey = 'smh_sessionStart';
 
   // Dark mode toggle
   function updateDarkToggleText() {
@@ -196,63 +184,49 @@
   }
   updateDarkToggleText();
 
-  // Session tracking
+  // Session init
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Format timer
+  // Timer helpers
   function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    const t = Math.floor(ms / 1000), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
-  // Update timers
-  function updateSessionTimer() {
+  function updateTimers() {
     const now = Date.now();
-    const start = parseInt(localStorage.getItem(sessionStartKey), 10);
-    const elapsed = now - start;
+    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
+    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const key = localStorage.getItem(keyStorageKey);
 
-    if (!localStorage.getItem(keyStorageKey)) {
-      if (elapsed > MAX_SESSION_MS) {
-        alert('Session expired. Please restart the process.');
+    if (key && keyTime) {
+      const remaining = MAX_KEY_MS - (now - keyTime);
+      if (remaining <= 0) {
+        localStorage.clear();
+        location.reload();
+      } else {
+        keyTimer.textContent = formatTime(remaining);
+        countdown.textContent = '';
+      }
+    } else {
+      const sessionElapsed = now - sessionStart;
+      if (sessionElapsed >= MAX_SESSION_MS) {
+        alert('Session expired. Restart from Step 1.');
         localStorage.clear();
         location.href = 'index.html';
-        return;
+      } else {
+        countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - sessionElapsed)}`;
       }
-      countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - elapsed)}`;
-    } else {
-      countdown.textContent = '';
     }
   }
 
-  function updateKeyTimer() {
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    if (!storedKeyTime) return false;
-
-    const now = Date.now();
-    const elapsed = now - storedKeyTime;
-    const remaining = MAX_KEY_MS - elapsed;
-
-    if (remaining <= 0) {
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      showNormalUI();
-      return false;
-    }
-    document.getElementById('keyTimer').textContent = formatTime(remaining);
-    return true;
-  }
-
-  // UI control
   function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
     keyBox.textContent = key;
+    captchaContainer.style.display = 'none';
+    messageText.style.display = 'none';
+    keyActiveSection.style.display = 'block';
   }
 
   function showNormalUI() {
@@ -261,34 +235,24 @@
     keyActiveSection.style.display = 'none';
   }
 
+  // Copy key
   copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
-    });
+    navigator.clipboard.writeText(keyBox.textContent).then(() => alert('Key copied!'));
   };
 
-  function checkKeyOnLoad() {
-    const storedKey = localStorage.getItem(keyStorageKey);
-    if (storedKey) {
-      showKeyUI(storedKey);
-      if (!updateKeyTimer()) {
-        showNormalUI();
-      }
-    } else {
-      showNormalUI();
-    }
+  // On load
+  const storedKey = localStorage.getItem(keyStorageKey);
+  const storedKeyTime = localStorage.getItem(keyTimeKey);
+  if (storedKey && storedKeyTime) {
+    showKeyUI(storedKey);
+  } else {
+    showNormalUI();
   }
 
-  checkKeyOnLoad();
-  updateSessionTimer();
-  setInterval(() => {
-    updateSessionTimer();
-    updateKeyTimer();
-  }, 1000);
+  setInterval(updateTimers, 1000);
+  updateTimers();
 
-  // Continue button
+  // Get Key
   continueBtn.onclick = () => {
     window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
   };
