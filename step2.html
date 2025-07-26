@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub KeySystem</title>
+  <title>Script Maniac Hub Step 2</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
@@ -65,6 +65,12 @@
       box-shadow: 0 0 25px #00eaffaa;
       transform: translateY(-3px);
     }
+    #countdown {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #ffdd57;
+      font-size: 1rem;
+    }
     #darkToggle {
       position: fixed;
       top: 16px;
@@ -89,15 +95,18 @@
 <body>
 <button id="darkToggle">Light Mode</button>
 <div class="container">
-  <h1>Script Maniac Hub KeySystem</h1>
-  <p>Click the button below to proceed:</p>
-  <button id="redirectBtn">Go to Linkvertise</button>
+  <h1>Script Maniac Hub Step 2</h1>
+  <p>Press the button below to continue.</p>
+
+  <button id="continueBtn">Continue to Next Step</button>
+
+  <div id="countdown">Loading timer...</div>
 </div>
 
 <script>
-  const darkToggle = document.getElementById('darkToggle');
+  // Dark mode toggle
   const body = document.body;
-
+  const darkToggle = document.getElementById('darkToggle');
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -111,8 +120,54 @@
   }
   updateDarkToggleText();
 
-  document.getElementById('redirectBtn').onclick = () => {
-    window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
+  // Redirect if NOT coming from Linkvertise URL
+  // Linkvertise redirect url is: https://link-target.net/1365830/WbdU2hopNwcu
+  // So check document.referrer includes "link-target.net"
+  if (!document.referrer.includes('link-target.net')) {
+    // Not from Linkvertise, redirect to index.html
+    window.location.href = 'index.html';
+  }
+
+  // 3 hour session timer logic
+  const sessionStartKey = 'smh_sessionStart';
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
+
+  if (!localStorage.getItem(sessionStartKey)) {
+    localStorage.setItem(sessionStartKey, Date.now().toString());
+  }
+
+  const countdown = document.getElementById('countdown');
+  const continueBtn = document.getElementById('continueBtn');
+
+  function formatTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  function updateSessionTimer() {
+    const now = Date.now();
+    const start = parseInt(localStorage.getItem(sessionStartKey), 10);
+    const elapsed = now - start;
+
+    if (elapsed > MAX_SESSION_MS) {
+      alert('Session expired. Please restart the process.');
+      localStorage.clear();
+      window.location.href = 'index.html';
+      return;
+    }
+    countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - elapsed)}`;
+  }
+
+  // Update timer every second
+  setInterval(updateSessionTimer, 1000);
+  updateSessionTimer();
+
+  // Button click redirects to Linkvertise URL
+  continueBtn.onclick = () => {
+    window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
   };
 </script>
 </body>
