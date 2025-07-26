@@ -1,191 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Script Maniac Hub KeySystem - Final</title>
-<style>
-/* Reset & base */
-html, body {
-  height: 100%;
-  margin: 0; padding: 0;
-  background-color: #2a0050; /* Slightly richer dark purple */
-  border: 12px solid #001a4d; /* thick dark blue border */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #66ccff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.4s ease;
-  user-select: none;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Script Maniac Hub KeySystem - Final</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #0a0a0a;
+      color: #00e0ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
 
-body.light-mode {
-  background-color: #e8efff;
-  border-color: #003366;
-  color: #003366;
-}
+    body.light-mode {
+      background-color: #f0f4ff;
+      color: #001a33;
+    }
 
-/* Container */
-.container {
-  background: linear-gradient(145deg, #000000, #111122);
-  border: 4px solid #003366;
-  border-radius: 30px;
-  box-shadow:
-    0 8px 24px rgba(0, 0, 77, 0.8),
-    inset 0 -3px 10px #002244;
-  width: 580px;
-  max-width: 90vw;
-  padding: 60px 45px 70px;
-  text-align: center;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-  position: relative;
-}
+    .container {
+      background: linear-gradient(135deg, #050505, #1a1a1a);
+      border: 3px solid #003366;
+      border-radius: 20px;
+      padding: 60px 40px;
+      width: 560px;
+      box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.2),
+        inset 0 0 12px rgba(0, 255, 255, 0.05);
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
 
-/* Light mode container */
-body.light-mode .container {
-  background: linear-gradient(145deg, #f5f8ff, #dbe2ff);
-  border-color: #003366;
-  color: #003366;
-  box-shadow:
-    0 8px 24px rgba(0, 0, 50, 0.3),
-    inset 0 -3px 10px #aac4ff;
-}
+    body.light-mode .container {
+      background: #e8f0ff;
+      color: #001a33;
+      box-shadow: 0 0 10px rgba(0,0,50,0.1);
+    }
 
-/* Headings & Text */
-h1 {
-  font-size: 2.2rem;
-  margin-bottom: 12px;
-  letter-spacing: 1.2px;
-  font-weight: 700;
-}
+    h1 {
+      font-size: 2.4rem;
+      color: #00eaff;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+      margin-bottom: 16px;
+    }
 
-p {
-  font-size: 1.1rem;
-  margin: 14px 0 45px;
-  line-height: 1.5;
-  font-weight: 500;
-  user-select: text;
-}
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #d0f6ff;
+    }
 
-/* Buttons */
-button {
-  background-color: #007bff;
-  color: white;
-  border: 2.5px solid white;
-  border-radius: 16px;
-  padding: 16px 48px;
-  font-size: 1.15rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.35s ease;
-  user-select: none;
-  box-shadow:
-    0 6px 15px rgba(0, 123, 255, 0.6);
-  outline-offset: 3px;
-}
+    button {
+      background: linear-gradient(145deg, #00bcd4, #0097a7);
+      color: #fff;
+      padding: 14px 38px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      transition: all 0.3s ease-in-out;
+    }
 
-button:hover,
-button:focus-visible {
-  background-color: #005ec2;
-  box-shadow:
-    0 8px 25px rgba(0, 94, 194, 0.85);
-  transform: translateY(-3px);
-  outline: none;
-}
+    button:hover {
+      background: #00838f;
+      box-shadow: 0 0 25px #00eaffaa;
+      transform: translateY(-3px);
+    }
 
-button:active {
-  transform: translateY(-1px);
-  box-shadow:
-    0 4px 12px rgba(0, 94, 194, 0.7);
-}
+    #copyBtn {
+      margin-top: 12px;
+    }
 
-/* Key box */
-#keyBox {
-  font-size: 1.3rem;
-  background-color: #12121a;
-  border-radius: 20px;
-  padding: 18px 22px;
-  margin: 30px auto 18px;
-  max-width: 440px;
-  user-select: all;
-  word-break: break-word;
-  box-shadow: inset 0 0 15px #005ec2;
-}
+    #keyBox {
+      background-color: #101820;
+      border: 2px solid #00eaff88;
+      border-radius: 14px;
+      padding: 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.2rem;
+      color: #00eaff;
+      box-shadow: inset 0 0 20px #00eaff33;
+      word-break: break-word;
+      user-select: all;
+    }
 
-/* Copy button */
-#copyBtn {
-  display: inline-block;
-  background-color: #007bff;
-  color: white;
-  border: 2.5px solid white;
-  border-radius: 16px;
-  padding: 12px 38px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow:
-    0 6px 15px rgba(0, 123, 255, 0.6);
-  transition: all 0.35s ease;
-  user-select: none;
-}
+    #countdown, #keyTimer {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #ffdd57;
+      font-size: 1rem;
+    }
 
-#copyBtn:hover,
-#copyBtn:focus-visible {
-  background-color: #005ec2;
-  box-shadow:
-    0 8px 25px rgba(0, 94, 194, 0.85);
-  outline: none;
-  transform: translateY(-2px);
-}
+    #darkToggle {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      border: 2px solid #00eaff;
+      background: transparent;
+      color: #00eaff;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      box-shadow: 0 0 8px #00eaff88;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-/* Countdown */
-#countdown {
-  margin-top: 38px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.04em;
-}
-
-/* Dark/Light Mode toggle button */
-#darkToggle {
-  position: fixed;
-  top: 18px;
-  right: 24px;
-  background: transparent;
-  border: 3px solid #66ccff;
-  color: #66ccff;
-  padding: 9px 18px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 6px #66ccff88;
-}
-
-#darkToggle:hover,
-#darkToggle:focus-visible {
-  background-color: #005ec2;
-  color: white;
-  border-color: #005ec2;
-  outline: none;
-  box-shadow: 0 0 12px #005ec2dd;
-  transform: translateY(-1.5px);
-}
-
-/* Hide elements when not used */
-#keyActiveSection {
-  user-select: text;
-}
-
-/* Accessibility */
-button:focus-visible {
-  outline: 3px solid #99ccff;
-  outline-offset: 2px;
-}
-</style>
+    #darkToggle:hover {
+      background-color: #00eaff;
+      color: #000;
+      box-shadow: 0 0 16px #00eaff;
+    }
+  </style>
 </head>
 <body>
 <script>
@@ -198,7 +133,6 @@ button:focus-visible {
   const cameFromLinkvertise = referrer.includes("linkvertise.com");
 
   if (!hasRefParam && !cameFromLinkvertise) {
-    // Silent redirect to index.html without alert
     window.location.href = "index.html";
     return;
   }
@@ -236,7 +170,6 @@ button:focus-visible {
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
 
-  // Dark mode toggle and save preference
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -250,7 +183,6 @@ button:focus-visible {
   }
   updateDarkToggleText();
 
-  // Session timer (3 hours max)
   const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
   const sessionStartKey = 'smh_sessionStart';
 
@@ -258,13 +190,11 @@ button:focus-visible {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Key info
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
 
   function generateKey() {
-    // Simple key generator - random 16 chars from A-Z 0-9
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let key = '';
     for (let i = 0; i < 16; i++) {
@@ -302,7 +232,6 @@ button:focus-visible {
     const remaining = MAX_KEY_MS - elapsed;
 
     if (remaining <= 0) {
-      // Key expired - clear key and show normal UI
       localStorage.removeItem(keyStorageKey);
       localStorage.removeItem(keyTimeKey);
       showNormalUI();
@@ -326,7 +255,6 @@ button:focus-visible {
     keyActiveSection.style.display = 'none';
   }
 
-  // Copy button event
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -335,7 +263,6 @@ button:focus-visible {
     });
   };
 
-  // Check if key exists and valid
   function checkKey() {
     const storedKey = localStorage.getItem(keyStorageKey);
     const storedKeyTime = localStorage.getItem(keyTimeKey);
