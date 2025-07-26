@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub KeySystem - Start</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <title>Script Maniac Hub KeySystem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
       height: 100%;
@@ -18,88 +18,100 @@
       align-items: center;
       user-select: none;
       transition: background 0.4s ease, color 0.4s ease;
+      font-size: 18px;
     }
-
     body.light-mode {
-      background-color: #f0f4ff;
-      color: #001a33;
+      background-color: #ffffff;
+      color: #000000;
     }
-
     .container {
       background: linear-gradient(135deg, #050505, #1a1a1a);
       border: 3px solid #003366;
       border-radius: 20px;
       padding: 60px 40px;
-      width: 560px;
-      box-shadow:
-        0 0 20px rgba(0, 255, 255, 0.2),
-        inset 0 0 12px rgba(0, 255, 255, 0.05);
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
       text-align: center;
       transition: all 0.3s ease-in-out;
     }
-
     body.light-mode .container {
-      background: #e8f0ff;
-      color: #001a33;
-      box-shadow: 0 0 10px rgba(0,0,50,0.1);
+      background: #ffffff;
+      color: #000000;
+      border-color: #000000;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 12px rgba(0, 0, 0, 0.05);
     }
-
     h1 {
-      font-size: 2.4rem;
+      font-size: 2.8rem;
       color: #00eaff;
       text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-
+    body.light-mode h1 {
+      color: #000000;
+      text-shadow: none;
+    }
     p {
-      font-size: 1.1rem;
-      line-height: 1.6;
+      font-size: 1.3rem;
+      line-height: 1.7;
       color: #d0f6ff;
     }
-
+    body.light-mode p {
+      color: #222222;
+    }
     button {
       background: linear-gradient(145deg, #00bcd4, #0097a7);
       color: #fff;
-      padding: 14px 38px;
+      padding: 16px 42px;
       border: none;
       border-radius: 14px;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
       transition: all 0.3s ease-in-out;
+      margin: 12px 0;
     }
-
     button:hover {
       background: #00838f;
       box-shadow: 0 0 25px #00eaffaa;
       transform: translateY(-3px);
     }
-
-    #copyBtn {
-      margin-top: 12px;
+    body.light-mode button {
+      background: linear-gradient(145deg, #444444, #222222);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
     }
-
+    body.light-mode button:hover {
+      background: #111111;
+      box-shadow: 0 0 25px #555555cc;
+    }
     #keyBox {
       background-color: #101820;
       border: 2px solid #00eaff88;
       border-radius: 14px;
-      padding: 20px;
+      padding: 24px;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       color: #00eaff;
       box-shadow: inset 0 0 20px #00eaff33;
       word-break: break-word;
       user-select: all;
+      margin: 16px 0;
     }
-
-    #countdown, #keyTimer {
+    body.light-mode #keyBox {
+      background-color: #f0f0f0;
+      border: 2px solid #44444488;
+      color: #000000;
+      box-shadow: inset 0 0 20px #cccccc33;
+    }
+    #countdown,
+    #keyTimer {
       margin-top: 20px;
       font-weight: bold;
       color: #ffdd57;
-      font-size: 1rem;
+      font-size: 1.2rem;
     }
-
     #darkToggle {
       position: fixed;
       top: 16px;
@@ -107,167 +119,195 @@
       border: 2px solid #00eaff;
       background: transparent;
       color: #00eaff;
-      padding: 8px 16px;
+      padding: 10px 18px;
       border-radius: 30px;
-      font-size: 0.95rem;
+      font-size: 1rem;
       box-shadow: 0 0 8px #00eaff88;
       cursor: pointer;
       transition: all 0.3s ease;
     }
-
+    body.light-mode #darkToggle {
+      border-color: #000000;
+      color: #000000;
+      box-shadow: 0 0 8px #00000088;
+    }
+    body.light-mode #darkToggle:hover {
+      background-color: #000000;
+      color: #fff;
+      box-shadow: 0 0 16px #000000cc;
+    }
     #darkToggle:hover {
       background-color: #00eaff;
       color: #000;
       box-shadow: 0 0 16px #00eaff;
     }
   </style>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+      authDomain: "smh-keysystem.firebaseapp.com",
+      projectId: "smh-keysystem",
+      storageBucket: "smh-keysystem.appspot.com",
+      messagingSenderId: "619718800070",
+      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.firestoreDB = db;
+  </script>
 </head>
 <body>
-  <button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
-  <div class="container" role="main" aria-label="Key System Start">
-    <h1>Script Maniac Hub KeySystem</h1>
-    <p id="messageText">CheckPoint One: Key</p>
+<button id="darkToggle">Light Mode</button>
+<div class="container">
+  <h1>Script Maniac Hub KeySystem</h1>
+  <p id="messageText">Final Step: Your Key</p>
 
-    <div id="captchaContainer">
-      <button id="nextBtn">Get Key</button>
-    </div>
-
-    <div id="keyActiveSection" style="display:none;">
-      <p><strong>You have already created a key.</strong></p>
-      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-      <div id="keyBox"></div>
-      <button id="copyBtn">Copy Key</button>
-    </div>
-
-    <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
+  <div id="captchaContainer">
+    <button id="finishBtn">Get Your Key</button>
   </div>
 
-  <script>
-    (() => {
-      const body = document.body;
-      const darkToggle = document.getElementById('darkToggle');
-      const countdown = document.getElementById('countdown');
-      const nextBtn = document.getElementById('nextBtn');
-      const copyBtn = document.getElementById('copyBtn');
-      const keyBox = document.getElementById('keyBox');
-      const keyActiveSection = document.getElementById('keyActiveSection');
-      const captchaContainer = document.getElementById('captchaContainer');
-      const messageText = document.getElementById('messageText');
+  <div id="keyActiveSection" style="display:none;">
+    <p><strong>You have already created a key.</strong></p>
+    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+    <div id="keyBox"></div>
+    <button id="copyBtn">Copy Key</button>
+  </div>
 
-      function updateDarkToggleText() {
-        darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+  <div id="countdown">Loading timer...</div>
+</div>
+
+<script type="module">
+  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const db = window.firestoreDB;
+  const SESSION_MS = 3 * 60 * 60 * 1000;
+  const KEY_MS = 8 * 60 * 60 * 1000;
+  const keyStorage = 'smh_key';
+  const sessionStart = 'smh_sessionStart';
+
+  const darkToggle = document.getElementById('darkToggle');
+  const countdown = document.getElementById('countdown');
+  const finishBtn = document.getElementById('finishBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const keyBox = document.getElementById('keyBox');
+  const keyActiveSection = document.getElementById('keyActiveSection');
+  const captchaContainer = document.getElementById('captchaContainer');
+  const messageText = document.getElementById('messageText');
+  const body = document.body;
+
+  function updateDarkToggleText() {
+    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+  }
+  darkToggle.onclick = () => {
+    body.classList.toggle('light-mode');
+    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
+    updateDarkToggleText();
+  };
+  if (localStorage.getItem('smh_darkMode') === '1') {
+    body.classList.add('light-mode');
+  }
+  updateDarkToggleText();
+
+  if (!localStorage.getItem(sessionStart)) {
+    localStorage.setItem(sessionStart, Date.now().toString());
+  }
+
+  function formatTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600).toString().padStart(2, '0');
+    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${sec}`;
+  }
+
+  function unifiedTimer() {
+    const now = Date.now();
+    const start = parseInt(localStorage.getItem(sessionStart), 10);
+    const hasKey = !!localStorage.getItem(keyStorage);
+
+    const limit = hasKey ? KEY_MS : SESSION_MS;
+    const elapsed = now - start;
+    const remaining = limit - elapsed;
+
+    if (remaining <= 0) {
+      alert("⏰ Your session has expired.");
+      localStorage.clear();
+      window.location.href = "index.html";
+    } else {
+      const label = hasKey ? "🧠 Key time left" : "⏳ Session time left";
+      countdown.textContent = `${label}: ${formatTime(remaining)}`;
+      if (hasKey) {
+        document.getElementById("keyTimer").textContent = formatTime(remaining);
       }
+    }
+  }
 
-      darkToggle.onclick = () => {
-        body.classList.toggle('light-mode');
-        localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
-        updateDarkToggleText();
-      };
+  function generateKey() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let key = '';
+    for (let i = 0; i < 16; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  }
 
-      if (localStorage.getItem('smh_darkMode') === '1') {
-        body.classList.add('light-mode');
-      }
-      updateDarkToggleText();
+  function showKeyUI(key) {
+    messageText.style.display = 'none';
+    captchaContainer.style.display = 'none';
+    keyActiveSection.style.display = 'block';
+    keyBox.textContent = key;
+  }
 
-      const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-      const sessionStartKey = 'smh_sessionStart';
-      if (!localStorage.getItem(sessionStartKey)) {
-        localStorage.setItem(sessionStartKey, Date.now().toString());
-      }
+  function showNormalUI() {
+    messageText.style.display = 'block';
+    captchaContainer.style.display = 'block';
+    keyActiveSection.style.display = 'none';
+  }
 
-      const MAX_KEY_MS = 8 * 60 * 60 * 1000;
-      const keyStorageKey = 'smh_key';
-      const keyTimeKey = 'smh_keyTime';
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(keyBox.textContent)
+      .then(() => alert('Key copied to clipboard!'))
+      .catch(() => alert('Failed to copy key.'));
+  };
 
-      function formatTime(ms) {
-        const totalSec = Math.floor(ms / 1000);
-        const h = Math.floor(totalSec / 3600);
-        const m = Math.floor((totalSec % 3600) / 60);
-        const s = totalSec % 60;
-        return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-      }
+  function checkKey() {
+    const key = localStorage.getItem(keyStorage);
+    if (key) {
+      showKeyUI(key);
+      return true;
+    }
+    showNormalUI();
+    return false;
+  }
 
-      function updateSessionTimer() {
-        const now = Date.now();
-        const start = parseInt(localStorage.getItem(sessionStartKey), 10);
-        const elapsed = now - start;
-        if (elapsed > MAX_SESSION_MS) {
-          alert('Session expired. Please restart the process.');
-          localStorage.clear();
-          location.href = 'index.html';
-          return;
-        }
-        const remaining = MAX_SESSION_MS - elapsed;
-        countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
-      }
-
-      function updateKeyTimer() {
-        const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-        const now = Date.now();
-        const elapsed = now - storedKeyTime;
-        const remaining = MAX_KEY_MS - elapsed;
-
-        if (remaining <= 0) {
-          localStorage.removeItem(keyStorageKey);
-          localStorage.removeItem(keyTimeKey);
-          showNormalUI();
-          return false;
-        }
-
-        document.getElementById('keyTimer').textContent = formatTime(remaining);
-        return true;
-      }
-
-      function showKeyUI(key) {
-        messageText.style.display = 'none';
-        captchaContainer.style.display = 'none';
-        keyActiveSection.style.display = 'block';
-        keyBox.textContent = key;
-      }
-
-      function showNormalUI() {
-        messageText.style.display = 'block';
-        captchaContainer.style.display = 'block';
-        keyActiveSection.style.display = 'none';
-      }
-
-      copyBtn.onclick = () => {
-        navigator.clipboard.writeText(keyBox.textContent).then(() => {
-          alert('Key copied to clipboard!');
-        }).catch(() => {
-          alert('Failed to copy key.');
+  finishBtn.onclick = async () => {
+    if (!localStorage.getItem(keyStorage)) {
+      try {
+        const key = generateKey();
+        const start = parseInt(localStorage.getItem(sessionStart), 10);
+        await setDoc(doc(db, "keys", key), {
+          created: start,
+          expiresAt: start + KEY_MS,
+          valid: true
         });
-      };
-
-      function checkKey() {
-        const storedKey = localStorage.getItem(keyStorageKey);
-        const storedKeyTime = localStorage.getItem(keyTimeKey);
-        if (storedKey && storedKeyTime) {
-          const valid = updateKeyTimer();
-          if (valid) {
-            showKeyUI(storedKey);
-            return true;
-          }
-        }
-        showNormalUI();
-        return false;
+        localStorage.setItem(keyStorage, key);
+        showKeyUI(key);
+      } catch (err) {
+        alert("❌ Failed to create key.");
+        console.error(err);
       }
+    }
+  };
 
-      updateSessionTimer();
-      setInterval(updateSessionTimer, 1000);
-
-      setInterval(() => {
-        if (!checkKey()) {
-          // no valid key, do nothing
-        }
-      }, 1000);
-
-      nextBtn.onclick = () => {
-        window.location.href = 'https://link-hub.net/1365830/kMSTNmMeRrxy?ref=link';
-      };
-
-      checkKey();
-    })();
-  </script>
+  unifiedTimer();
+  checkKey();
+  setInterval(unifiedTimer, 1000);
+</script>
 </body>
 </html>
