@@ -65,12 +65,25 @@
       box-shadow: 0 0 25px #00eaffaa;
       transform: translateY(-3px);
     }
-    #countdown {
+    #countdown, #keyTimer {
       margin-top: 20px;
       font-weight: bold;
       color: #ffdd57;
       font-size: 1rem;
     }
+    #keyBox {
+      background-color: #101820;
+      border: 2px solid #00eaff88;
+      border-radius: 14px;
+      padding: 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.2rem;
+      color: #00eaff;
+      box-shadow: inset 0 0 20px #00eaff33;
+      word-break: break-word;
+      user-select: all;
+    }
+    #copyBtn { margin-top: 12px; }
     #darkToggle {
       position: fixed;
       top: 16px;
@@ -91,25 +104,53 @@
       box-shadow: 0 0 16px #00eaff;
     }
   </style>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+      authDomain: "smh-keysystem.firebaseapp.com",
+      projectId: "smh-keysystem",
+      storageBucket: "smh-keysystem.appspot.com",
+      messagingSenderId: "619718800070",
+      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.firestoreDB = db;
+  </script>
 </head>
 <body>
 <button id="darkToggle">Light Mode</button>
 <div class="container">
-  <h1>Script Maniac Hub Step 2</h1>
-  <p>Press the button below to continue.</p>
+  <h1>Script Maniac Hub KeySystem</h1>
+  <p id="messageText">Final CheckPoint</p>
 
-  <button id="continueBtn">Continue to Next Step</button>
+  <div id="captchaContainer">
+    <button id="continueBtn">Get Key</button>
+  </div>
+
+  <div id="keyActiveSection" style="display:none;">
+    <p><strong>You have already created a key.</strong></p>
+    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+    <div id="keyBox"></div>
+    <button id="copyBtn">Copy Key</button>
+  </div>
 
   <div id="countdown">Loading timer...</div>
 </div>
 
-<script>
-  // --- REFERRAL CHECK ---
+<script type="module">
+  // Referral check
   (function redirectCheck() {
     const allowedReferrers = [
       "link-target.net",
       "linkvertise.com",
-      "your-index-domain.com" // Replace with your real Step 1 domain if needed
+      "your-index-domain.com"
     ];
     const referrer = document.referrer.toLowerCase();
     if (!allowedReferrers.some(domain => referrer.includes(domain))) {
@@ -117,9 +158,31 @@
     }
   })();
 
-  // --- DARK MODE TOGGLE ---
-  const body = document.body;
+  // Firebase
+  const db = window.firestoreDB;
+
+  // Constants
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
+
+  // Storage Keys
+  const keyStorageKey = 'smh_key';
+  const keyTimeKey = 'smh_keyTime';
+  const sessionStartKey = 'smh_sessionStart';
+
+  // Elements
   const darkToggle = document.getElementById('darkToggle');
+  const countdown = document.getElementById('countdown');
+  const finishBtn = document.getElementById('finishBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const continueBtn = document.getElementById('continueBtn');
+  const keyBox = document.getElementById('keyBox');
+  const keyActiveSection = document.getElementById('keyActiveSection');
+  const captchaContainer = document.getElementById('captchaContainer');
+  const messageText = document.getElementById('messageText');
+  const body = document.body;
+
+  // Dark mode toggle
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -133,17 +196,12 @@
   }
   updateDarkToggleText();
 
-  // --- SESSION TIMER LOGIC ---
-  const sessionStartKey = 'smh_sessionStart';
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-
+  // Session tracking
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  const countdown = document.getElementById('countdown');
-  const continueBtn = document.getElementById('continueBtn');
-
+  // Format timer
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
@@ -152,25 +210,85 @@
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
+  // Update timers
   function updateSessionTimer() {
     const now = Date.now();
     const start = parseInt(localStorage.getItem(sessionStartKey), 10);
     const elapsed = now - start;
 
-    if (elapsed > MAX_SESSION_MS) {
-      alert('Session expired. Please restart the process.');
-      localStorage.clear();
-      window.location.href = 'index.html';
-      return;
+    if (!localStorage.getItem(keyStorageKey)) {
+      if (elapsed > MAX_SESSION_MS) {
+        alert('Session expired. Please restart the process.');
+        localStorage.clear();
+        location.href = 'index.html';
+        return;
+      }
+      countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - elapsed)}`;
+    } else {
+      countdown.textContent = '';
     }
-    countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - elapsed)}`;
   }
 
-  // Update timer every second
-  setInterval(updateSessionTimer, 1000);
-  updateSessionTimer();
+  function updateKeyTimer() {
+    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    if (!storedKeyTime) return false;
 
-  // --- CONTINUE BUTTON ---
+    const now = Date.now();
+    const elapsed = now - storedKeyTime;
+    const remaining = MAX_KEY_MS - elapsed;
+
+    if (remaining <= 0) {
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      showNormalUI();
+      return false;
+    }
+    document.getElementById('keyTimer').textContent = formatTime(remaining);
+    return true;
+  }
+
+  // UI control
+  function showKeyUI(key) {
+    messageText.style.display = 'none';
+    captchaContainer.style.display = 'none';
+    keyActiveSection.style.display = 'block';
+    keyBox.textContent = key;
+  }
+
+  function showNormalUI() {
+    messageText.style.display = 'block';
+    captchaContainer.style.display = 'block';
+    keyActiveSection.style.display = 'none';
+  }
+
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(keyBox.textContent).then(() => {
+      alert('Key copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy key.');
+    });
+  };
+
+  function checkKeyOnLoad() {
+    const storedKey = localStorage.getItem(keyStorageKey);
+    if (storedKey) {
+      showKeyUI(storedKey);
+      if (!updateKeyTimer()) {
+        showNormalUI();
+      }
+    } else {
+      showNormalUI();
+    }
+  }
+
+  checkKeyOnLoad();
+  updateSessionTimer();
+  setInterval(() => {
+    updateSessionTimer();
+    updateKeyTimer();
+  }, 1000);
+
+  // Continue button
   continueBtn.onclick = () => {
     window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
   };
