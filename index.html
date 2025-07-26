@@ -150,16 +150,13 @@
 
   const db = window.firestoreDB;
 
-  // Timer limits
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours session
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours key validity
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours
 
-  // LocalStorage keys
   const sessionStartKey = 'smh_sessionStart';
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
 
-  // Elements
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
@@ -170,7 +167,6 @@
   const messageText = document.getElementById('messageText');
   const body = document.body;
 
-  // Dark mode toggle and persist
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -184,12 +180,10 @@
   }
   updateDarkToggleText();
 
-  // Initialize session start if not set
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Generate random 16-char key
   function generateKey() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let key = '';
@@ -199,16 +193,14 @@
     return key;
   }
 
-  // Format ms to HH:MM:SS
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
-  // Show UI when key exists
   function showKeyUI(key) {
     messageText.style.display = 'none';
     captchaContainer.style.display = 'none';
@@ -216,14 +208,12 @@
     keyBox.textContent = key;
   }
 
-  // Show normal UI when no key
   function showNormalUI() {
     messageText.style.display = 'block';
     captchaContainer.style.display = 'block';
     keyActiveSection.style.display = 'none';
   }
 
-  // Copy key button handler
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -232,7 +222,6 @@
     });
   };
 
-  // Unified timer update function
   function updateTimers() {
     const now = Date.now();
 
@@ -240,17 +229,11 @@
     const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
     const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || now;
 
-    if (!localStorage.getItem(sessionStartKey)) {
-      localStorage.setItem(sessionStartKey, now.toString());
-    }
-
     if (storedKey && storedKeyTime) {
-      // Key exists - 8 hour timer
       const elapsedKey = now - storedKeyTime;
       const remainingKey = MAX_KEY_MS - elapsedKey;
 
       if (remainingKey <= 0) {
-        // Key expired - reset all
         localStorage.removeItem(keyStorageKey);
         localStorage.removeItem(keyTimeKey);
         localStorage.removeItem(sessionStartKey);
@@ -260,17 +243,19 @@
         return;
       }
 
-      // Key valid, show key UI and timer
+      // Keep timers synced: sessionStart = keyTime
+      if (sessionStart !== storedKeyTime) {
+        localStorage.setItem(sessionStartKey, storedKeyTime.toString());
+      }
+
       countdown.textContent = `⏳ Key time remaining: ${formatTime(remainingKey)}`;
       showKeyUI(storedKey);
 
     } else {
-      // No key - 3 hour session timer
       const elapsedSession = now - sessionStart;
       const remainingSession = MAX_SESSION_MS - elapsedSession;
 
       if (remainingSession <= 0) {
-        // Session expired - clear storage and reload
         localStorage.removeItem(sessionStartKey);
         localStorage.removeItem(keyStorageKey);
         localStorage.removeItem(keyTimeKey);
@@ -279,13 +264,11 @@
         return;
       }
 
-      // Session valid - show normal UI and timer
       countdown.textContent = `⏳ Session time remaining: ${formatTime(remainingSession)}`;
       showNormalUI();
     }
   }
 
-  // Button to create key and save to Firestore & localStorage
   finishBtn.onclick = async () => {
     if (!localStorage.getItem(keyStorageKey)) {
       try {
@@ -293,18 +276,16 @@
         const createdAt = Date.now();
         const expiresAt = createdAt + MAX_KEY_MS;
 
-        // Save key document in Firestore
         await setDoc(doc(db, "keys", newKey), {
           created: createdAt,
           expiresAt: expiresAt,
           valid: true
         });
 
-        // Save key and time locally
         localStorage.setItem(keyStorageKey, newKey);
         localStorage.setItem(keyTimeKey, createdAt.toString());
+        localStorage.setItem(sessionStartKey, createdAt.toString()); // ⬅ Sync sessionStart with keyTime
 
-        // Show the key UI immediately
         showKeyUI(newKey);
         updateTimers();
 
@@ -315,10 +296,8 @@
     }
   };
 
-  // Run timer updates every second
   updateTimers();
   setInterval(updateTimers, 1000);
-
 </script>
 </body>
 </html>
