@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub - Final Step</title>
+  <title>Script Maniac Hub KeySystem</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
       height: 100%;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background-color: #0a0a0a;
       color: #00e0ff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -104,9 +105,10 @@
     }
   </style>
 
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -126,40 +128,45 @@
 <body>
 <button id="darkToggle">Light Mode</button>
 <div class="container">
-  <h1>Script Maniac Hub - Final Step</h1>
-  <p id="messageText">Checking key validity and redirecting...</p>
+  <h1>Script Maniac Hub KeySystem</h1>
+  <p id="messageText">Final Step: Your Key</p>
+
+  <div id="captchaContainer">
+    <button id="finishBtn">Get Your Key</button>
+  </div>
 
   <div id="keyActiveSection" style="display:none;">
-    <p><strong>Your key is active:</strong></p>
-    <p>Time remaining: <span id="keyTimer">Loading...</span></p>
+    <p><strong>You have already created a key.</strong></p>
+    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
     <div id="keyBox"></div>
     <button id="copyBtn">Copy Key</button>
   </div>
 
-  <div id="countdown" style="display:none;"></div>
+  <div id="countdown">Loading timer...</div>
 </div>
 
 <script type="module">
+  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
   const db = window.firestoreDB;
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
 
-  // Timer constants
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours
-
-  // LocalStorage keys
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
+  const sessionStartKey = 'smh_sessionStart';
 
-  // Elements
   const darkToggle = document.getElementById('darkToggle');
-  const keyTimerEl = document.getElementById('keyTimer');
+  const countdown = document.getElementById('countdown');
+  const finishBtn = document.getElementById('finishBtn');
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
   const keyActiveSection = document.getElementById('keyActiveSection');
+  const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
-  const countdown = document.getElementById('countdown');
   const body = document.body;
 
-  // Dark mode toggle and persistence
+  // Dark mode toggle
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -173,7 +180,22 @@
   }
   updateDarkToggleText();
 
-  // Format ms to HH:MM:SS
+  // Set session start if not present
+  if (!localStorage.getItem(sessionStartKey)) {
+    localStorage.setItem(sessionStartKey, Date.now().toString());
+  }
+
+  // Key generator
+  function generateKey() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let key = '';
+    for (let i = 0; i < 16; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  }
+
+  // Format ms to hh:mm:ss
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
@@ -182,14 +204,62 @@
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
-  // Show key UI
+  // Update session timer (3 hours max before key created)
+  function updateSessionTimer() {
+    const now = Date.now();
+    const start = parseInt(localStorage.getItem(sessionStartKey), 10);
+    const elapsed = now - start;
+
+    // Only show countdown if no key is created
+    if (!localStorage.getItem(keyStorageKey)) {
+      if (elapsed > MAX_SESSION_MS) {
+        alert('Session expired. Please restart the process.');
+        localStorage.clear();
+        location.href = 'index.html';  // Redirect back to step two page
+        return;
+      }
+      countdown.textContent = `⏳ Time remaining (before key): ${formatTime(MAX_SESSION_MS - elapsed)}`;
+    } else {
+      countdown.textContent = ''; // Hide when key exists
+    }
+  }
+
+  // Update key timer (8 hours after key creation)
+  function updateKeyTimer() {
+    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    if (!storedKeyTime) return false;
+
+    const now = Date.now();
+    const elapsed = now - storedKeyTime;
+    const remaining = MAX_KEY_MS - elapsed;
+
+    if (remaining <= 0) {
+      // Key expired — remove and show normal UI again
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      showNormalUI();
+      return false;
+    }
+    document.getElementById('keyTimer').textContent = formatTime(remaining);
+    return true;
+  }
+
+  // Show UI when key exists
   function showKeyUI(key) {
     messageText.style.display = 'none';
+    captchaContainer.style.display = 'none';
     keyActiveSection.style.display = 'block';
     keyBox.textContent = key;
   }
 
-  // Copy key button handler
+  // Show UI when no key exists
+  function showNormalUI() {
+    messageText.style.display = 'block';
+    captchaContainer.style.display = 'block';
+    keyActiveSection.style.display = 'none';
+  }
+
+  // Copy key button
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -198,45 +268,59 @@
     });
   };
 
-  // Redirect to final destination
-  function redirectToFinal() {
-    // Replace this URL with your actual final destination
-    window.location.href = "https://final-destination.example.com";
+  // Check if key exists and UI update on page load
+  function checkKeyOnLoad() {
+    const storedKey = localStorage.getItem(keyStorageKey);
+    if (storedKey) {
+      showKeyUI(storedKey);
+      if (!updateKeyTimer()) {
+        // Key expired, fallback UI
+        showNormalUI();
+      }
+    } else {
+      showNormalUI();
+    }
   }
 
-  // Timer and redirect logic
-  function updateTimerAndRedirect() {
+  checkKeyOnLoad();
+  updateSessionTimer();
+
+  // Periodic timers update
+  setInterval(() => {
+    updateSessionTimer();
+    updateKeyTimer();
+  }, 1000);
+
+  // Button click handler — create key and save it
+  finishBtn.onclick = async () => {
+    // Disable button immediately to prevent multiple clicks
+    finishBtn.disabled = true;
+    finishBtn.textContent = 'Generating Key...';
+
+    const key = generateKey();
     const now = Date.now();
 
-    const storedKey = localStorage.getItem(keyStorageKey);
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    try {
+      // Save key data to Firestore using key string as doc ID
+      await setDoc(doc(db, 'keys', key), {
+        valid: true,
+        expiresAt: now + MAX_KEY_MS
+      });
 
-    if (!storedKey || !storedKeyTime) {
-      alert("No valid key found. Please restart the process.");
-      messageText.textContent = "No valid key found.";
-      return;
+      // Save key info in localStorage
+      localStorage.setItem(keyStorageKey, key);
+      localStorage.setItem(keyTimeKey, now.toString());
+
+      // Show key UI
+      showKeyUI(key);
+
+      finishBtn.textContent = 'Key Created!';
+    } catch (error) {
+      alert('Error creating key: ' + error.message);
+      finishBtn.disabled = false;
+      finishBtn.textContent = 'Get Your Key';
     }
-
-    const elapsed = now - storedKeyTime;
-    const remaining = MAX_KEY_MS - elapsed;
-
-    if (remaining <= 0) {
-      alert("Key expired. Please restart the process.");
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      messageText.textContent = "Key expired.";
-      return;
-    }
-
-    // Key valid: show UI, update countdown, then redirect immediately
-    showKeyUI(storedKey);
-    keyTimerEl.textContent = formatTime(remaining);
-
-    // Redirect immediately
-    redirectToFinal();
-  }
-
-  updateTimerAndRedirect();
+  };
 </script>
 </body>
 </html>
