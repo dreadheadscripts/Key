@@ -104,26 +104,6 @@
       box-shadow: 0 0 16px #00eaff;
     }
   </style>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
-      authDomain: "smh-keysystem.firebaseapp.com",
-      projectId: "smh-keysystem",
-      storageBucket: "smh-keysystem.appspot.com",
-      messagingSenderId: "619718800070",
-      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.firestoreDB = db;
-  </script>
 </head>
 <body>
 <button id="darkToggle">Light Mode</button>
@@ -145,18 +125,8 @@
   <div id="countdown">Loading timer...</div>
 </div>
 
-<script type="module">
-  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const db = window.firestoreDB;
-
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours
-
-  const sessionStartKey = 'smh_sessionStart';
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-
+<script>
+  // Elements
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
@@ -167,6 +137,13 @@
   const messageText = document.getElementById('messageText');
   const body = document.body;
 
+  // Constants
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const sessionStartKey = 'smh_sessionStart';
+  const keyStorageKey = 'smh_key';
+  const keyTimeKey = 'smh_keyTime';
+
+  // Dark mode toggle
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -180,38 +157,43 @@
   }
   updateDarkToggleText();
 
-  if (!localStorage.getItem(sessionStartKey)) {
-    localStorage.setItem(sessionStartKey, Date.now().toString());
-  }
-
-  function generateKey() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let key = '';
-    for (let i = 0; i < 16; i++) {
-      key += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return key;
-  }
-
+  // Timer format
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  }
-
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
   function showNormalUI() {
     messageText.style.display = 'block';
     captchaContainer.style.display = 'block';
     keyActiveSection.style.display = 'none';
+  }
+
+  function updateTimers() {
+    const now = Date.now();
+    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || now;
+
+    if (!localStorage.getItem(sessionStartKey)) {
+      localStorage.setItem(sessionStartKey, now.toString());
+    }
+
+    const elapsedSession = now - sessionStart;
+    const remainingSession = MAX_SESSION_MS - elapsedSession;
+
+    if (remainingSession <= 0) {
+      localStorage.removeItem(sessionStartKey);
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      alert('Session expired. Please restart the process.');
+      location.reload();
+      return;
+    }
+
+    countdown.textContent = `⏳ Session time remaining: ${formatTime(remainingSession)}`;
+    showNormalUI();
   }
 
   copyBtn.onclick = () => {
@@ -222,80 +204,12 @@
     });
   };
 
-  function updateTimers() {
-    const now = Date.now();
-
-    const storedKey = localStorage.getItem(keyStorageKey);
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || now;
-
-    if (storedKey && storedKeyTime) {
-      const elapsedKey = now - storedKeyTime;
-      const remainingKey = MAX_KEY_MS - elapsedKey;
-
-      if (remainingKey <= 0) {
-        localStorage.removeItem(keyStorageKey);
-        localStorage.removeItem(keyTimeKey);
-        localStorage.removeItem(sessionStartKey);
-        alert('Key expired. Please restart the process.');
-        showNormalUI();
-        countdown.textContent = "Key expired.";
-        return;
-      }
-
-      // Keep timers synced: sessionStart = keyTime
-      if (sessionStart !== storedKeyTime) {
-        localStorage.setItem(sessionStartKey, storedKeyTime.toString());
-      }
-
-      countdown.textContent = `⏳ Key time remaining: ${formatTime(remainingKey)}`;
-      showKeyUI(storedKey);
-
-    } else {
-      const elapsedSession = now - sessionStart;
-      const remainingSession = MAX_SESSION_MS - elapsedSession;
-
-      if (remainingSession <= 0) {
-        localStorage.removeItem(sessionStartKey);
-        localStorage.removeItem(keyStorageKey);
-        localStorage.removeItem(keyTimeKey);
-        alert('Session expired. Please restart the process.');
-        location.reload();
-        return;
-      }
-
-      countdown.textContent = `⏳ Session time remaining: ${formatTime(remainingSession)}`;
-      showNormalUI();
-    }
-  }
-
-  finishBtn.onclick = async () => {
-    if (!localStorage.getItem(keyStorageKey)) {
-      try {
-        const newKey = generateKey();
-        const createdAt = Date.now();
-        const expiresAt = createdAt + MAX_KEY_MS;
-
-        await setDoc(doc(db, "keys", newKey), {
-          created: createdAt,
-          expiresAt: expiresAt,
-          valid: true
-        });
-
-        localStorage.setItem(keyStorageKey, newKey);
-        localStorage.setItem(keyTimeKey, createdAt.toString());
-        localStorage.setItem(sessionStartKey, createdAt.toString()); // ⬅ Sync sessionStart with keyTime
-
-        showKeyUI(newKey);
-        updateTimers();
-
-      } catch (e) {
-        alert("❌ Failed to create key.");
-        console.error(e);
-      }
-    }
+  // Redirect to Linkvertise on button click
+  finishBtn.onclick = () => {
+    window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
   };
 
+  // Timer updater
   updateTimers();
   setInterval(updateTimers, 1000);
 </script>
