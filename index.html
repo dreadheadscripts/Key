@@ -118,7 +118,7 @@
   <div id="keyActiveSection" style="display:none;">
     <p><strong>You have already created a key.</strong></p>
     <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-    <div id="keyBox"></div>
+    <div id="keyBox">[Your Key Here]</div>
     <button id="copyBtn">Copy Key</button>
   </div>
 
@@ -126,7 +126,6 @@
 </div>
 
 <script>
-  // Elements
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
@@ -137,13 +136,13 @@
   const messageText = document.getElementById('messageText');
   const body = document.body;
 
-  // Constants
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
+
   const sessionStartKey = 'smh_sessionStart';
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
 
-  // Dark mode toggle
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -157,13 +156,19 @@
   }
   updateDarkToggleText();
 
-  // Timer format
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  function showKeyUI(key) {
+    messageText.style.display = 'none';
+    captchaContainer.style.display = 'none';
+    keyActiveSection.style.display = 'block';
+    keyBox.textContent = key;
   }
 
   function showNormalUI() {
@@ -174,28 +179,47 @@
 
   function updateTimers() {
     const now = Date.now();
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || now;
+    const key = localStorage.getItem(keyStorageKey);
+    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
-    if (!localStorage.getItem(sessionStartKey)) {
-      localStorage.setItem(sessionStartKey, now.toString());
+    if (key && keyTime) {
+      const elapsed = now - keyTime;
+      const remaining = MAX_KEY_MS - elapsed;
+
+      if (remaining <= 0) {
+        localStorage.clear();
+        alert('Key expired. Please restart the process.');
+        location.reload();
+        return;
+      }
+
+      countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
+      document.getElementById("keyTimer").textContent = formatTime(remaining);
+      showKeyUI(key);
+    } else {
+      // No key created yet, use 3-hour session
+      let startTime = sessionStart || now;
+      if (!sessionStart) {
+        localStorage.setItem(sessionStartKey, now.toString());
+      }
+
+      const elapsed = now - startTime;
+      const remaining = MAX_SESSION_MS - elapsed;
+
+      if (remaining <= 0) {
+        localStorage.clear();
+        alert('Session expired. Please restart the process.');
+        location.reload();
+        return;
+      }
+
+      countdown.textContent = `⏳ Session time remaining: ${formatTime(remaining)}`;
+      showNormalUI();
     }
-
-    const elapsedSession = now - sessionStart;
-    const remainingSession = MAX_SESSION_MS - elapsedSession;
-
-    if (remainingSession <= 0) {
-      localStorage.removeItem(sessionStartKey);
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      alert('Session expired. Please restart the process.');
-      location.reload();
-      return;
-    }
-
-    countdown.textContent = `⏳ Session time remaining: ${formatTime(remainingSession)}`;
-    showNormalUI();
   }
 
+  // Copy Key
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -204,12 +228,16 @@
     });
   };
 
-  // Redirect to Linkvertise on button click
+  // Redirect to Linkvertise
   finishBtn.onclick = () => {
+    // Save the current timestamp as key time
+    const now = Date.now();
+    localStorage.setItem(keyTimeKey, now.toString());
+    localStorage.setItem(sessionStartKey, now.toString()); // sync both timers
+    // NOTE: You should set `smh_key` in Step 3 or after redirect
     window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
   };
 
-  // Timer updater
   updateTimers();
   setInterval(updateTimers, 1000);
 </script>
