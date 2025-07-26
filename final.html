@@ -6,197 +6,113 @@
   <title>Script Maniac Hub KeySystem</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
-    /* Your full CSS here, unchanged */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: #0a0a0a;
-  color: #00e0ff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  transition: background 0.4s ease, color 0.4s ease;
-  font-size: 4vw;
-  line-height: 1.2;
-  overflow-x: hidden;
-}
-body.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
-.container {
-  background: linear-gradient(135deg, #050505, #1a1a1a);
-  border: 3px solid #003366;
-  border-radius: 20px;
-  padding: 5vw 4vw;
-  width: 90vw;
-  max-width: 560px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
-  text-align: center;
-  transition: all 0.3s ease-in-out;
-}
-body.light-mode .container {
-  background: #ffffff;
-  color: #000000;
-  border-color: #000000;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 12px rgba(0, 0, 0, 0.05);
-}
-h1 {
-  font-size: 8vw;
-  max-font-size: 2.4rem;
-  color: #00eaff;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
-body.light-mode h1 {
-  color: #000000;
-  text-shadow: none;
-}
-p {
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  line-height: 1.5;
-  color: #d0f6ff;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
-body.light-mode p {
-  color: #222222;
-}
-button {
-  background: linear-gradient(145deg, #00bcd4, #0097a7);
-  color: #fff;
-  padding: 3vw 8vw;
-  border: none;
-  border-radius: 14px;
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-  transition: all 0.3s ease-in-out;
-  user-select: none;
-}
-button:hover {
-  background: #00838f;
-  box-shadow: 0 0 25px #00eaffaa;
-  transform: translateY(-3px);
-}
-body.light-mode button {
-  background: linear-gradient(145deg, #444444, #222222);
-  color: #ffffff;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-}
-body.light-mode button:hover {
-  background: #111111;
-  box-shadow: 0 0 25px #555555cc;
-}
-#copyBtn {
-  margin-top: 1vw;
-}
-#keyBox {
-  background-color: #101820;
-  border: 2px solid #00eaff88;
-  border-radius: 14px;
-  padding: 4vw;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 4vw;
-  max-font-size: 1.2rem;
-  color: #00eaff;
-  box-shadow: inset 0 0 20px #00eaff33;
-  word-break: break-word;
-  user-select: all;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-body.light-mode #keyBox {
-  background-color: #f0f0f0;
-  border: 2px solid #44444488;
-  color: #000000;
-  box-shadow: inset 0 0 20px #cccccc33;
-}
-#countdown, #keyTimer {
-  margin-top: 1.5vw;
-  font-weight: bold;
-  color: #ffdd57;
-  font-size: 4vw;
-  max-font-size: 1rem;
-  transition: color 0.3s ease;
-}
-body.light-mode #countdown,
-body.light-mode #keyTimer {
-  color: #aa8800;
-}
-#darkToggle {
-  position: fixed;
-  top: 1.5vw;
-  right: 3vw;
-  border: 2px solid #00eaff;
-  background: transparent;
-  color: #00eaff;
-  padding: 1vw 3vw;
-  border-radius: 30px;
-  font-size: 3.5vw;
-  max-font-size: 0.95rem;
-  box-shadow: 0 0 8px #00eaff88;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
-  z-index: 999;
-}
-#darkToggle:hover {
-  background-color: #00eaff;
-  color: #000;
-  box-shadow: 0 0 16px #00eaff;
-}
-body.light-mode #darkToggle {
-  border-color: #000000;
-  color: #000000;
-  box-shadow: 0 0 8px #00000088;
-  background: transparent;
-}
-body.light-mode #darkToggle:hover {
-  background-color: #000000;
-  color: #fff;
-  box-shadow: 0 0 16px #000000cc;
-}
-@media (min-width: 600px) {
-  html, body {
-    font-size: 18px;
-  }
-  h1 {
-    font-size: 2.4rem;
-  }
-  p, button, #keyBox, #countdown, #keyTimer {
-    font-size: 1.1rem;
-  }
-  button {
-    padding: 14px 38px;
-  }
-  #darkToggle {
-    font-size: 0.95rem;
-    padding: 8px 16px;
-    top: 16px;
-    right: 20px;
-  }
-}
+    body {
+      margin: 0;
+      font-family: 'Share Tech Mono', monospace;
+      background-color: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .light-mode {
+      background-color: #f5f5f5;
+      color: #111;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+    }
+
+    .light-mode .container {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #111;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 16px;
+      background-color: #00ffcc;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    button:hover {
+      background-color: #00c2a8;
+    }
+
+    .light-mode button {
+      background-color: #111;
+      color: white;
+    }
+
+    #keyBox {
+      margin-top: 10px;
+      font-size: 18px;
+      word-break: break-all;
+      background: #222;
+      padding: 8px 12px;
+      border-radius: 5px;
+    }
+
+    .light-mode #keyBox {
+      background: #e1e1e1;
+      color: #111;
+    }
+
+    #darkToggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    #countdown {
+      margin-top: 15px;
+      font-size: 16px;
+      color: #00ffcc;
+    }
+
+    .light-mode #countdown {
+      color: #444;
+    }
   </style>
 
-  <!-- Firebase SDK and Analytics -->
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
       authDomain: "smh-keysystem.firebaseapp.com",
       projectId: "smh-keysystem",
-      storageBucket: "smh-keysystem.firebasestorage.app",
+      storageBucket: "smh-keysystem.appspot.com",
       messagingSenderId: "619718800070",
       appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
       measurementId: "G-QBXKHSRKT0"
@@ -210,29 +126,30 @@ body.light-mode #darkToggle:hover {
   </script>
 </head>
 <body>
-<button id="darkToggle">Light Mode</button>
-<div class="container">
-  <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Your Key is Ready</p>
+  <button id="darkToggle">Light Mode</button>
+  <div class="container">
+    <h1>Script Maniac Hub KeySystem</h1>
+    <p id="messageText">Your Key is Ready</p>
 
-  <div id="captchaContainer">
-    <button id="finishBtn">Generate Key</button>
+    <div id="captchaContainer">
+      <button id="finishBtn">Generate Key</button>
+    </div>
+
+    <div id="keyActiveSection" style="display:none;">
+      <p><strong>Key Generated.</strong></p>
+      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+      <div id="keyBox"></div>
+      <button id="copyBtn">Copy Key</button>
+    </div>
+
+    <div id="countdown">Loading timer...</div>
   </div>
-
-  <div id="keyActiveSection" style="display:none;">
-    <p><strong>Key Generated.</strong></p>
-    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-    <div id="keyBox"></div>
-    <button id="copyBtn">Copy Key</button>
-  </div>
-
-  <div id="countdown">Loading timer...</div>
-</div>
 
 <script type="module">
   const db = window.firestoreDB;
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
+
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
 
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
@@ -257,7 +174,7 @@ body.light-mode #darkToggle:hover {
     }
   })();
 
-  // Dark mode toggle
+  // Dark mode
   darkToggle.onclick = () => {
     body.classList.toggle('light-mode');
     localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
@@ -270,7 +187,6 @@ body.light-mode #darkToggle:hover {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Generate random 16-character key
   function generateKey() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return Array.from({length: 16}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -297,137 +213,89 @@ body.light-mode #darkToggle:hover {
     keyBox.textContent = key;
   }
 
-  // Firestore key validation: returns true if key is valid and not expired, else false
   async function validateKeyInFirestore(key) {
     try {
-      const docRef = doc(db, 'keys', key);
-      const docSnap = await getDoc(docRef);
-      if (!docSnap.exists()) {
-        return false;
-      }
-      const data = docSnap.data();
-      if (!data.valid) return false;
-      if (Date.now() > data.expiresAt) return false;
-      return true;
+      const keyDoc = await getDoc(doc(db, 'keys', key));
+      if (!keyDoc.exists()) return false;
+      const data = keyDoc.data();
+      return data.valid && Date.now() < data.expiresAt;
     } catch (err) {
-      console.error('Error validating key:', err);
+      console.error('Key validation error:', err);
       return false;
     }
   }
 
-  // Save key to Firestore with expiresAt 8 hours from now
-  async function saveKeyToFirestore(key) {
-    try {
-      const docRef = doc(db, 'keys', key);
-      await setDoc(docRef, {
-        valid: true,
-        expiresAt: Date.now() + MAX_KEY_MS
-      });
-      console.log('Key saved in Firestore');
-    } catch (err) {
-      console.error('Error saving key:', err);
-    }
-  }
-
-  // Update countdown and timers
   async function updateTimers() {
     const key = localStorage.getItem(keyStorageKey);
     const keyCreatedAt = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
-
-    if (!key || !keyCreatedAt || !sessionStart) {
-      countdown.textContent = 'Session expired. Please generate a new key.';
-      showNormalUI();
-      return;
-    }
-
-    // Check if key is still valid in Firestore (async check)
-    const isValid = await validateKeyInFirestore(key);
-    if (!isValid) {
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      countdown.textContent = 'Key is invalid or expired in Firestore. Generate a new one.';
-      showNormalUI();
-      return;
-    }
+    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || Date.now();
 
     const now = Date.now();
-    const elapsedSession = now - sessionStart;
-    const elapsedKey = now - keyCreatedAt;
 
-    // If session expired (3 hours) and no key generated
-    if (elapsedSession > MAX_SESSION_MS && !key) {
-      countdown.textContent = 'Session expired. Please generate a new key.';
-      showNormalUI();
+    // Handle session timeout before key
+    if (!key && now - sessionStart > MAX_SESSION_MS) {
+      countdown.textContent = '⏳ Session expired. Redirecting...';
+      setTimeout(() => window.location.href = 'index.html', 2000);
       return;
     }
 
-    // Key timer countdown, max 8 hours from key creation
-    const keyRemaining = MAX_KEY_MS - elapsedKey;
+    if (!key || !keyCreatedAt) {
+      showNormalUI();
+      countdown.textContent = `⏳ Time remaining (before key): ${formatTime(MAX_SESSION_MS - (now - sessionStart))}`;
+      return;
+    }
 
+    const isValid = await validateKeyInFirestore(key);
+    if (!isValid) {
+      countdown.textContent = '⛔ Key is invalid or expired. Redirecting...';
+      localStorage.clear();
+      setTimeout(() => window.location.href = 'index.html', 2000);
+      return;
+    }
+
+    const keyRemaining = MAX_KEY_MS - (now - keyCreatedAt);
     if (keyRemaining <= 0) {
-      // Key expired
-      countdown.textContent = 'Key expired. Generate a new key.';
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      showNormalUI();
+      countdown.textContent = '⛔ Key expired. Redirecting...';
+      localStorage.clear();
+      setTimeout(() => window.location.href = 'index.html', 2000);
       return;
     }
 
-    countdown.textContent = `Key expires in: ${formatTime(keyRemaining)}`;
+    countdown.textContent = `🔐 Key expires in: ${formatTime(keyRemaining)}`;
     showKeyUI(key);
   }
 
   finishBtn.onclick = async () => {
     finishBtn.disabled = true;
     finishBtn.textContent = 'Generating Key...';
-    const newKey = generateKey();
+    const key = generateKey();
+    const now = Date.now();
 
-    // Save key and times in localStorage
-    localStorage.setItem(keyStorageKey, newKey);
-    localStorage.setItem(keyTimeKey, Date.now().toString());
-
-    // Save key in Firestore
-    await saveKeyToFirestore(newKey);
-
-    finishBtn.textContent = 'Generate Key';
-    finishBtn.disabled = false;
-    await updateTimers();
+    try {
+      await setDoc(doc(db, 'keys', key), {
+        valid: true,
+        expiresAt: now + MAX_KEY_MS
+      });
+      localStorage.setItem(keyStorageKey, key);
+      localStorage.setItem(keyTimeKey, now.toString());
+      showKeyUI(key);
+      countdown.textContent = '';
+      finishBtn.textContent = 'Key Created!';
+    } catch (err) {
+      alert('❌ Failed to generate key: ' + err.message);
+      finishBtn.disabled = false;
+      finishBtn.textContent = 'Generate Key';
+    }
   };
 
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      copyBtn.textContent = 'Copied!';
-      setTimeout(() => { copyBtn.textContent = 'Copy Key'; }, 1500);
-    }).catch(() => {
-      alert('Failed to copy key.');
+      alert('✅ Key copied to clipboard!');
     });
   };
 
-  // Run timers every second
-  async function startTimerLoop() {
-    await updateTimers();
-    setInterval(updateTimers, 1000);
-  }
-
-  // On load: validate localStorage key against Firestore, then start timer loop
-  (async () => {
-    const storedKey = localStorage.getItem(keyStorageKey);
-    if (storedKey) {
-      const valid = await validateKeyInFirestore(storedKey);
-      if (!valid) {
-        localStorage.removeItem(keyStorageKey);
-        localStorage.removeItem(keyTimeKey);
-        showNormalUI();
-      } else {
-        showKeyUI(storedKey);
-      }
-    } else {
-      showNormalUI();
-    }
-    startTimerLoop();
-  })();
-
+  setInterval(updateTimers, 1000);
+  updateTimers();
 </script>
 </body>
 </html>
