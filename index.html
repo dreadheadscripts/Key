@@ -6,347 +6,342 @@
   <title>Script Maniac Hub Key System</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
-    /* General styles */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: #0a0a0a;
-  color: #00e0ff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  transition: background 0.4s ease, color 0.4s ease;
-  font-size: 4vw; /* Responsive base font size */
-  line-height: 1.2;
-  overflow-x: hidden;
-}
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #0a0a0a;
+      color: #00e0ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      transition: background 0.4s ease, color 0.4s ease;
+      font-size: 4.5vw;
+      line-height: 1.3;
+      overflow-x: hidden;
+    }
 
-body.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
+    body.light-mode {
+      background-color: #ffffff;
+      color: #000000;
+    }
 
-.container {
-  background: linear-gradient(135deg, #050505, #1a1a1a);
-  border: 3px solid #003366;
-  border-radius: 20px;
-  padding: 5vw 4vw;
-  width: 90vw;
-  max-width: 560px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
-  text-align: center;
-  transition: all 0.3s ease-in-out;
-}
+    .container {
+      background: linear-gradient(135deg, #050505, #1a1a1a);
+      border: 3px solid #003366;
+      border-radius: 20px;
+      padding: 5vw 4vw;
+      width: 92vw;
+      max-width: 600px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
 
-body.light-mode .container {
-  background: #ffffff;
-  color: #000000;
-  border-color: #000000;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 12px rgba(0, 0, 0, 0.05);
-}
+    body.light-mode .container {
+      background: #ffffff;
+      color: #000000;
+      border-color: #000000;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 12px rgba(0, 0, 0, 0.05);
+    }
 
-h1 {
-  font-size: 8vw;
-  max-font-size: 2.4rem;
-  color: #00eaff;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
+    h1 {
+      font-size: 9vw;
+      max-font-size: 2.6rem;
+      color: #00eaff;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+      margin-bottom: 1rem;
+      transition: color 0.3s ease;
+    }
 
-body.light-mode h1 {
-  color: #000000;
-  text-shadow: none;
-}
+    body.light-mode h1 {
+      color: #000000;
+      text-shadow: none;
+    }
 
-p {
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  line-height: 1.5;
-  color: #d0f6ff;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
+    p {
+      font-size: 4.5vw;
+      max-font-size: 1.2rem;
+      line-height: 1.6;
+      color: #d0f6ff;
+      margin: 0 0 1rem 0;
+      transition: color 0.3s ease;
+    }
 
-body.light-mode p {
-  color: #222222;
-}
+    body.light-mode p {
+      color: #222222;
+    }
 
-button {
-  background: linear-gradient(145deg, #00bcd4, #0097a7);
-  color: #fff;
-  padding: 3vw 8vw;
-  border: none;
-  border-radius: 14px;
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-  transition: all 0.3s ease-in-out;
-  user-select: none;
-}
+    button {
+      background: linear-gradient(145deg, #00bcd4, #0097a7);
+      color: #fff;
+      padding: 3.5vw 9vw;
+      border: none;
+      border-radius: 14px;
+      font-size: 4.5vw;
+      max-font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      transition: all 0.3s ease-in-out;
+      user-select: none;
+    }
 
-button:hover {
-  background: #00838f;
-  box-shadow: 0 0 25px #00eaffaa;
-  transform: translateY(-3px);
-}
+    button:hover {
+      background: #00838f;
+      box-shadow: 0 0 25px #00eaffaa;
+      transform: translateY(-3px);
+    }
 
-body.light-mode button {
-  background: linear-gradient(145deg, #444444, #222222);
-  color: #ffffff;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-}
+    body.light-mode button {
+      background: linear-gradient(145deg, #444444, #222222);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    }
 
-body.light-mode button:hover {
-  background: #111111;
-  box-shadow: 0 0 25px #555555cc;
-}
+    body.light-mode button:hover {
+      background: #111111;
+      box-shadow: 0 0 25px #555555cc;
+    }
 
-#copyBtn {
-  margin-top: 1vw;
-}
+    #copyBtn {
+      margin-top: 2vw;
+    }
 
-#keyBox {
-  background-color: #101820;
-  border: 2px solid #00eaff88;
-  border-radius: 14px;
-  padding: 4vw;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 4vw;
-  max-font-size: 1.2rem;
-  color: #00eaff;
-  box-shadow: inset 0 0 20px #00eaff33;
-  word-break: break-word;
-  user-select: all;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
+    #keyBox {
+      background-color: #101820;
+      border: 2px solid #00eaff88;
+      border-radius: 14px;
+      padding: 4.5vw;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 4.5vw;
+      max-font-size: 1.3rem;
+      color: #00eaff;
+      box-shadow: inset 0 0 20px #00eaff33;
+      word-break: break-word;
+      user-select: all;
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
 
-body.light-mode #keyBox {
-  background-color: #f0f0f0;
-  border: 2px solid #44444488;
-  color: #000000;
-  box-shadow: inset 0 0 20px #cccccc33;
-}
+    body.light-mode #keyBox {
+      background-color: #f0f0f0;
+      border: 2px solid #44444488;
+      color: #000000;
+      box-shadow: inset 0 0 20px #cccccc33;
+    }
 
-#countdown, #keyTimer {
-  margin-top: 1.5vw;
-  font-weight: bold;
-  color: #ffdd57;
-  font-size: 4vw;
-  max-font-size: 1rem;
-  transition: color 0.3s ease;
-}
+    #countdown, #keyTimer {
+      margin-top: 2vw;
+      font-weight: bold;
+      color: #ffdd57;
+      font-size: 4.5vw;
+      max-font-size: 1.1rem;
+      transition: color 0.3s ease;
+    }
 
-body.light-mode #countdown,
-body.light-mode #keyTimer {
-  color: #aa8800;
-}
+    body.light-mode #countdown,
+    body.light-mode #keyTimer {
+      color: #aa8800;
+    }
 
-#darkToggle {
-  position: fixed;
-  top: 1.5vw;
-  right: 3vw;
-  border: 2px solid #00eaff;
-  background: transparent;
-  color: #00eaff;
-  padding: 1vw 3vw;
-  border-radius: 30px;
-  font-size: 3.5vw;
-  max-font-size: 0.95rem;
-  box-shadow: 0 0 8px #00eaff88;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
-  z-index: 999;
-}
+    #darkToggle {
+      position: fixed;
+      top: 1.5vw;
+      right: 3vw;
+      border: 2px solid #00eaff;
+      background: transparent;
+      color: #00eaff;
+      padding: 1.5vw 3.5vw;
+      border-radius: 30px;
+      font-size: 4vw;
+      max-font-size: 1rem;
+      box-shadow: 0 0 8px #00eaff88;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+      z-index: 999;
+    }
 
-#darkToggle:hover {
-  background-color: #00eaff;
-  color: #000;
-  box-shadow: 0 0 16px #00eaff;
-}
+    #darkToggle:hover {
+      background-color: #00eaff;
+      color: #000;
+      box-shadow: 0 0 16px #00eaff;
+    }
 
-body.light-mode #darkToggle {
-  border-color: #000000;
-  color: #000000;
-  box-shadow: 0 0 8px #00000088;
-  background: transparent;
-}
+    body.light-mode #darkToggle {
+      border-color: #000000;
+      color: #000000;
+      box-shadow: 0 0 8px #00000088;
+      background: transparent;
+    }
 
-body.light-mode #darkToggle:hover {
-  background-color: #000000;
-  color: #fff;
-  box-shadow: 0 0 16px #000000cc;
-}
+    body.light-mode #darkToggle:hover {
+      background-color: #000000;
+      color: #fff;
+      box-shadow: 0 0 16px #000000cc;
+    }
 
-/* Responsive adjustments */
-@media (min-width: 600px) {
-  html, body {
-    font-size: 18px; /* Fixed size for bigger screens */
-  }
+    @media (min-width: 600px) {
+      html, body {
+        font-size: 19px;
+      }
 
-  h1 {
-    font-size: 2.4rem;
-  }
+      h1 {
+        font-size: 2.6rem;
+      }
 
-  p, button, #keyBox, #countdown, #keyTimer {
-    font-size: 1.1rem;
-  }
+      p, button, #keyBox, #countdown, #keyTimer {
+        font-size: 1.2rem;
+      }
 
-  button {
-    padding: 14px 38px;
-  }
+      button {
+        padding: 16px 42px;
+      }
 
-  #darkToggle {
-    font-size: 0.95rem;
-    padding: 8px 16px;
-    top: 16px;
-    right: 20px;
-  }
-}
+      #darkToggle {
+        font-size: 1rem;
+        padding: 10px 18px;
+        top: 18px;
+        right: 24px;
+      }
+    }
   </style>
 </head>
 <body>
-<button id="darkToggle">Light Mode</button>
-<div class="container">
-  <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">CheckPoint One</p>
+  <button id="darkToggle">Light Mode</button>
+  <div class="container">
+    <h1>Script Maniac Hub KeySystem</h1>
+    <p id="messageText">CheckPoint One</p>
 
-  <div id="captchaContainer">
-    <button id="finishBtn">Get Key</button>
+    <div id="captchaContainer">
+      <button id="finishBtn">Get Key</button>
+    </div>
+
+    <div id="keyActiveSection" style="display:none;">
+      <p><strong>You have already created a key.</strong></p>
+      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+      <div id="keyBox">[Your Key Here]</div>
+      <button id="copyBtn">Copy Key</button>
+    </div>
+
+    <div id="countdown">Loading timer...</div>
   </div>
 
-  <div id="keyActiveSection" style="display:none;">
-    <p><strong>You have already created a key.</strong></p>
-    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-    <div id="keyBox">[Your Key Here]</div>
-    <button id="copyBtn">Copy Key</button>
-  </div>
+  <script>
+    const darkToggle = document.getElementById('darkToggle');
+    const countdown = document.getElementById('countdown');
+    const finishBtn = document.getElementById('finishBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const keyBox = document.getElementById('keyBox');
+    const keyActiveSection = document.getElementById('keyActiveSection');
+    const captchaContainer = document.getElementById('captchaContainer');
+    const messageText = document.getElementById('messageText');
+    const body = document.body;
 
-  <div id="countdown">Loading timer...</div>
-</div>
+    const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
+    const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
 
-<script>
-  const darkToggle = document.getElementById('darkToggle');
-  const countdown = document.getElementById('countdown');
-  const finishBtn = document.getElementById('finishBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const keyBox = document.getElementById('keyBox');
-  const keyActiveSection = document.getElementById('keyActiveSection');
-  const captchaContainer = document.getElementById('captchaContainer');
-  const messageText = document.getElementById('messageText');
-  const body = document.body;
+    const sessionStartKey = 'smh_sessionStart';
+    const keyStorageKey = 'smh_key';
+    const keyTimeKey = 'smh_keyTime';
 
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
-
-  const sessionStartKey = 'smh_sessionStart';
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-
-  function updateDarkToggleText() {
-    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
-  }
-  darkToggle.onclick = () => {
-    body.classList.toggle('light-mode');
-    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
-    updateDarkToggleText();
-  };
-  if (localStorage.getItem('smh_darkMode') === '1') {
-    body.classList.add('light-mode');
-  }
-  updateDarkToggleText();
-
-  function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  }
-
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
-  }
-
-  function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
-    keyActiveSection.style.display = 'none';
-  }
-
-  function updateTimers() {
-    const now = Date.now();
-    const key = localStorage.getItem(keyStorageKey);
-    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
-
-    if (key && keyTime) {
-      const elapsed = now - keyTime;
-      const remaining = MAX_KEY_MS - elapsed;
-
-      if (remaining <= 0) {
-        localStorage.clear();
-        alert('Key expired. Please restart the process.');
-        location.reload();
-        return;
-      }
-
-      countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
-      document.getElementById("keyTimer").textContent = formatTime(remaining);
-      showKeyUI(key);
-    } else {
-      // No key created yet, use 3-hour session
-      let startTime = sessionStart || now;
-      if (!sessionStart) {
-        localStorage.setItem(sessionStartKey, now.toString());
-      }
-
-      const elapsed = now - startTime;
-      const remaining = MAX_SESSION_MS - elapsed;
-
-      if (remaining <= 0) {
-        localStorage.clear();
-        alert('Session expired. Please restart the process.');
-        location.reload();
-        return;
-      }
-
-      countdown.textContent = `⏳ Session time remaining: ${formatTime(remaining)}`;
-      showNormalUI();
+    function updateDarkToggleText() {
+      darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
     }
-  }
 
-  // Copy Key
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
-    });
-  };
+    darkToggle.onclick = () => {
+      body.classList.toggle('light-mode');
+      localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
+      updateDarkToggleText();
+    };
 
-  // Redirect to Linkvertise
-  finishBtn.onclick = () => {
-    // Save the current timestamp as key time
-    const now = Date.now();
-    localStorage.setItem(keyTimeKey, now.toString());
-    localStorage.setItem(sessionStartKey, now.toString()); // sync both timers
-    // NOTE: You should set `smh_key` in Step 3 or after redirect
-    window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
-  };
+    if (localStorage.getItem('smh_darkMode') === '1') {
+      body.classList.add('light-mode');
+    }
+    updateDarkToggleText();
 
-  updateTimers();
-  setInterval(updateTimers, 1000);
-</script>
+    function formatTime(ms) {
+      const totalSec = Math.floor(ms / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    function showKeyUI(key) {
+      messageText.style.display = 'none';
+      captchaContainer.style.display = 'none';
+      keyActiveSection.style.display = 'block';
+      keyBox.textContent = key;
+    }
+
+    function showNormalUI() {
+      messageText.style.display = 'block';
+      captchaContainer.style.display = 'block';
+      keyActiveSection.style.display = 'none';
+    }
+
+    function updateTimers() {
+      const now = Date.now();
+      const key = localStorage.getItem(keyStorageKey);
+      const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+      const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
+
+      if (key && keyTime) {
+        const elapsed = now - keyTime;
+        const remaining = MAX_KEY_MS - elapsed;
+
+        if (remaining <= 0) {
+          localStorage.clear();
+          alert('Key expired. Please restart the process.');
+          location.reload();
+          return;
+        }
+
+        countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
+        document.getElementById("keyTimer").textContent = formatTime(remaining);
+        showKeyUI(key);
+      } else {
+        let startTime = sessionStart || now;
+        if (!sessionStart) {
+          localStorage.setItem(sessionStartKey, now.toString());
+        }
+
+        const elapsed = now - startTime;
+        const remaining = MAX_SESSION_MS - elapsed;
+
+        if (remaining <= 0) {
+          localStorage.clear();
+          alert('Session expired. Please restart the process.');
+          location.reload();
+          return;
+        }
+
+        countdown.textContent = `⏳ Session time remaining: ${formatTime(remaining)}`;
+        showNormalUI();
+      }
+    }
+
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(keyBox.textContent).then(() => {
+        alert('Key copied to clipboard!');
+      }).catch(() => {
+        alert('Failed to copy key.');
+      });
+    };
+
+    finishBtn.onclick = () => {
+      const now = Date.now();
+      localStorage.setItem(keyTimeKey, now.toString());
+      localStorage.setItem(sessionStartKey, now.toString());
+      // Key will be stored in step3.html after redirection
+      window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
+    };
+
+    updateTimers();
+    setInterval(updateTimers, 1000);
+  </script>
 </body>
 </html>
