@@ -6,7 +6,8 @@
   <title>Script Maniac Hub Key System</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
-    html, body {
+    /* General styles */
+html, body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -18,18 +19,21 @@
   align-items: center;
   user-select: none;
   transition: background 0.4s ease, color 0.4s ease;
+  font-size: 4vw; /* Responsive base font size */
+  line-height: 1.2;
+  overflow-x: hidden;
 }
 
 body.light-mode {
-  background-color: #f0f4ff;
-  color: #001a33;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .container {
   background: linear-gradient(135deg, #050505, #1a1a1a);
   border: 3px solid #003366;
   border-radius: 20px;
-  padding: clamp(12px, 3vw, 24px) clamp(20px, 5vw, 40px);
+  padding: 5vw 4vw;
   width: 90vw;
   max-width: 560px;
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
@@ -38,36 +42,53 @@ body.light-mode {
 }
 
 body.light-mode .container {
-  background: #e8f0ff;
-  color: #001a33;
+  background: #ffffff;
+  color: #000000;
+  border-color: #000000;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 12px rgba(0, 0, 0, 0.05);
 }
 
 h1 {
-  font-size: clamp(1.5rem, 5vw, 2.4rem);
+  font-size: 8vw;
+  max-font-size: 2.4rem;
   color: #00eaff;
   text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
   margin-bottom: 1rem;
-  word-wrap: break-word;
+  transition: color 0.3s ease;
+}
+
+body.light-mode h1 {
+  color: #000000;
+  text-shadow: none;
 }
 
 p {
-  font-size: clamp(1rem, 3vw, 1.1rem);
-  line-height: 1.6;
+  font-size: 4vw;
+  max-font-size: 1.1rem;
+  line-height: 1.5;
   color: #d0f6ff;
-  word-wrap: break-word;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+body.light-mode p {
+  color: #222222;
 }
 
 button {
   background: linear-gradient(145deg, #00bcd4, #0097a7);
   color: #fff;
-  padding: clamp(10px, 1.2vw, 18px) clamp(24px, 3vw, 40px);
+  padding: 3vw 8vw;
   border: none;
   border-radius: 14px;
-  font-size: clamp(1rem, 3vw, 1.1rem);
+  font-size: 4vw;
+  max-font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
   transition: all 0.3s ease-in-out;
+  user-select: none;
 }
 
 button:hover {
@@ -76,43 +97,73 @@ button:hover {
   transform: translateY(-3px);
 }
 
+body.light-mode button {
+  background: linear-gradient(145deg, #444444, #222222);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+body.light-mode button:hover {
+  background: #111111;
+  box-shadow: 0 0 25px #555555cc;
+}
+
 #copyBtn {
-  margin-top: 12px;
+  margin-top: 1vw;
 }
 
 #keyBox {
   background-color: #101820;
   border: 2px solid #00eaff88;
   border-radius: 14px;
-  padding: clamp(12px, 2vw, 24px);
+  padding: 4vw;
   font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(1rem, 3vw, 1.2rem);
+  font-size: 4vw;
+  max-font-size: 1.2rem;
   color: #00eaff;
   box-shadow: inset 0 0 20px #00eaff33;
   word-break: break-word;
   user-select: all;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body.light-mode #keyBox {
+  background-color: #f0f0f0;
+  border: 2px solid #44444488;
+  color: #000000;
+  box-shadow: inset 0 0 20px #cccccc33;
 }
 
 #countdown, #keyTimer {
-  margin-top: 20px;
+  margin-top: 1.5vw;
   font-weight: bold;
   color: #ffdd57;
-  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  font-size: 4vw;
+  max-font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+body.light-mode #countdown,
+body.light-mode #keyTimer {
+  color: #aa8800;
 }
 
 #darkToggle {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: 1.5vw;
+  right: 3vw;
   border: 2px solid #00eaff;
   background: transparent;
   color: #00eaff;
-  padding: 8px 16px;
+  padding: 1vw 3vw;
   border-radius: 30px;
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-size: 3.5vw;
+  max-font-size: 0.95rem;
   box-shadow: 0 0 8px #00eaff88;
   cursor: pointer;
   transition: all 0.3s ease;
+  user-select: none;
+  z-index: 999;
 }
 
 #darkToggle:hover {
@@ -121,24 +172,42 @@ button:hover {
   box-shadow: 0 0 16px #00eaff;
 }
 
-/* Smaller screens adjustments */
-@media (max-width: 400px) {
-  .container {
-    padding: 16px 24px;
+body.light-mode #darkToggle {
+  border-color: #000000;
+  color: #000000;
+  box-shadow: 0 0 8px #00000088;
+  background: transparent;
+}
+
+body.light-mode #darkToggle:hover {
+  background-color: #000000;
+  color: #fff;
+  box-shadow: 0 0 16px #000000cc;
+}
+
+/* Responsive adjustments */
+@media (min-width: 600px) {
+  html, body {
+    font-size: 18px; /* Fixed size for bigger screens */
   }
+
   h1 {
-    font-size: 1.8rem;
+    font-size: 2.4rem;
   }
-  p, #countdown, #keyTimer {
-    font-size: 1rem;
+
+  p, button, #keyBox, #countdown, #keyTimer {
+    font-size: 1.1rem;
   }
-  button, #darkToggle {
-    font-size: 1rem;
-    padding: 12px 24px;
+
+  button {
+    padding: 14px 38px;
   }
-  #keyBox {
-    font-size: 1rem;
-    padding: 16px;
+
+  #darkToggle {
+    font-size: 0.95rem;
+    padding: 8px 16px;
+    top: 16px;
+    right: 20px;
   }
 }
   </style>
