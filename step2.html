@@ -104,7 +104,20 @@
 </div>
 
 <script>
-  // Dark mode toggle
+  // --- REFERRAL CHECK ---
+  (function redirectCheck() {
+    const allowedReferrers = [
+      "link-target.net",
+      "linkvertise.com",
+      "your-index-domain.com" // Replace with your real Step 1 domain if needed
+    ];
+    const referrer = document.referrer.toLowerCase();
+    if (!allowedReferrers.some(domain => referrer.includes(domain))) {
+      window.location.href = 'index.html';
+    }
+  })();
+
+  // --- DARK MODE TOGGLE ---
   const body = document.body;
   const darkToggle = document.getElementById('darkToggle');
   function updateDarkToggleText() {
@@ -120,15 +133,7 @@
   }
   updateDarkToggleText();
 
-  // Redirect if NOT coming from Linkvertise URL
-  // Linkvertise redirect url is: https://link-target.net/1365830/WbdU2hopNwcu
-  // So check document.referrer includes "link-target.net"
-  if (!document.referrer.includes('link-target.net')) {
-    // Not from Linkvertise, redirect to index.html
-    window.location.href = 'index.html';
-  }
-
-  // 3 hour session timer logic
+  // --- SESSION TIMER LOGIC ---
   const sessionStartKey = 'smh_sessionStart';
   const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
 
@@ -165,7 +170,7 @@
   setInterval(updateSessionTimer, 1000);
   updateSessionTimer();
 
-  // Button click redirects to Linkvertise URL
+  // --- CONTINUE BUTTON ---
   continueBtn.onclick = () => {
     window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
   };
