@@ -6,6 +6,7 @@
   <title>Script Maniac Hub KeySystem</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
+    /* (same styles as before, omitted here for brevity) */
     html, body {
       height: 100%;
       margin: 0;
@@ -108,7 +109,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -149,6 +150,22 @@
   import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const db = window.firestoreDB;
+
+  // Redirect check - only allow access if came from Linkvertise or step2 page
+  (function redirectCheck() {
+    const allowedReferrers = [
+      "link-target.net",
+      "linkvertise.com",
+      "your-step2-domain.com" // replace if you have a domain for step2 page
+    ];
+    const referrer = document.referrer.toLowerCase();
+    // Also allow direct access if you want, remove below line or customize
+    if (!allowedReferrers.some(domain => referrer.includes(domain))) {
+      // Not from allowed referrer - redirect to index.html
+      location.href = "index.html";
+    }
+  })();
+
   const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
   const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
 
@@ -180,12 +197,10 @@
   }
   updateDarkToggleText();
 
-  // Set session start if not present
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Key generator
   function generateKey() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let key = '';
@@ -195,7 +210,6 @@
     return key;
   }
 
-  // Format ms to hh:mm:ss
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
@@ -204,27 +218,24 @@
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
-  // Update session timer (3 hours max before key created)
   function updateSessionTimer() {
     const now = Date.now();
     const start = parseInt(localStorage.getItem(sessionStartKey), 10);
     const elapsed = now - start;
 
-    // Only show countdown if no key is created
     if (!localStorage.getItem(keyStorageKey)) {
       if (elapsed > MAX_SESSION_MS) {
         alert('Session expired. Please restart the process.');
         localStorage.clear();
-        location.href = 'index.html';  // Redirect back to step two page
+        location.href = 'index.html';
         return;
       }
       countdown.textContent = `⏳ Time remaining (before key): ${formatTime(MAX_SESSION_MS - elapsed)}`;
     } else {
-      countdown.textContent = ''; // Hide when key exists
+      countdown.textContent = '';
     }
   }
 
-  // Update key timer (8 hours after key creation)
   function updateKeyTimer() {
     const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
     if (!storedKeyTime) return false;
@@ -234,7 +245,6 @@
     const remaining = MAX_KEY_MS - elapsed;
 
     if (remaining <= 0) {
-      // Key expired — remove and show normal UI again
       localStorage.removeItem(keyStorageKey);
       localStorage.removeItem(keyTimeKey);
       showNormalUI();
@@ -244,7 +254,6 @@
     return true;
   }
 
-  // Show UI when key exists
   function showKeyUI(key) {
     messageText.style.display = 'none';
     captchaContainer.style.display = 'none';
@@ -252,14 +261,12 @@
     keyBox.textContent = key;
   }
 
-  // Show UI when no key exists
   function showNormalUI() {
     messageText.style.display = 'block';
     captchaContainer.style.display = 'block';
     keyActiveSection.style.display = 'none';
   }
 
-  // Copy key button
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -268,13 +275,11 @@
     });
   };
 
-  // Check if key exists and UI update on page load
   function checkKeyOnLoad() {
     const storedKey = localStorage.getItem(keyStorageKey);
     if (storedKey) {
       showKeyUI(storedKey);
       if (!updateKeyTimer()) {
-        // Key expired, fallback UI
         showNormalUI();
       }
     } else {
@@ -285,15 +290,12 @@
   checkKeyOnLoad();
   updateSessionTimer();
 
-  // Periodic timers update
   setInterval(() => {
     updateSessionTimer();
     updateKeyTimer();
   }, 1000);
 
-  // Button click handler — create key and save it
   finishBtn.onclick = async () => {
-    // Disable button immediately to prevent multiple clicks
     finishBtn.disabled = true;
     finishBtn.textContent = 'Generating Key...';
 
@@ -301,17 +303,14 @@
     const now = Date.now();
 
     try {
-      // Save key data to Firestore using key string as doc ID
       await setDoc(doc(db, 'keys', key), {
         valid: true,
         expiresAt: now + MAX_KEY_MS
       });
 
-      // Save key info in localStorage
       localStorage.setItem(keyStorageKey, key);
       localStorage.setItem(keyTimeKey, now.toString());
 
-      // Show key UI
       showKeyUI(key);
 
       finishBtn.textContent = 'Key Created!';
