@@ -6,7 +6,7 @@
   <title>Script Maniac Hub KeySystem</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
-    /* Full Style (from your CSS) */
+    /* Your full CSS here, unchanged */
 html, body {
   height: 100%;
   margin: 0;
@@ -190,7 +190,7 @@ body.light-mode #darkToggle:hover {
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -231,8 +231,8 @@ body.light-mode #darkToggle:hover {
 
 <script type="module">
   const db = window.firestoreDB;
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
 
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
@@ -257,7 +257,7 @@ body.light-mode #darkToggle:hover {
     }
   })();
 
-  // Dark mode
+  // Dark mode toggle
   darkToggle.onclick = () => {
     body.classList.toggle('light-mode');
     localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
@@ -270,6 +270,7 @@ body.light-mode #darkToggle:hover {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
+  // Generate random 16-character key
   function generateKey() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     return Array.from({length: 16}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -296,81 +297,137 @@ body.light-mode #darkToggle:hover {
     keyBox.textContent = key;
   }
 
-  function updateSessionTimer() {
-    const now = Date.now();
-    const start = parseInt(localStorage.getItem(sessionStartKey), 10);
-    const elapsed = now - start;
-    if (!localStorage.getItem(keyStorageKey)) {
-      if (elapsed > MAX_SESSION_MS) {
-        alert('Session expired. Please restart.');
-        localStorage.clear();
-        location.href = 'index.html';
-      } else {
-        countdown.textContent = `⏳ Time remaining (before key): ${formatTime(MAX_SESSION_MS - elapsed)}`;
+  // Firestore key validation: returns true if key is valid and not expired, else false
+  async function validateKeyInFirestore(key) {
+    try {
+      const docRef = doc(db, 'keys', key);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        return false;
       }
-    } else {
-      countdown.textContent = '';
-    }
-  }
-
-  function updateKeyTimer() {
-    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    if (!keyTime) return false;
-    const now = Date.now();
-    const remaining = MAX_KEY_MS - (now - keyTime);
-    if (remaining <= 0) {
-      alert('Key expired. Generate new one.');
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      localStorage.setItem(sessionStartKey, Date.now().toString());
-      showNormalUI();
+      const data = docSnap.data();
+      if (!data.valid) return false;
+      if (Date.now() > data.expiresAt) return false;
+      return true;
+    } catch (err) {
+      console.error('Error validating key:', err);
       return false;
     }
-    document.getElementById('keyTimer').textContent = formatTime(remaining);
-    return true;
   }
 
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    });
-  };
+  // Save key to Firestore with expiresAt 8 hours from now
+  async function saveKeyToFirestore(key) {
+    try {
+      const docRef = doc(db, 'keys', key);
+      await setDoc(docRef, {
+        valid: true,
+        expiresAt: Date.now() + MAX_KEY_MS
+      });
+      console.log('Key saved in Firestore');
+    } catch (err) {
+      console.error('Error saving key:', err);
+    }
+  }
+
+  // Update countdown and timers
+  async function updateTimers() {
+    const key = localStorage.getItem(keyStorageKey);
+    const keyCreatedAt = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
+
+    if (!key || !keyCreatedAt || !sessionStart) {
+      countdown.textContent = 'Session expired. Please generate a new key.';
+      showNormalUI();
+      return;
+    }
+
+    // Check if key is still valid in Firestore (async check)
+    const isValid = await validateKeyInFirestore(key);
+    if (!isValid) {
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      countdown.textContent = 'Key is invalid or expired in Firestore. Generate a new one.';
+      showNormalUI();
+      return;
+    }
+
+    const now = Date.now();
+    const elapsedSession = now - sessionStart;
+    const elapsedKey = now - keyCreatedAt;
+
+    // If session expired (3 hours) and no key generated
+    if (elapsedSession > MAX_SESSION_MS && !key) {
+      countdown.textContent = 'Session expired. Please generate a new key.';
+      showNormalUI();
+      return;
+    }
+
+    // Key timer countdown, max 8 hours from key creation
+    const keyRemaining = MAX_KEY_MS - elapsedKey;
+
+    if (keyRemaining <= 0) {
+      // Key expired
+      countdown.textContent = 'Key expired. Generate a new key.';
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      showNormalUI();
+      return;
+    }
+
+    countdown.textContent = `Key expires in: ${formatTime(keyRemaining)}`;
+    showKeyUI(key);
+  }
 
   finishBtn.onclick = async () => {
     finishBtn.disabled = true;
     finishBtn.textContent = 'Generating Key...';
-    const key = generateKey();
-    const now = Date.now();
+    const newKey = generateKey();
 
-    try {
-      await setDoc(doc(db, 'keys', key), {
-        valid: true,
-        expiresAt: now + MAX_KEY_MS
-      });
-      localStorage.setItem(keyStorageKey, key);
-      localStorage.setItem(keyTimeKey, now.toString());
-      showKeyUI(key);
-      countdown.textContent = '';
-      finishBtn.textContent = 'Key Created!';
-    } catch (err) {
-      alert('Failed to generate key: ' + err.message);
-      finishBtn.disabled = false;
-      finishBtn.textContent = 'Generate Key';
-    }
+    // Save key and times in localStorage
+    localStorage.setItem(keyStorageKey, newKey);
+    localStorage.setItem(keyTimeKey, Date.now().toString());
+
+    // Save key in Firestore
+    await saveKeyToFirestore(newKey);
+
+    finishBtn.textContent = 'Generate Key';
+    finishBtn.disabled = false;
+    await updateTimers();
   };
 
-  // Load
-  const existingKey = localStorage.getItem(keyStorageKey);
-  if (existingKey && updateKeyTimer()) {
-    showKeyUI(existingKey);
-  } else {
-    showNormalUI();
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(keyBox.textContent).then(() => {
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = 'Copy Key'; }, 1500);
+    }).catch(() => {
+      alert('Failed to copy key.');
+    });
+  };
+
+  // Run timers every second
+  async function startTimerLoop() {
+    await updateTimers();
+    setInterval(updateTimers, 1000);
   }
 
-  setInterval(() => {
-    if (localStorage.getItem(keyStorageKey)) updateKeyTimer();
-    else updateSessionTimer();
-  }, 1000);
+  // On load: validate localStorage key against Firestore, then start timer loop
+  (async () => {
+    const storedKey = localStorage.getItem(keyStorageKey);
+    if (storedKey) {
+      const valid = await validateKeyInFirestore(storedKey);
+      if (!valid) {
+        localStorage.removeItem(keyStorageKey);
+        localStorage.removeItem(keyTimeKey);
+        showNormalUI();
+      } else {
+        showKeyUI(storedKey);
+      }
+    } else {
+      showNormalUI();
+    }
+    startTimerLoop();
+  })();
+
 </script>
 </body>
 </html>
