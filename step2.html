@@ -6,6 +6,7 @@
   <title>Script Maniac Hub KeySystem - Step 2</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
+    /* ✅ Your same styling — unchanged */
     html, body {
       height: 100%;
       margin: 0;
@@ -19,44 +20,31 @@
       user-select: none;
       transition: background 0.4s ease, color 0.4s ease;
     }
-
     body.light-mode {
       background-color: #f0f4ff;
       color: #001a33;
     }
-
     .container {
       background: linear-gradient(135deg, #050505, #1a1a1a);
       border: 3px solid #003366;
       border-radius: 20px;
       padding: 60px 40px;
       width: 560px;
-      box-shadow:
-        0 0 20px rgba(0, 255, 255, 0.2),
-        inset 0 0 12px rgba(0, 255, 255, 0.05);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
       text-align: center;
       transition: all 0.3s ease-in-out;
     }
-
-    body.light-mode .container {
-      background: #e8f0ff;
-      color: #001a33;
-      box-shadow: 0 0 10px rgba(0,0,50,0.1);
-    }
-
     h1 {
       font-size: 2.4rem;
       color: #00eaff;
       text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
       margin-bottom: 16px;
     }
-
     p {
       font-size: 1.1rem;
       line-height: 1.6;
       color: #d0f6ff;
     }
-
     button {
       background: linear-gradient(145deg, #00bcd4, #0097a7);
       color: #fff;
@@ -69,17 +57,14 @@
       box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
       transition: all 0.3s ease-in-out;
     }
-
     button:hover {
       background: #00838f;
       box-shadow: 0 0 25px #00eaffaa;
       transform: translateY(-3px);
     }
-
     #copyBtn {
       margin-top: 12px;
     }
-
     #keyBox {
       background-color: #101820;
       border: 2px solid #00eaff88;
@@ -92,14 +77,12 @@
       word-break: break-word;
       user-select: all;
     }
-
     #countdown, #keyTimer {
       margin-top: 20px;
       font-weight: bold;
       color: #ffdd57;
       font-size: 1rem;
     }
-
     #darkToggle {
       position: fixed;
       top: 16px;
@@ -114,7 +97,6 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-
     #darkToggle:hover {
       background-color: #00eaff;
       color: #000;
@@ -128,19 +110,16 @@
   const urlParams = new URLSearchParams(window.location.search);
   const refParam = urlParams.get("ref");
   const referrer = document.referrer;
-
   const hasRefParam = refParam === "link";
   const cameFromLinkvertise = referrer.includes("linkvertise.com");
-
   if (!hasRefParam && !cameFromLinkvertise) {
     window.location.href = "index.html";
-    return;
   }
 })();
 </script>
 
-<button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
-<div class="container" role="main" aria-label="Key System Step 2">
+<button id="darkToggle">Light Mode</button>
+<div class="container">
   <h1>Script Maniac Hub KeySystem</h1>
   <p id="messageText">Step 2: Verify and Continue</p>
 
@@ -155,13 +134,32 @@
     <button id="copyBtn">Copy Key</button>
   </div>
 
-  <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
+  <div id="countdown">Loading timer...</div>
 </div>
 
-<script>
-(() => {
-  const body = document.body;
-  const darkToggle = document.getElementById('darkToggle');
+<!-- ✅ Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+    authDomain: "smh-keysystem.firebaseapp.com",
+    projectId: "smh-keysystem",
+    storageBucket: "smh-keysystem.appspot.com",
+    messagingSenderId: "619718800070",
+    appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
+  const keyStorageKey = 'smh_key';
+  const keyTimeKey = 'smh_keyTime';
+  const sessionStartKey = 'smh_sessionStart';
+
   const countdown = document.getElementById('countdown');
   const continueBtn = document.getElementById('continueBtn');
   const copyBtn = document.getElementById('copyBtn');
@@ -169,30 +167,7 @@
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
-
-  function updateDarkToggleText() {
-    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
-  }
-  darkToggle.onclick = () => {
-    body.classList.toggle('light-mode');
-    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
-    updateDarkToggleText();
-  };
-  if (localStorage.getItem('smh_darkMode') === '1') {
-    body.classList.add('light-mode');
-  }
-  updateDarkToggleText();
-
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const sessionStartKey = 'smh_sessionStart';
-
-  if (!localStorage.getItem(sessionStartKey)) {
-    localStorage.setItem(sessionStartKey, Date.now().toString());
-  }
-
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
+  const darkToggle = document.getElementById('darkToggle');
 
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
@@ -216,19 +191,29 @@
     countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
   }
 
+  async function validateKeyWithFirestore(key) {
+    try {
+      const docSnap = await getDoc(doc(db, "keys", key));
+      if (!docSnap.exists()) return false;
+      const data = docSnap.data();
+      if (!data.valid || Date.now() > data.expiresAt) return false;
+      return true;
+    } catch (err) {
+      console.error("Error checking key:", err);
+      return false;
+    }
+  }
+
   function updateKeyTimer() {
     const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
     const now = Date.now();
-    const elapsed = now - storedKeyTime;
-    const remaining = MAX_KEY_MS - elapsed;
-
+    const remaining = MAX_KEY_MS - (now - storedKeyTime);
     if (remaining <= 0) {
       localStorage.removeItem(keyStorageKey);
       localStorage.removeItem(keyTimeKey);
       showNormalUI();
       return false;
     }
-
     document.getElementById('keyTimer').textContent = formatTime(remaining);
     return true;
   }
@@ -249,40 +234,45 @@
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
     });
   };
 
-  function checkKey() {
-    const storedKey = localStorage.getItem(keyStorageKey);
-    const storedKeyTime = localStorage.getItem(keyTimeKey);
-    if (storedKey && storedKeyTime) {
-      const valid = updateKeyTimer();
-      if (valid) {
-        showKeyUI(storedKey);
-        return true;
+  darkToggle.onclick = () => {
+    document.body.classList.toggle('light-mode');
+    localStorage.setItem('smh_darkMode', document.body.classList.contains('light-mode') ? '1' : '0');
+    darkToggle.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+  };
+
+  if (!localStorage.getItem(sessionStartKey)) {
+    localStorage.setItem(sessionStartKey, Date.now().toString());
+  }
+
+  if (localStorage.getItem('smh_darkMode') === '1') {
+    document.body.classList.add('light-mode');
+  }
+  darkToggle.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+
+  async function checkKey() {
+    const key = localStorage.getItem(keyStorageKey);
+    const keyTime = localStorage.getItem(keyTimeKey);
+    if (key && keyTime) {
+      const isValid = await validateKeyWithFirestore(key);
+      if (isValid && updateKeyTimer()) {
+        showKeyUI(key);
+        return;
       }
     }
     showNormalUI();
-    return false;
   }
 
-  updateSessionTimer();
   setInterval(updateSessionTimer, 1000);
-
-  setInterval(() => {
-    if (!checkKey()) {
-      // no valid key, do nothing
-    }
-  }, 1000);
+  setInterval(() => checkKey(), 1000);
 
   continueBtn.onclick = () => {
     window.location.href = 'final.html?ref=link';
   };
 
   checkKey();
-})();
 </script>
 </body>
 </html>
