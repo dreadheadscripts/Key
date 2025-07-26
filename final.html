@@ -102,11 +102,10 @@
     }
   </style>
 
-  <!-- Firebase SDK -->
+    <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -114,46 +113,43 @@
       projectId: "smh-keysystem",
       storageBucket: "smh-keysystem.appspot.com",
       messagingSenderId: "619718800070",
-      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
-      measurementId: "G-QBXKHSRKT0"
+      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7"
     };
 
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
     const db = getFirestore(app);
-
     window.firestoreDB = db;
   </script>
 </head>
 <body>
-  <button id="darkToggle">Light Mode</button>
-  <div class="container">
-    <h1>Script Maniac Hub KeySystem</h1>
-    <p id="messageText">Your Key is Ready</p>
+<button id="darkToggle">Light Mode</button>
+<div class="container">
+  <h1>Script Maniac Hub KeySystem</h1>
+  <p id="messageText">Your Key is Ready</p>
 
-    <div id="captchaContainer">
-      <button id="finishBtn">Generate Key</button>
-    </div>
-
-    <div id="keyActiveSection" style="display:none;">
-      <p><strong>Key Generated.</strong></p>
-      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-      <div id="keyBox"></div>
-      <button id="copyBtn">Copy Key</button>
-    </div>
-
-    <div id="countdown">Loading timer...</div>
+  <div id="captchaContainer">
+    <button id="finishBtn">Generate Key</button>
   </div>
 
+  <div id="keyActiveSection" style="display:none;">
+    <p><strong>Successfully Generated key.</strong></p>
+    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+    <div id="keyBox"></div>
+    <button id="copyBtn">Copy Key</button>
+  </div>
+
+  <div id="countdown">Loading timer...</div>
+</div>
+
 <script type="module">
+  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
   const db = window.firestoreDB;
-
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
-
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-  const sessionStartKey = 'smh_sessionStart';
+  const SESSION_MS = 3 * 60 * 60 * 1000;
+  const KEY_MS = 8 * 60 * 60 * 1000;
+  const keyStorage = 'smh_key';
+  const keyTime = 'smh_keyTime';
+  const sessionStart = 'smh_sessionStart';
 
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
@@ -165,45 +161,61 @@
   const messageText = document.getElementById('messageText');
   const body = document.body;
 
-  // Referrer check
-  (() => {
-    const allowed = ["linkvertise.com", "link-target.net", "your-step2-domain.com"];
-    const ref = document.referrer.toLowerCase();
-    if (!allowed.some(d => ref.includes(d))) {
-      location.href = "index.html";
-    }
-  })();
-
-  // Dark mode
+  function updateDarkToggleText() {
+    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+  }
   darkToggle.onclick = () => {
     body.classList.toggle('light-mode');
     localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
-    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+    updateDarkToggleText();
   };
-  if (localStorage.getItem('smh_darkMode') === '1') body.classList.add('light-mode');
-  darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
-
-  if (!localStorage.getItem(sessionStartKey)) {
-    localStorage.setItem(sessionStartKey, Date.now().toString());
+  if (localStorage.getItem('smh_darkMode') === '1') {
+    body.classList.add('light-mode');
   }
+  updateDarkToggleText();
 
-  function generateKey() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    return Array.from({length: 16}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  if (!localStorage.getItem(sessionStart)) {
+    localStorage.setItem(sessionStart, Date.now().toString());
   }
 
   function formatTime(ms) {
     const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    const h = Math.floor(s / 3600).toString().padStart(2, '0');
+    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${sec}`;
   }
 
-  function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
-    keyActiveSection.style.display = 'none';
+  function unifiedTimer() {
+    const now = Date.now();
+    const start = parseInt(localStorage.getItem(sessionStart), 10);
+    const keyCreated = localStorage.getItem(keyStorage);
+    const isKeyMode = !!keyCreated;
+
+    const maxTime = isKeyMode ? KEY_MS : SESSION_MS;
+    const elapsed = now - start;
+    const remaining = maxTime - elapsed;
+
+    if (remaining <= 0) {
+      alert("⏰ Your session has expired.");
+      localStorage.clear();
+      window.location.href = "index.html";
+    } else {
+      const text = isKeyMode ? `🧠 Key time left: ${formatTime(remaining)}` : `⏳ Session time left: ${formatTime(remaining)}`;
+      countdown.textContent = text;
+      if (isKeyMode) {
+        document.getElementById("keyTimer").textContent = formatTime(remaining);
+      }
+    }
+  }
+
+  function generateKey() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let key = '';
+    for (let i = 0; i < 16; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
   }
 
   function showKeyUI(key) {
@@ -213,89 +225,52 @@
     keyBox.textContent = key;
   }
 
-  async function validateKeyInFirestore(key) {
-    try {
-      const keyDoc = await getDoc(doc(db, 'keys', key));
-      if (!keyDoc.exists()) return false;
-      const data = keyDoc.data();
-      return data.valid && Date.now() < data.expiresAt;
-    } catch (err) {
-      console.error('Key validation error:', err);
-      return false;
-    }
+  function showNormalUI() {
+    messageText.style.display = 'block';
+    captchaContainer.style.display = 'block';
+    keyActiveSection.style.display = 'none';
   }
 
-  async function updateTimers() {
-    const key = localStorage.getItem(keyStorageKey);
-    const keyCreatedAt = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || Date.now();
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(keyBox.textContent)
+      .then(() => alert('Key copied to clipboard!'))
+      .catch(() => alert('Failed to copy key.'));
+  };
 
-    const now = Date.now();
-
-    // Handle session timeout before key
-    if (!key && now - sessionStart > MAX_SESSION_MS) {
-      countdown.textContent = '⏳ Session expired. Redirecting...';
-      setTimeout(() => window.location.href = 'index.html', 2000);
-      return;
+  function checkKey() {
+    const key = localStorage.getItem(keyStorage);
+    const time = localStorage.getItem(sessionStart);
+    if (key && time) {
+      showKeyUI(key);
+      return true;
     }
-
-    if (!key || !keyCreatedAt) {
-      showNormalUI();
-      countdown.textContent = `⏳ Time remaining (before key): ${formatTime(MAX_SESSION_MS - (now - sessionStart))}`;
-      return;
-    }
-
-    const isValid = await validateKeyInFirestore(key);
-    if (!isValid) {
-      countdown.textContent = '⛔ Key is invalid or expired. Redirecting...';
-      localStorage.clear();
-      setTimeout(() => window.location.href = 'index.html', 2000);
-      return;
-    }
-
-    const keyRemaining = MAX_KEY_MS - (now - keyCreatedAt);
-    if (keyRemaining <= 0) {
-      countdown.textContent = '⛔ Key expired. Redirecting...';
-      localStorage.clear();
-      setTimeout(() => window.location.href = 'index.html', 2000);
-      return;
-    }
-
-    countdown.textContent = `🔐 Key expires in: ${formatTime(keyRemaining)}`;
-    showKeyUI(key);
+    showNormalUI();
+    return false;
   }
 
   finishBtn.onclick = async () => {
-    finishBtn.disabled = true;
-    finishBtn.textContent = 'Generating Key...';
-    const key = generateKey();
-    const now = Date.now();
-
-    try {
-      await setDoc(doc(db, 'keys', key), {
-        valid: true,
-        expiresAt: now + MAX_KEY_MS
-      });
-      localStorage.setItem(keyStorageKey, key);
-      localStorage.setItem(keyTimeKey, now.toString());
-      showKeyUI(key);
-      countdown.textContent = '';
-      finishBtn.textContent = 'Key Created!';
-    } catch (err) {
-      alert('❌ Failed to generate key: ' + err.message);
-      finishBtn.disabled = false;
-      finishBtn.textContent = 'Generate Key';
+    if (!localStorage.getItem(keyStorage)) {
+      try {
+        const newKey = generateKey();
+        const startTime = parseInt(localStorage.getItem(sessionStart), 10);
+        await setDoc(doc(db, "keys", newKey), {
+          created: startTime,
+          expiresAt: startTime + KEY_MS,
+          valid: true
+        });
+        localStorage.setItem(keyStorage, newKey);
+        showKeyUI(newKey);
+        checkKey();
+      } catch (err) {
+        alert("❌ Failed to create key.");
+        console.error(err);
+      }
     }
   };
 
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('✅ Key copied to clipboard!');
-    });
-  };
-
-  setInterval(updateTimers, 1000);
-  updateTimers();
+  unifiedTimer();
+  checkKey();
+  setInterval(unifiedTimer, 1000);
 </script>
 </body>
 </html>
