@@ -6,7 +6,7 @@
   <title>Script Maniac Hub KeySystem</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
-    /* (same styles as before, omitted here for brevity) */
+    /* Your existing styles */
     html, body {
       height: 100%;
       margin: 0;
@@ -159,9 +159,7 @@
       "your-step2-domain.com" // replace if you have a domain for step2 page
     ];
     const referrer = document.referrer.toLowerCase();
-    // Also allow direct access if you want, remove below line or customize
     if (!allowedReferrers.some(domain => referrer.includes(domain))) {
-      // Not from allowed referrer - redirect to index.html
       location.href = "index.html";
     }
   })();
@@ -197,6 +195,7 @@
   }
   updateDarkToggleText();
 
+  // Initialize session start time if not set
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
@@ -218,6 +217,22 @@
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
+  // Show UI for when no key exists (normal state)
+  function showNormalUI() {
+    messageText.style.display = 'block';
+    captchaContainer.style.display = 'block';
+    keyActiveSection.style.display = 'none';
+  }
+
+  // Show UI for when key exists (active key state)
+  function showKeyUI(key) {
+    messageText.style.display = 'none';
+    captchaContainer.style.display = 'none';
+    keyActiveSection.style.display = 'block';
+    keyBox.textContent = key;
+  }
+
+  // Update session countdown timer (3 hours before key generation)
   function updateSessionTimer() {
     const now = Date.now();
     const start = parseInt(localStorage.getItem(sessionStartKey), 10);
@@ -236,6 +251,7 @@
     }
   }
 
+  // Update key countdown timer (8 hours after key generation)
   function updateKeyTimer() {
     const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
     if (!storedKeyTime) return false;
@@ -245,8 +261,11 @@
     const remaining = MAX_KEY_MS - elapsed;
 
     if (remaining <= 0) {
+      alert('Your key has expired. Please generate a new one.');
       localStorage.removeItem(keyStorageKey);
       localStorage.removeItem(keyTimeKey);
+      // Reset session start time to now for new session
+      localStorage.setItem(sessionStartKey, Date.now().toString());
       showNormalUI();
       return false;
     }
@@ -254,19 +273,7 @@
     return true;
   }
 
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
-  }
-
-  function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
-    keyActiveSection.style.display = 'none';
-  }
-
+  // Copy key to clipboard
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -275,6 +282,7 @@
     });
   };
 
+  // Check localStorage and UI state on page load
   function checkKeyOnLoad() {
     const storedKey = localStorage.getItem(keyStorageKey);
     if (storedKey) {
@@ -287,14 +295,24 @@
     }
   }
 
+  // Main interval updating timers
+  setInterval(() => {
+    if (localStorage.getItem(keyStorageKey)) {
+      // Key exists, show key timer
+      if (!updateKeyTimer()) {
+        // Key expired, UI reset handled inside updateKeyTimer()
+      }
+    } else {
+      // No key, show session timer
+      updateSessionTimer();
+    }
+  }, 1000);
+
+  // Initial UI and timer setup
   checkKeyOnLoad();
   updateSessionTimer();
 
-  setInterval(() => {
-    updateSessionTimer();
-    updateKeyTimer();
-  }, 1000);
-
+  // Key generation button
   finishBtn.onclick = async () => {
     finishBtn.disabled = true;
     finishBtn.textContent = 'Generating Key...';
@@ -312,12 +330,13 @@
       localStorage.setItem(keyTimeKey, now.toString());
 
       showKeyUI(key);
+      countdown.textContent = '';
 
       finishBtn.textContent = 'Key Created!';
     } catch (error) {
       alert('Error creating key: ' + error.message);
       finishBtn.disabled = false;
-      finishBtn.textContent = 'Get Your Key';
+      finishBtn.textContent = 'Generate Key';
     }
   };
 </script>
