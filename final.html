@@ -254,59 +254,64 @@ body.light-mode #darkToggle:hover {
 </div>
 
 <script type="module">
-  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  // 🌟 Updated Firebase Initialization (modular v9+ with Analytics)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 
-  const db = window.firestoreDB;
+  const firebaseConfig = {
+    apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+    authDomain: "smh-keysystem.firebaseapp.com",
+    projectId: "smh-keysystem",
+    storageBucket: "smh-keysystem.firebasestorage.app",
+    messagingSenderId: "619718800070",
+    appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
+    measurementId: "G-QBXKHSRKT0"
+  };
 
-  // Redirect check - only allow access if came from Linkvertise or step2 page
-  (function redirectCheck() {
-    const allowedReferrers = [
-      "link-target.net",
-      "linkvertise.com",
-      "your-step2-domain.com" // replace if you have a domain for step2 page
-    ];
-    const referrer = document.referrer.toLowerCase();
-    if (!allowedReferrers.some(domain => referrer.includes(domain))) {
-      location.href = "index.html";
-    }
-  })();
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
 
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
-
+  // Storage and timer keys
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
   const sessionStartKey = 'smh_sessionStart';
 
+  // DOM Elements
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
+  const keyTimer = document.getElementById('keyTimer');
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
   const body = document.body;
 
-  // Dark mode toggle
+  // Dark mode toggle logic
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
-  darkToggle.onclick = () => {
+  darkToggle.addEventListener('click', () => {
     body.classList.toggle('light-mode');
     localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
     updateDarkToggleText();
-  };
+  });
   if (localStorage.getItem('smh_darkMode') === '1') {
     body.classList.add('light-mode');
   }
   updateDarkToggleText();
 
-  // Initialize session start time if not set
+  // Initialize session start time
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
+  // Utility functions
   function generateKey() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let key = '';
@@ -315,23 +320,18 @@ body.light-mode #darkToggle:hover {
     }
     return key;
   }
-
   function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
+    const t = Math.floor(ms / 1000);
+    const h = Math.floor(t / 3600);
+    const m = Math.floor((t % 3600) / 60);
+    const s = t % 60;
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
-
-  // Show UI for when no key exists (normal state)
   function showNormalUI() {
     messageText.style.display = 'block';
     captchaContainer.style.display = 'block';
     keyActiveSection.style.display = 'none';
   }
-
-  // Show UI for when key exists (active key state)
   function showKeyUI(key) {
     messageText.style.display = 'none';
     captchaContainer.style.display = 'none';
@@ -339,12 +339,11 @@ body.light-mode #darkToggle:hover {
     keyBox.textContent = key;
   }
 
-  // Update session countdown timer (3 hours before key generation)
+  // Timer updates
   function updateSessionTimer() {
     const now = Date.now();
     const start = parseInt(localStorage.getItem(sessionStartKey), 10);
     const elapsed = now - start;
-
     if (!localStorage.getItem(keyStorageKey)) {
       if (elapsed > MAX_SESSION_MS) {
         alert('Session expired. Please restart the process.');
@@ -353,99 +352,74 @@ body.light-mode #darkToggle:hover {
         return;
       }
       countdown.textContent = `⏳ Time remaining (before key): ${formatTime(MAX_SESSION_MS - elapsed)}`;
-    } else {
-      countdown.textContent = '';
-    }
+    } else countdown.textContent = '';
   }
-
-  // Update key countdown timer (8 hours after key generation)
   function updateKeyTimer() {
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    if (!storedKeyTime) return false;
-
+    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    if (!keyTime) return false;
     const now = Date.now();
-    const elapsed = now - storedKeyTime;
-    const remaining = MAX_KEY_MS - elapsed;
-
+    const remaining = MAX_KEY_MS - (now - keyTime);
     if (remaining <= 0) {
       alert('Your key has expired. Please generate a new one.');
       localStorage.removeItem(keyStorageKey);
       localStorage.removeItem(keyTimeKey);
-      // Reset session start time to now for new session
       localStorage.setItem(sessionStartKey, Date.now().toString());
       showNormalUI();
       return false;
     }
-    document.getElementById('keyTimer').textContent = formatTime(remaining);
+    keyTimer.textContent = formatTime(remaining);
     return true;
   }
 
-  // Copy key to clipboard
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
-    });
-  };
+  // Clipboard functionality
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(keyBox.textContent)
+      .then(() => alert('Key copied to clipboard!'))
+      .catch(() => alert('Failed to copy key.'));
+  });
 
-  // Check localStorage and UI state on page load
-  function checkKeyOnLoad() {
+  // Initial UI check
+  (function initUI() {
     const storedKey = localStorage.getItem(keyStorageKey);
     if (storedKey) {
       showKeyUI(storedKey);
-      if (!updateKeyTimer()) {
-        showNormalUI();
-      }
+      if (!updateKeyTimer()) showNormalUI();
     } else {
       showNormalUI();
     }
-  }
+  })();
 
-  // Main interval updating timers
+  // Interval timer logic
   setInterval(() => {
     if (localStorage.getItem(keyStorageKey)) {
-      // Key exists, show key timer
-      if (!updateKeyTimer()) {
-        // Key expired, UI reset handled inside updateKeyTimer()
-      }
+      updateKeyTimer();
     } else {
-      // No key, show session timer
       updateSessionTimer();
     }
   }, 1000);
-
-  // Initial UI and timer setup
-  checkKeyOnLoad();
   updateSessionTimer();
 
-  // Key generation button
-  finishBtn.onclick = async () => {
+  // Key generation logic
+  finishBtn.addEventListener('click', async () => {
     finishBtn.disabled = true;
     finishBtn.textContent = 'Generating Key...';
-
     const key = generateKey();
     const now = Date.now();
-
     try {
       await setDoc(doc(db, 'keys', key), {
         valid: true,
         expiresAt: now + MAX_KEY_MS
       });
-
       localStorage.setItem(keyStorageKey, key);
       localStorage.setItem(keyTimeKey, now.toString());
-
       showKeyUI(key);
-      countdown.textContent = '';
-
       finishBtn.textContent = 'Key Created!';
     } catch (error) {
       alert('Error creating key: ' + error.message);
       finishBtn.disabled = false;
       finishBtn.textContent = 'Generate Key';
     }
-  };
+  });
 </script>
 </body>
 </html>
