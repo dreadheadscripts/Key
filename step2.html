@@ -3,242 +3,149 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub Key System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <title>Script Maniac Hub KeySystem - Step 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    /* General styles */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: #0a0a0a;
-  color: #00e0ff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  transition: background 0.4s ease, color 0.4s ease;
-  font-size: 4vw; /* Responsive base font size */
-  line-height: 1.2;
-  overflow-x: hidden;
-}
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #0a0a0a;
+      color: #00e0ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
 
-body.light-mode {
-  background-color: #ffffff;
-  color: #000000;
-}
+    body.light-mode {
+      background-color: #f0f4ff;
+      color: #001a33;
+    }
 
-.container {
-  background: linear-gradient(135deg, #050505, #1a1a1a);
-  border: 3px solid #003366;
-  border-radius: 20px;
-  padding: 5vw 4vw;
-  width: 90vw;
-  max-width: 560px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
-  text-align: center;
-  transition: all 0.3s ease-in-out;
-}
+    .container {
+      background: linear-gradient(135deg, #050505, #1a1a1a);
+      border: 3px solid #003366;
+      border-radius: 20px;
+      padding: 60px 40px;
+      width: 560px;
+      box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.2),
+        inset 0 0 12px rgba(0, 255, 255, 0.05);
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
 
-body.light-mode .container {
-  background: #ffffff;
-  color: #000000;
-  border-color: #000000;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 12px rgba(0, 0, 0, 0.05);
-}
+    body.light-mode .container {
+      background: #e8f0ff;
+      color: #001a33;
+      box-shadow: 0 0 10px rgba(0,0,50,0.1);
+    }
 
-h1 {
-  font-size: 8vw;
-  max-font-size: 2.4rem;
-  color: #00eaff;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
+    h1 {
+      font-size: 2.4rem;
+      color: #00eaff;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+      margin-bottom: 16px;
+    }
 
-body.light-mode h1 {
-  color: #000000;
-  text-shadow: none;
-}
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #d0f6ff;
+    }
 
-p {
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  line-height: 1.5;
-  color: #d0f6ff;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
+    button {
+      background: linear-gradient(145deg, #00bcd4, #0097a7);
+      color: #fff;
+      padding: 14px 38px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      transition: all 0.3s ease-in-out;
+    }
 
-body.light-mode p {
-  color: #222222;
-}
+    button:hover {
+      background: #00838f;
+      box-shadow: 0 0 25px #00eaffaa;
+      transform: translateY(-3px);
+    }
 
-button {
-  background: linear-gradient(145deg, #00bcd4, #0097a7);
-  color: #fff;
-  padding: 3vw 8vw;
-  border: none;
-  border-radius: 14px;
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-  transition: all 0.3s ease-in-out;
-  user-select: none;
-}
+    #copyBtn {
+      margin-top: 12px;
+    }
 
-button:hover {
-  background: #00838f;
-  box-shadow: 0 0 25px #00eaffaa;
-  transform: translateY(-3px);
-}
+    #keyBox {
+      background-color: #101820;
+      border: 2px solid #00eaff88;
+      border-radius: 14px;
+      padding: 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.2rem;
+      color: #00eaff;
+      box-shadow: inset 0 0 20px #00eaff33;
+      word-break: break-word;
+      user-select: all;
+    }
 
-body.light-mode button {
-  background: linear-gradient(145deg, #444444, #222222);
-  color: #ffffff;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-}
+    #countdown, #keyTimer {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #ffdd57;
+      font-size: 1rem;
+    }
 
-body.light-mode button:hover {
-  background: #111111;
-  box-shadow: 0 0 25px #555555cc;
-}
+    #darkToggle {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      border: 2px solid #00eaff;
+      background: transparent;
+      color: #00eaff;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      box-shadow: 0 0 8px #00eaff88;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-#copyBtn {
-  margin-top: 1vw;
-}
-
-#keyBox {
-  background-color: #101820;
-  border: 2px solid #00eaff88;
-  border-radius: 14px;
-  padding: 4vw;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 4vw;
-  max-font-size: 1.2rem;
-  color: #00eaff;
-  box-shadow: inset 0 0 20px #00eaff33;
-  word-break: break-word;
-  user-select: all;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-body.light-mode #keyBox {
-  background-color: #f0f0f0;
-  border: 2px solid #44444488;
-  color: #000000;
-  box-shadow: inset 0 0 20px #cccccc33;
-}
-
-#countdown, #keyTimer {
-  margin-top: 1.5vw;
-  font-weight: bold;
-  color: #ffdd57;
-  font-size: 4vw;
-  max-font-size: 1rem;
-  transition: color 0.3s ease;
-}
-
-body.light-mode #countdown,
-body.light-mode #keyTimer {
-  color: #aa8800;
-}
-
-#darkToggle {
-  position: fixed;
-  top: 1.5vw;
-  right: 3vw;
-  border: 2px solid #00eaff;
-  background: transparent;
-  color: #00eaff;
-  padding: 1vw 3vw;
-  border-radius: 30px;
-  font-size: 3.5vw;
-  max-font-size: 0.95rem;
-  box-shadow: 0 0 8px #00eaff88;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
-  z-index: 999;
-}
-
-#darkToggle:hover {
-  background-color: #00eaff;
-  color: #000;
-  box-shadow: 0 0 16px #00eaff;
-}
-
-body.light-mode #darkToggle {
-  border-color: #000000;
-  color: #000000;
-  box-shadow: 0 0 8px #00000088;
-  background: transparent;
-}
-
-body.light-mode #darkToggle:hover {
-  background-color: #000000;
-  color: #fff;
-  box-shadow: 0 0 16px #000000cc;
-}
-
-/* Responsive adjustments */
-@media (min-width: 600px) {
-  html, body {
-    font-size: 18px; /* Fixed size for bigger screens */
-  }
-
-  h1 {
-    font-size: 2.4rem;
-  }
-
-  p, button, #keyBox, #countdown, #keyTimer {
-    font-size: 1.1rem;
-  }
-
-  button {
-    padding: 14px 38px;
-  }
-
-  #darkToggle {
-    font-size: 0.95rem;
-    padding: 8px 16px;
-    top: 16px;
-    right: 20px;
-  }
-}
+    #darkToggle:hover {
+      background-color: #00eaff;
+      color: #000;
+      box-shadow: 0 0 16px #00eaff;
+    }
   </style>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
-      authDomain: "smh-keysystem.firebaseapp.com",
-      projectId: "smh-keysystem",
-      storageBucket: "smh-keysystem.appspot.com",
-      messagingSenderId: "619718800070",
-      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    window.firestoreDB = db;
-  </script>
 </head>
 <body>
-<button id="darkToggle">Light Mode</button>
-<div class="container">
+<script>
+(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const refParam = urlParams.get("ref");
+  const referrer = document.referrer;
+
+  const hasRefParam = refParam === "link";
+  const cameFromLinkvertise = referrer.includes("linkvertise.com");
+
+  if (!hasRefParam && !cameFromLinkvertise) {
+    window.location.href = "index.html";
+    return;
+  }
+})();
+</script>
+
+<button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
+<div class="container" role="main" aria-label="Key System Step 2">
   <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Final CheckPoint</p>
+  <p id="messageText">Step 2: Verify and Continue</p>
 
   <div id="captchaContainer">
-    <button id="continueBtn">Get Key</button>
+    <button id="continueBtn">Continue</button>
   </div>
 
   <div id="keyActiveSection" style="display:none;">
@@ -248,36 +155,21 @@ body.light-mode #darkToggle:hover {
     <button id="copyBtn">Copy Key</button>
   </div>
 
-  <div id="countdown">Loading timer...</div>
+  <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
 </div>
 
-<script type="module">
-  // Referrer enforcement
-  (() => {
-    const allowed = ["linkvertise.com", "link-target.net", "your-index-domain.com"];
-    const ref = document.referrer.toLowerCase();
-    if (!allowed.some(d => ref.includes(d))) window.location.href = "index.html";
-  })();
-
-  // Elements
+<script>
+(() => {
+  const body = document.body;
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const continueBtn = document.getElementById('continueBtn');
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
-  const keyTimer = document.getElementById('keyTimer');
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
-  const body = document.body;
 
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-  const sessionStartKey = 'smh_sessionStart';
-
-  // Dark mode toggle
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -291,49 +183,61 @@ body.light-mode #darkToggle:hover {
   }
   updateDarkToggleText();
 
-  // Session init
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const sessionStartKey = 'smh_sessionStart';
+
   if (!localStorage.getItem(sessionStartKey)) {
     localStorage.setItem(sessionStartKey, Date.now().toString());
   }
 
-  // Timer helpers
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
+  const keyStorageKey = 'smh_key';
+  const keyTimeKey = 'smh_keyTime';
+
   function formatTime(ms) {
-    const t = Math.floor(ms / 1000), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    const totalSec = Math.floor(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
-  function updateTimers() {
+  function updateSessionTimer() {
     const now = Date.now();
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
-    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const key = localStorage.getItem(keyStorageKey);
-
-    if (key && keyTime) {
-      const remaining = MAX_KEY_MS - (now - keyTime);
-      if (remaining <= 0) {
-        localStorage.clear();
-        location.reload();
-      } else {
-        keyTimer.textContent = formatTime(remaining);
-        countdown.textContent = '';
-      }
-    } else {
-      const sessionElapsed = now - sessionStart;
-      if (sessionElapsed >= MAX_SESSION_MS) {
-        alert('Session expired. Restart from Step 1.');
-        localStorage.clear();
-        location.href = 'index.html';
-      } else {
-        countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - sessionElapsed)}`;
-      }
+    const start = parseInt(localStorage.getItem(sessionStartKey), 10);
+    const elapsed = now - start;
+    if (elapsed > MAX_SESSION_MS) {
+      alert('Session expired. Please restart the process.');
+      localStorage.clear();
+      location.href = 'index.html';
+      return;
     }
+    const remaining = MAX_SESSION_MS - elapsed;
+    countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
+  }
+
+  function updateKeyTimer() {
+    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const now = Date.now();
+    const elapsed = now - storedKeyTime;
+    const remaining = MAX_KEY_MS - elapsed;
+
+    if (remaining <= 0) {
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      showNormalUI();
+      return false;
+    }
+
+    document.getElementById('keyTimer').textContent = formatTime(remaining);
+    return true;
   }
 
   function showKeyUI(key) {
-    keyBox.textContent = key;
-    captchaContainer.style.display = 'none';
     messageText.style.display = 'none';
+    captchaContainer.style.display = 'none';
     keyActiveSection.style.display = 'block';
+    keyBox.textContent = key;
   }
 
   function showNormalUI() {
@@ -342,27 +246,43 @@ body.light-mode #darkToggle:hover {
     keyActiveSection.style.display = 'none';
   }
 
-  // Copy key
   copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => alert('Key copied!'));
+    navigator.clipboard.writeText(keyBox.textContent).then(() => {
+      alert('Key copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy key.');
+    });
   };
 
-  // On load
-  const storedKey = localStorage.getItem(keyStorageKey);
-  const storedKeyTime = localStorage.getItem(keyTimeKey);
-  if (storedKey && storedKeyTime) {
-    showKeyUI(storedKey);
-  } else {
+  function checkKey() {
+    const storedKey = localStorage.getItem(keyStorageKey);
+    const storedKeyTime = localStorage.getItem(keyTimeKey);
+    if (storedKey && storedKeyTime) {
+      const valid = updateKeyTimer();
+      if (valid) {
+        showKeyUI(storedKey);
+        return true;
+      }
+    }
     showNormalUI();
+    return false;
   }
 
-  setInterval(updateTimers, 1000);
-  updateTimers();
+  updateSessionTimer();
+  setInterval(updateSessionTimer, 1000);
 
-  // Get Key
+  setInterval(() => {
+    if (!checkKey()) {
+      // no valid key, do nothing
+    }
+  }, 1000);
+
   continueBtn.onclick = () => {
-    window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
+    window.location.href = 'final.html?ref=link';
   };
+
+  checkKey();
+})();
 </script>
 </body>
 </html>
