@@ -7,237 +7,102 @@
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
-    /* General styles */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-@@ -18,18 +19,21 @@
-  align-items: center;
-  user-select: none;
-  transition: background 0.4s ease, color 0.4s ease;
-  font-size: 4vw; /* Responsive base font size */
-  line-height: 1.2;
-  overflow-x: hidden;
-}
-
-body.light-mode {
-  background-color: #f0f4ff;
-  color: #001a33;
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.container {
-  background: linear-gradient(135deg, #050505, #1a1a1a);
-  border: 3px solid #003366;
-  border-radius: 20px;
-  padding: clamp(12px, 3vw, 24px) clamp(20px, 5vw, 40px);
-  padding: 5vw 4vw;
-  width: 90vw;
-  max-width: 560px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
-@@ -38,36 +42,53 @@
-}
-
-body.light-mode .container {
-  background: #e8f0ff;
-  color: #001a33;
-  background: #ffffff;
-  color: #000000;
-  border-color: #000000;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1), inset 0 0 12px rgba(0, 0, 0, 0.05);
-}
-
-h1 {
-  font-size: clamp(1.5rem, 5vw, 2.4rem);
-  font-size: 8vw;
-  max-font-size: 2.4rem;
-  color: #00eaff;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-  margin-bottom: 1rem;
-  word-wrap: break-word;
-  transition: color 0.3s ease;
-}
-
-body.light-mode h1 {
-  color: #000000;
-  text-shadow: none;
-}
-
-p {
-  font-size: clamp(1rem, 3vw, 1.1rem);
-  line-height: 1.6;
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  line-height: 1.5;
-  color: #d0f6ff;
-  word-wrap: break-word;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
-
-body.light-mode p {
-  color: #222222;
-}
-
-button {
-  background: linear-gradient(145deg, #00bcd4, #0097a7);
-  color: #fff;
-  padding: clamp(10px, 1.2vw, 18px) clamp(24px, 3vw, 40px);
-  padding: 3vw 8vw;
-  border: none;
-  border-radius: 14px;
-  font-size: clamp(1rem, 3vw, 1.1rem);
-  font-size: 4vw;
-  max-font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-  transition: all 0.3s ease-in-out;
-  user-select: none;
-}
-
-button:hover {
-@@ -76,43 +97,73 @@
-  transform: translateY(-3px);
-}
-
-body.light-mode button {
-  background: linear-gradient(145deg, #444444, #222222);
-  color: #ffffff;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-}
-
-body.light-mode button:hover {
-  background: #111111;
-  box-shadow: 0 0 25px #555555cc;
-}
-
-#copyBtn {
-  margin-top: 12px;
-  margin-top: 1vw;
-}
-
-#keyBox {
-  background-color: #101820;
-  border: 2px solid #00eaff88;
-  border-radius: 14px;
-  padding: clamp(12px, 2vw, 24px);
-  padding: 4vw;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(1rem, 3vw, 1.2rem);
-  font-size: 4vw;
-  max-font-size: 1.2rem;
-  color: #00eaff;
-  box-shadow: inset 0 0 20px #00eaff33;
-  word-break: break-word;
-  user-select: all;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-body.light-mode #keyBox {
-  background-color: #f0f0f0;
-  border: 2px solid #44444488;
-  color: #000000;
-  box-shadow: inset 0 0 20px #cccccc33;
-}
-
-#countdown, #keyTimer {
-  margin-top: 20px;
-  margin-top: 1.5vw;
-  font-weight: bold;
-  color: #ffdd57;
-  font-size: clamp(0.9rem, 2.5vw, 1rem);
-  font-size: 4vw;
-  max-font-size: 1rem;
-  transition: color 0.3s ease;
-}
-
-body.light-mode #countdown,
-body.light-mode #keyTimer {
-  color: #aa8800;
-}
-
-#darkToggle {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  top: 1.5vw;
-  right: 3vw;
-  border: 2px solid #00eaff;
-  background: transparent;
-  color: #00eaff;
-  padding: 8px 16px;
-  padding: 1vw 3vw;
-  border-radius: 30px;
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
-  font-size: 3.5vw;
-  max-font-size: 0.95rem;
-  box-shadow: 0 0 8px #00eaff88;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
-  z-index: 999;
-}
-
-#darkToggle:hover {
-@@ -121,163 +172,181 @@
-  box-shadow: 0 0 16px #00eaff;
-}
-
-/* Smaller screens adjustments */
-@media (max-width: 400px) {
-  .container {
-    padding: 16px 24px;
-body.light-mode #darkToggle {
-  border-color: #000000;
-  color: #000000;
-  box-shadow: 0 0 8px #00000088;
-  background: transparent;
-}
-
-body.light-mode #darkToggle:hover {
-  background-color: #000000;
-  color: #fff;
-  box-shadow: 0 0 16px #000000cc;
-}
-
-/* Responsive adjustments */
-@media (min-width: 600px) {
-  html, body {
-    font-size: 18px; /* Fixed size for bigger screens */
-  }
-
-  h1 {
-    font-size: 1.8rem;
-    font-size: 2.4rem;
-  }
-  p, #countdown, #keyTimer {
-    font-size: 1rem;
-
-  p, button, #keyBox, #countdown, #keyTimer {
-    font-size: 1.1rem;
-  }
-  button, #darkToggle {
-    font-size: 1rem;
-    padding: 12px 24px;
-
-  button {
-    padding: 14px 38px;
-  }
-  #keyBox {
-    font-size: 1rem;
-    padding: 16px;
-
-  #darkToggle {
-    font-size: 0.95rem;
-    padding: 8px 16px;
-    top: 16px;
-    right: 20px;
-  }
-}
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #0a0a0a;
+      color: #00e0ff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+    body.light-mode {
+      background-color: #f0f4ff;
+      color: #001a33;
+    }
+    .container {
+      background: linear-gradient(135deg, #050505, #1a1a1a);
+      border: 3px solid #003366;
+      border-radius: 20px;
+      padding: 60px 40px;
+      width: 560px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), inset 0 0 12px rgba(0, 255, 255, 0.05);
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
+    body.light-mode .container {
+      background: #e8f0ff;
+      color: #001a33;
+    }
+    h1 {
+      font-size: 2.4rem;
+      color: #00eaff;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+      margin-bottom: 16px;
+    }
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #d0f6ff;
+    }
+    button {
+      background: linear-gradient(145deg, #00bcd4, #0097a7);
+      color: #fff;
+      padding: 14px 38px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      transition: all 0.3s ease-in-out;
+    }
+    button:hover {
+      background: #00838f;
+      box-shadow: 0 0 25px #00eaffaa;
+      transform: translateY(-3px);
+    }
+    #copyBtn { margin-top: 12px; }
+    #keyBox {
+      background-color: #101820;
+      border: 2px solid #00eaff88;
+      border-radius: 14px;
+      padding: 20px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.2rem;
+      color: #00eaff;
+      box-shadow: inset 0 0 20px #00eaff33;
+      word-break: break-word;
+      user-select: all;
+    }
+    #countdown, #keyTimer {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #ffdd57;
+      font-size: 1rem;
+    }
+    #darkToggle {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      border: 2px solid #00eaff;
+      background: transparent;
+      color: #00eaff;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      box-shadow: 0 0 8px #00eaff88;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    #darkToggle:hover {
+      background-color: #00eaff;
+      color: #000;
+      box-shadow: 0 0 16px #00eaff;
+    }
   </style>
 </head>
 <body>
@@ -253,7 +118,7 @@ body.light-mode #darkToggle:hover {
   <div id="keyActiveSection" style="display:none;">
     <p><strong>You have already created a key.</strong></p>
     <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-    <div id="keyBox">[Your Key Here]</div>
+    <div id="keyBox"></div>
     <button id="copyBtn">Copy Key</button>
   </div>
 
@@ -261,6 +126,7 @@ body.light-mode #darkToggle:hover {
 </div>
 
 <script>
+  // Elements
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
@@ -271,13 +137,13 @@ body.light-mode #darkToggle:hover {
   const messageText = document.getElementById('messageText');
   const body = document.body;
 
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
-
+  // Constants
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
   const sessionStartKey = 'smh_sessionStart';
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
 
+  // Dark mode toggle
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -291,19 +157,13 @@ body.light-mode #darkToggle:hover {
   }
   updateDarkToggleText();
 
+  // Timer format
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
     const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  }
-
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
   }
 
   function showNormalUI() {
@@ -314,47 +174,28 @@ body.light-mode #darkToggle:hover {
 
   function updateTimers() {
     const now = Date.now();
-    const key = localStorage.getItem(keyStorageKey);
-    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
+    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || now;
 
-    if (key && keyTime) {
-      const elapsed = now - keyTime;
-      const remaining = MAX_KEY_MS - elapsed;
-
-      if (remaining <= 0) {
-        localStorage.clear();
-        alert('Key expired. Please restart the process.');
-        location.reload();
-        return;
-      }
-
-      countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
-      document.getElementById("keyTimer").textContent = formatTime(remaining);
-      showKeyUI(key);
-    } else {
-      // No key created yet, use 3-hour session
-      let startTime = sessionStart || now;
-      if (!sessionStart) {
-        localStorage.setItem(sessionStartKey, now.toString());
-      }
-
-      const elapsed = now - startTime;
-      const remaining = MAX_SESSION_MS - elapsed;
-
-      if (remaining <= 0) {
-        localStorage.clear();
-        alert('Session expired. Please restart the process.');
-        location.reload();
-        return;
-      }
-
-      countdown.textContent = `⏳ Session time remaining: ${formatTime(remaining)}`;
-      showNormalUI();
+    if (!localStorage.getItem(sessionStartKey)) {
+      localStorage.setItem(sessionStartKey, now.toString());
     }
+
+    const elapsedSession = now - sessionStart;
+    const remainingSession = MAX_SESSION_MS - elapsedSession;
+
+    if (remainingSession <= 0) {
+      localStorage.removeItem(sessionStartKey);
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      alert('Session expired. Please restart the process.');
+      location.reload();
+      return;
+    }
+
+    countdown.textContent = `⏳ Session time remaining: ${formatTime(remainingSession)}`;
+    showNormalUI();
   }
 
-  // Copy Key
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -363,16 +204,12 @@ body.light-mode #darkToggle:hover {
     });
   };
 
-  // Redirect to Linkvertise
+  // Redirect to Linkvertise on button click
   finishBtn.onclick = () => {
-    // Save the current timestamp as key time
-    const now = Date.now();
-    localStorage.setItem(keyTimeKey, now.toString());
-    localStorage.setItem(sessionStartKey, now.toString()); // sync both timers
-    // NOTE: You should set `smh_key` in Step 3 or after redirect
     window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
   };
 
+  // Timer updater
   updateTimers();
   setInterval(updateTimers, 1000);
 </script>
