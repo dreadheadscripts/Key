@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub KeySystem</title>
+  <title>Script Maniac Hub - Final Step</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
       height: 100%;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       background-color: #0a0a0a;
       color: #00e0ff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -105,7 +104,6 @@
     }
   </style>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -128,36 +126,40 @@
 <body>
 <button id="darkToggle">Light Mode</button>
 <div class="container">
-  <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Final Step: Your Key</p>
-
-  <div id="captchaContainer">
-    <button id="finishBtn">Get Your Key</button>
-  </div>
+  <h1>Script Maniac Hub - Final Step</h1>
+  <p id="messageText">Checking key validity and redirecting...</p>
 
   <div id="keyActiveSection" style="display:none;">
-    <p><strong>You have already created a key.</strong></p>
-    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+    <p><strong>Your key is active:</strong></p>
+    <p>Time remaining: <span id="keyTimer">Loading...</span></p>
     <div id="keyBox"></div>
     <button id="copyBtn">Copy Key</button>
   </div>
 
-  <div id="countdown">Loading timer...</div>
+  <div id="countdown" style="display:none;"></div>
 </div>
 
 <script type="module">
-  // No need for setDoc here since key generation is skipped in this version
+  const db = window.firestoreDB;
+
+  // Timer constants
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours
+
+  // LocalStorage keys
+  const keyStorageKey = 'smh_key';
+  const keyTimeKey = 'smh_keyTime';
+
+  // Elements
   const darkToggle = document.getElementById('darkToggle');
-  const countdown = document.getElementById('countdown');
-  const finishBtn = document.getElementById('finishBtn');
+  const keyTimerEl = document.getElementById('keyTimer');
   const copyBtn = document.getElementById('copyBtn');
   const keyBox = document.getElementById('keyBox');
   const keyActiveSection = document.getElementById('keyActiveSection');
-  const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
+  const countdown = document.getElementById('countdown');
   const body = document.body;
 
-  // Dark mode toggle logic (unchanged)
+  // Dark mode toggle and persistence
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -171,7 +173,23 @@
   }
   updateDarkToggleText();
 
-  // Copy button alert (optional, might not be used since no key generation here)
+  // Format ms to HH:MM:SS
+  function formatTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // Show key UI
+  function showKeyUI(key) {
+    messageText.style.display = 'none';
+    keyActiveSection.style.display = 'block';
+    keyBox.textContent = key;
+  }
+
+  // Copy key button handler
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -180,10 +198,45 @@
     });
   };
 
-  // On clicking "Get Your Key" redirect to Linkvertise URL
-  finishBtn.onclick = () => {
-    window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
-  };
+  // Redirect to final destination
+  function redirectToFinal() {
+    // Replace this URL with your actual final destination
+    window.location.href = "https://final-destination.example.com";
+  }
+
+  // Timer and redirect logic
+  function updateTimerAndRedirect() {
+    const now = Date.now();
+
+    const storedKey = localStorage.getItem(keyStorageKey);
+    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+
+    if (!storedKey || !storedKeyTime) {
+      alert("No valid key found. Please restart the process.");
+      messageText.textContent = "No valid key found.";
+      return;
+    }
+
+    const elapsed = now - storedKeyTime;
+    const remaining = MAX_KEY_MS - elapsed;
+
+    if (remaining <= 0) {
+      alert("Key expired. Please restart the process.");
+      localStorage.removeItem(keyStorageKey);
+      localStorage.removeItem(keyTimeKey);
+      messageText.textContent = "Key expired.";
+      return;
+    }
+
+    // Key valid: show UI, update countdown, then redirect immediately
+    showKeyUI(storedKey);
+    keyTimerEl.textContent = formatTime(remaining);
+
+    // Redirect immediately
+    redirectToFinal();
+  }
+
+  updateTimerAndRedirect();
 </script>
 </body>
 </html>
