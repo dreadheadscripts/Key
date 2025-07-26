@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub KeySystem - Final</title>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <title>Script Maniac Hub KeySystem</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
       height: 100%;
@@ -17,263 +17,334 @@
       justify-content: center;
       align-items: center;
       user-select: none;
-      transition: background 0.4s ease, color 0.4s ease;
+      transition: background 0.3s ease, color 0.3s ease;
+      font-size: 4vw;
+      line-height: 1.2;
+      overflow-x: hidden;
     }
-
     body.light-mode {
-      background-color: #f0f4ff;
-      color: #001a33;
+      background-color: #ffffff;
+      color: #000000;
     }
-
     .container {
       background: linear-gradient(135deg, #050505, #1a1a1a);
       border: 3px solid #003366;
       border-radius: 20px;
-      padding: 60px 40px;
-      width: 560px;
-      box-shadow:
-        0 0 20px rgba(0, 255, 255, 0.2),
-        inset 0 0 12px rgba(0, 255, 255, 0.05);
+      padding: 5vw 4vw;
+      width: 90vw;
+      max-width: 560px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.2), inset 0 0 12px rgba(0,255,255,0.05);
       text-align: center;
-      transition: all 0.3s ease-in-out;
+      transition: background 0.3s ease, color 0.3s ease;
     }
-
     body.light-mode .container {
-      background: #e8f0ff;
-      color: #001a33;
-      box-shadow: 0 0 10px rgba(0,0,50,0.1);
+      background: #ffffff;
+      color: #000000;
+      border-color: #000000;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1), inset 0 0 12px rgba(0,0,0,0.05);
     }
-
     h1 {
-      font-size: 2.4rem;
+      font-size: 8vw;
       color: #00eaff;
-      text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-      margin-bottom: 16px;
+      text-shadow: 0 0 10px rgba(0,255,255,0.4);
+      margin-bottom: 1rem;
+      transition: color 0.3s ease;
     }
-
+    body.light-mode h1 {
+      color: #000000;
+      text-shadow: none;
+    }
     p {
-      font-size: 1.1rem;
-      line-height: 1.6;
+      font-size: 4vw;
       color: #d0f6ff;
+      margin: 0 0 1rem;
+      transition: color 0.3s ease;
     }
-
+    body.light-mode p {
+      color: #222222;
+    }
     button {
       background: linear-gradient(145deg, #00bcd4, #0097a7);
       color: #fff;
-      padding: 14px 38px;
+      padding: 3vw 8vw;
       border: none;
       border-radius: 14px;
-      font-size: 1.1rem;
+      font-size: 4vw;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-      transition: all 0.3s ease-in-out;
+      box-shadow: 0 0 15px rgba(0,255,255,0.5);
+      transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
     }
-
     button:hover {
       background: #00838f;
       box-shadow: 0 0 25px #00eaffaa;
       transform: translateY(-3px);
     }
-
-    #copyBtn {
-      margin-top: 12px;
+    body.light-mode button {
+      background: linear-gradient(145deg, #444444, #222222);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
-
+    body.light-mode button:hover {
+      background: #111111;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    }
+    #copyBtn { margin-top: 1vw; }
     #keyBox {
       background-color: #101820;
       border: 2px solid #00eaff88;
       border-radius: 14px;
-      padding: 20px;
+      padding: 4vw;
       font-family: 'Share Tech Mono', monospace;
-      font-size: 1.2rem;
+      font-size: 4vw;
       color: #00eaff;
       box-shadow: inset 0 0 20px #00eaff33;
       word-break: break-word;
       user-select: all;
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
-
+    body.light-mode #keyBox {
+      background-color: #f0f0f0;
+      border: 2px solid #44444488;
+      color: #000000;
+      box-shadow: inset 0 0 20px #cccccc33;
+    }
     #countdown, #keyTimer {
-      margin-top: 20px;
+      margin-top: 1.5vw;
       font-weight: bold;
       color: #ffdd57;
-      font-size: 1rem;
+      font-size: 4vw;
+      transition: color 0.3s ease;
     }
-
+    body.light-mode #countdown, body.light-mode #keyTimer {
+      color: #aa8800;
+    }
     #darkToggle {
       position: fixed;
-      top: 16px;
-      right: 20px;
+      top: 1.5vw;
+      right: 3vw;
       border: 2px solid #00eaff;
       background: transparent;
       color: #00eaff;
-      padding: 8px 16px;
+      padding: 1vw 3vw;
       border-radius: 30px;
-      font-size: 0.95rem;
-      box-shadow: 0 0 8px #00eaff88;
+      font-size: 3.5vw;
       cursor: pointer;
-      transition: all 0.3s ease;
+      box-shadow: 0 0 8px #00eaff88;
+      transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      z-index: 999;
     }
-
     #darkToggle:hover {
       background-color: #00eaff;
       color: #000;
       box-shadow: 0 0 16px #00eaff;
     }
+    body.light-mode #darkToggle {
+      border-color: #000000;
+      color: #000;
+      box-shadow: 0 0 8px #00000088;
+    }
+    body.light-mode #darkToggle:hover {
+      background-color: #000000;
+      color: #fff;
+      box-shadow: 0 0 16px #000000cc;
+    }
+    @media (min-width: 600px) {
+      html, body { font-size: 18px; }
+      h1 { font-size: 2.4rem; }
+      p, button, #keyBox, #countdown, #keyTimer { font-size: 1.1rem; }
+      button { padding: 14px 38px; }
+      #darkToggle { font-size: 0.95rem; padding: 8px 16px; top: 16px; right: 20px; }
+    }
   </style>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getFirestore, doc, setDoc } from "firebase/firestore";
+    import { getAnalytics } from "firebase/analytics";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+      authDomain: "smh-keysystem.firebaseapp.com",
+      projectId: "smh-keysystem",
+      storageBucket: "smh-keysystem.firebasestorage.app",
+      messagingSenderId: "619718800070",
+      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
+      measurementId: "G-QBXKHSRKT0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+  </script>
 </head>
 <body>
-<script>
-(() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const refParam = urlParams.get("ref");
-  const referrer = document.referrer;
+  <button id="darkToggle">Light Mode</button>
+  <div class="container">
+    <h1>Script Maniac Hub KeySystem</h1>
+    <p id="messageText">Your Key is Ready</p>
 
-  const hasRefParam = refParam === "link";
-  const cameFromLinkvertise = referrer.includes("linkvertise.com");
+    <div id="captchaContainer">
+      <button id="finishBtn">Generate Key</button>
+    </div>
 
-  if (!hasRefParam && !cameFromLinkvertise) {
-    window.location.href = "index.html";
-    return;
-  }
-})();
-</script>
+    <div id="keyActiveSection" style="display:none;">
+      <p><strong>Key Generated.</strong></p>
+      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+      <div id="keyBox"></div>
+      <button id="copyBtn">Copy Key</button>
+    </div>
 
-<button id="darkToggle" aria-label="Toggle Dark/Light Mode">Light Mode</button>
-<div class="container" role="main" aria-label="Key System Final Step">
-  <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Final Step: Your Key</p>
-
-  <div id="captchaContainer">
-    <button id="finishBtn">Get Your Key</button>
+    <div id="countdown">Loading timer...</div>
   </div>
 
-  <div id="keyActiveSection" style="display:none;">
-    <p><strong>You have already created a key.</strong></p>
-    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-    <div id="keyBox"></div>
-    <button id="copyBtn">Copy Key</button>
-  </div>
+  <script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getFirestore, doc, setDoc } from "firebase/firestore";
 
-  <div id="countdown" aria-live="polite" aria-atomic="true">Loading timer...</div>
-</div>
+    const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+    const MAX_KEY_MS = 8 * 60 * 60 * 1000;
 
-<!-- Add this inside <head> -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    const keyStorageKey = 'smh_key';
+    const keyTimeKey = 'smh_keyTime';
+    const sessionStartKey = 'smh_sessionStart';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
-    authDomain: "smh-keysystem.firebaseapp.com",
-    projectId: "smh-keysystem",
-    storageBucket: "smh-keysystem.appspot.com",
-    messagingSenderId: "619718800070",
-    appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
-    measurementId: "G-QBXKHSRKT0"
-  };
+    const darkToggle = document.getElementById('darkToggle');
+    const countdown = document.getElementById('countdown');
+    const finishBtn = document.getElementById('finishBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const keyBox = document.getElementById('keyBox');
+    const keyTimer = document.getElementById('keyTimer');
+    const keyActiveSection = document.getElementById('keyActiveSection');
+    const captchaContainer = document.getElementById('captchaContainer');
+    const messageText = document.getElementById('messageText');
+    const bodyElem = document.body;
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  const keyBox = document.getElementById('keyBox');
-  const keyActiveSection = document.getElementById('keyActiveSection');
-  const captchaContainer = document.getElementById('captchaContainer');
-  const messageText = document.getElementById('messageText');
-  const copyBtn = document.getElementById('copyBtn');
-  const finishBtn = document.getElementById('finishBtn');
-  const keyTimer = document.getElementById('keyTimer');
-
-  const KEY_EXPIRATION_MS = 8 * 60 * 60 * 1000;
-
-  function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  }
-
-  function getDeviceId() {
-    let id = localStorage.getItem('smh_deviceId');
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem('smh_deviceId', id);
+    function updateDarkToggleText(){
+      darkToggle.textContent = bodyElem.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
     }
-    return id;
-  }
+    darkToggle.onclick = () => {
+      bodyElem.classList.toggle('light-mode');
+      localStorage.setItem('smh_darkMode', bodyElem.classList.contains('light-mode') ? '1' : '0');
+      updateDarkToggleText();
+    };
+    if(localStorage.getItem('smh_darkMode')==='1'){
+      bodyElem.classList.add('light-mode');
+    }
+    updateDarkToggleText();
 
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
-  }
+    if(!localStorage.getItem(sessionStartKey)){
+      localStorage.setItem(sessionStartKey, Date.now().toString());
+    }
 
-  function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
-    keyActiveSection.style.display = 'none';
-  }
+    function generateKey(){
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let key = '';
+      for(let i=0; i<16; i++){
+        key += chars.charAt(Math.floor(Math.random()*chars.length));
+      }
+      return key;
+    }
 
-  async function loadKey() {
-    const deviceId = getDeviceId();
-    const keyDocRef = doc(db, "keys", deviceId);
-    const docSnap = await getDoc(keyDocRef);
+    function formatTime(ms){
+      let t = Math.floor(ms/1000);
+      let h = Math.floor(t/3600);
+      let m = Math.floor((t%3600)/60);
+      let s = t%60;
+      return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      const createdAt = data.createdAt?.toMillis?.() || 0;
+    function showNormalUI(){
+      messageText.style.display='block';
+      captchaContainer.style.display='block';
+      keyActiveSection.style.display='none';
+    }
+    function showKeyUI(key){
+      messageText.style.display='none';
+      captchaContainer.style.display='none';
+      keyActiveSection.style.display='block';
+      keyBox.textContent=key;
+    }
+
+    function updateSessionTimer(){
       const now = Date.now();
-      const diff = now - createdAt;
-
-      if (diff < KEY_EXPIRATION_MS && data.key) {
-        showKeyUI(data.key);
-        updateKeyCountdown(createdAt);
-        return true;
+      const start = parseInt(localStorage.getItem(sessionStartKey),10);
+      const elapsed = now - start;
+      if(!localStorage.getItem(keyStorageKey)){
+        if(elapsed > MAX_SESSION_MS){
+          alert('Session expired. Please restart.');
+          localStorage.clear();
+          location.reload();
+          return;
+        }
+        countdown.textContent = `⏳ Time remaining (before key): ${formatTime(MAX_SESSION_MS - elapsed)}`;
       }
     }
-    return false;
-  }
 
-  function updateKeyCountdown(createdAt) {
-    const interval = setInterval(() => {
+    function updateKeyTimer(){
+      const stored = parseInt(localStorage.getItem(keyTimeKey),10);
+      if(!stored) return false;
       const now = Date.now();
-      const remaining = KEY_EXPIRATION_MS - (now - createdAt);
-      if (remaining <= 0) {
-        clearInterval(interval);
-        location.reload();
-      } else {
-        keyTimer.textContent = formatTime(remaining);
+      const elapsed = now - stored;
+      const rem = MAX_KEY_MS - elapsed;
+      if(rem <= 0){
+        alert('Key expired. Generate a new one.');
+        localStorage.removeItem(keyStorageKey);
+        localStorage.removeItem(keyTimeKey);
+        localStorage.setItem(sessionStartKey, Date.now().toString());
+        showNormalUI();
+        return false;
       }
+      keyTimer.textContent = formatTime(rem);
+      return true;
+    }
+
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(keyBox.textContent)
+        .then(()=>alert('Key copied!'))
+        .catch(()=>alert('Copy failed.'));
+    };
+
+    function checkKeyOnLoad(){
+      const key = localStorage.getItem(keyStorageKey);
+      if(key){
+        showKeyUI(key);
+        if(!updateKeyTimer()) showNormalUI();
+      } else showNormalUI();
+    }
+
+    setInterval(()=>{
+      if(localStorage.getItem(keyStorageKey)){
+        updateKeyTimer();
+      } else updateSessionTimer();
     }, 1000);
-  }
 
-  async function createKey() {
-    const key = Array.from({ length: 16 }, () => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[Math.floor(Math.random() * 36)]).join("");
-    const deviceId = getDeviceId();
-    const keyDocRef = doc(db, "keys", deviceId);
-    await setDoc(keyDocRef, {
-      key: key,
-      createdAt: serverTimestamp()
-    });
-    loadKey();
-  }
+    checkKeyOnLoad();
+    updateSessionTimer();
 
-  finishBtn.onclick = createKey;
-
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
-    });
-  };
-
-  // Start it all
-  loadKey().then(valid => {
-    if (!valid) showNormalUI();
-  });
-</script>
+    finishBtn.onclick = async () => {
+      finishBtn.disabled = true;
+      finishBtn.textContent = 'Generating Key...';
+      const key = generateKey();
+      const now = Date.now();
+      try {
+        await setDoc(doc(db, 'keys', key), {
+          valid: true,
+          expiresAt: now + MAX_KEY_MS
+        });
+        localStorage.setItem(keyStorageKey, key);
+        localStorage.setItem(keyTimeKey, now.toString());
+        showKeyUI(key);
+        countdown.textContent = '';
+        finishBtn.textContent = 'Key Created!';
+      } catch(e) {
+        alert('Error: '+e.message);
+        finishBtn.disabled = false;
+        finishBtn.textContent = 'Generate Key';
+      }
+    };
+  </script>
 </body>
 </html>
