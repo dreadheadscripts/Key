@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub Step 2</title>
+  <title>Script Maniac Hub KeySystem</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
       height: 100%;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background-color: #0a0a0a;
       color: #00e0ff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -64,25 +65,6 @@
       box-shadow: 0 0 25px #00eaffaa;
       transform: translateY(-3px);
     }
-    #copyBtn { margin-top: 12px; }
-    #keyBox {
-      background-color: #101820;
-      border: 2px solid #00eaff88;
-      border-radius: 14px;
-      padding: 20px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 1.2rem;
-      color: #00eaff;
-      box-shadow: inset 0 0 20px #00eaff33;
-      word-break: break-word;
-      user-select: all;
-    }
-    #countdown, #keyTimer {
-      margin-top: 20px;
-      font-weight: bold;
-      color: #ffdd57;
-      font-size: 1rem;
-    }
     #darkToggle {
       position: fixed;
       top: 16px;
@@ -103,66 +85,19 @@
       box-shadow: 0 0 16px #00eaff;
     }
   </style>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
-      authDomain: "smh-keysystem.firebaseapp.com",
-      projectId: "smh-keysystem",
-      storageBucket: "smh-keysystem.appspot.com",
-      messagingSenderId: "619718800070",
-      appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.firestoreDB = db;
-  </script>
 </head>
 <body>
 <button id="darkToggle">Light Mode</button>
 <div class="container">
-  <h1>Script Maniac Hub - Step 2</h1>
-  <p id="messageText">Redirecting to Linkvertise...</p>
-
-  <div id="keyActiveSection" style="display:none;">
-    <p><strong>You have already created a key.</strong></p>
-    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-    <div id="keyBox"></div>
-    <button id="copyBtn">Copy Key</button>
-  </div>
-
-  <div id="countdown">Loading timer...</div>
+  <h1>Script Maniac Hub KeySystem</h1>
+  <p>Click the button below to proceed:</p>
+  <button id="redirectBtn">Go to Linkvertise</button>
 </div>
 
-<script type="module">
-  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const db = window.firestoreDB;
-
-  // Timer limits
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours session
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000; // 8 hours key validity
-
-  // LocalStorage keys
-  const sessionStartKey = 'smh_sessionStart';
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-
-  // Elements
+<script>
   const darkToggle = document.getElementById('darkToggle');
-  const countdown = document.getElementById('countdown');
-  const copyBtn = document.getElementById('copyBtn');
-  const keyBox = document.getElementById('keyBox');
-  const keyActiveSection = document.getElementById('keyActiveSection');
-  const messageText = document.getElementById('messageText');
   const body = document.body;
 
-  // Dark mode toggle and persist
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -176,109 +111,9 @@
   }
   updateDarkToggleText();
 
-  // Initialize session start if not set
-  if (!localStorage.getItem(sessionStartKey)) {
-    localStorage.setItem(sessionStartKey, Date.now().toString());
-  }
-
-  // Format ms to HH:MM:SS
-  function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  }
-
-  // Show UI when key exists
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
-  }
-
-  // Show normal UI when no key
-  function showNormalUI() {
-    messageText.style.display = 'block';
-    keyActiveSection.style.display = 'none';
-  }
-
-  // Copy key button handler
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
-    });
-  };
-
-  // Redirect function
-  function redirectToLinkvertise() {
+  document.getElementById('redirectBtn').onclick = () => {
     window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
-  }
-
-  // Unified timer update function
-  function updateTimers() {
-    const now = Date.now();
-
-    const storedKey = localStorage.getItem(keyStorageKey);
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || now;
-
-    if (!localStorage.getItem(sessionStartKey)) {
-      localStorage.setItem(sessionStartKey, now.toString());
-    }
-
-    if (storedKey && storedKeyTime) {
-      // Key exists - 8 hour timer
-      const elapsedKey = now - storedKeyTime;
-      const remainingKey = MAX_KEY_MS - elapsedKey;
-
-      if (remainingKey <= 0) {
-        // Key expired - reset all
-        localStorage.removeItem(keyStorageKey);
-        localStorage.removeItem(keyTimeKey);
-        localStorage.removeItem(sessionStartKey);
-        alert('Key expired. Please restart the process.');
-        showNormalUI();
-        countdown.textContent = "Key expired.";
-        return;
-      }
-
-      // Key valid, show key UI and timer, then redirect after short delay
-      countdown.textContent = `⏳ Key time remaining: ${formatTime(remainingKey)}`;
-      showKeyUI(storedKey);
-
-      // Redirect immediately (or after small delay to show UI)
-      setTimeout(() => {
-        redirectToLinkvertise();
-      }, 1500);
-
-    } else {
-      // No key - 3 hour session timer
-      const elapsedSession = now - sessionStart;
-      const remainingSession = MAX_SESSION_MS - elapsedSession;
-
-      if (remainingSession <= 0) {
-        // Session expired - clear storage and reload
-        localStorage.removeItem(sessionStartKey);
-        localStorage.removeItem(keyStorageKey);
-        localStorage.removeItem(keyTimeKey);
-        alert('Session expired. Please restart the process.');
-        location.reload();
-        return;
-      }
-
-      // Session valid - show message and countdown
-      countdown.textContent = `⏳ Session time remaining: ${formatTime(remainingSession)}`;
-      showNormalUI();
-    }
-  }
-
-  // Run timer updates every second
-  updateTimers();
-  setInterval(updateTimers, 1000);
-
+  };
 </script>
 </body>
 </html>
