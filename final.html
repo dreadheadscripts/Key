@@ -108,7 +108,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -146,15 +146,7 @@
 </div>
 
 <script type="module">
-  import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const db = window.firestoreDB;
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
-  const keyStorageKey = 'smh_key';
-  const keyTimeKey = 'smh_keyTime';
-  const sessionStartKey = 'smh_sessionStart';
-
+  // No need for setDoc here since key generation is skipped in this version
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
@@ -165,7 +157,7 @@
   const messageText = document.getElementById('messageText');
   const body = document.body;
 
-  // Dark mode
+  // Dark mode toggle logic (unchanged)
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -179,68 +171,7 @@
   }
   updateDarkToggleText();
 
-  if (!localStorage.getItem(sessionStartKey)) {
-    localStorage.setItem(sessionStartKey, Date.now().toString());
-  }
-
-  function generateKey() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let key = '';
-    for (let i = 0; i < 16; i++) {
-      key += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return key;
-  }
-
-  function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  }
-
-  function updateSessionTimer() {
-    const now = Date.now();
-    const start = parseInt(localStorage.getItem(sessionStartKey), 10);
-    const elapsed = now - start;
-    if (elapsed > MAX_SESSION_MS) {
-      alert('Session expired. Please restart the process.');
-      localStorage.clear();
-      location.href = 'index.html';
-      return;
-    }
-    countdown.textContent = `⏳ Time remaining: ${formatTime(MAX_SESSION_MS - elapsed)}`;
-  }
-
-  function updateKeyTimer() {
-    const storedKeyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const now = Date.now();
-    const elapsed = now - storedKeyTime;
-    const remaining = MAX_KEY_MS - elapsed;
-    if (remaining <= 0) {
-      localStorage.removeItem(keyStorageKey);
-      localStorage.removeItem(keyTimeKey);
-      showNormalUI();
-      return false;
-    }
-    document.getElementById('keyTimer').textContent = formatTime(remaining);
-    return true;
-  }
-
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
-  }
-
-  function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
-    keyActiveSection.style.display = 'none';
-  }
-
+  // Copy button alert (optional, might not be used since no key generation here)
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -249,46 +180,10 @@
     });
   };
 
-  function checkKey() {
-    const storedKey = localStorage.getItem(keyStorageKey);
-    const storedKeyTime = localStorage.getItem(keyTimeKey);
-    if (storedKey && storedKeyTime) {
-      const valid = updateKeyTimer();
-      if (valid) {
-        showKeyUI(storedKey);
-        return true;
-      }
-    }
-    showNormalUI();
-    return false;
-  }
-
-  finishBtn.onclick = async () => {
-    if (!localStorage.getItem(keyStorageKey)) {
-      try {
-        const newKey = generateKey();
-        const createdAt = Date.now();
-        const expiresAt = createdAt + MAX_KEY_MS;
-        await setDoc(doc(db, "keys", newKey), {
-          created: createdAt,
-          expiresAt: expiresAt,
-          valid: true
-        });
-        localStorage.setItem(keyStorageKey, newKey);
-        localStorage.setItem(keyTimeKey, createdAt.toString());
-        showKeyUI(newKey);
-        checkKey();
-      } catch (e) {
-        alert("❌ Failed to create key.");
-        console.error(e);
-      }
-    }
+  // On clicking "Get Your Key" redirect to Linkvertise URL
+  finishBtn.onclick = () => {
+    window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
   };
-
-  updateSessionTimer();
-  setInterval(updateSessionTimer, 1000);
-  setInterval(() => checkKey(), 1000);
-  checkKey();
 </script>
 </body>
 </html>
