@@ -119,7 +119,7 @@
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <button id="darkToggle">Light Mode</button>
@@ -142,18 +142,14 @@
 </div>
 
 <script>
-  // Firebase
+  // Firebase Init
   const firebaseConfig = {
     apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
     authDomain: "smh-keysystem.firebaseapp.com",
     projectId: "smh-keysystem",
-    storageBucket: "smh-keysystem.appspot.com",
-    messagingSenderId: "619718800070",
-    appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
-    measurementId: "G-QBXKHSRKT0"
   };
   firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
+  const db = firebase.firestore();
 
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
@@ -166,25 +162,12 @@
   const keyTimerDisplay = document.getElementById("keyTimer");
   const body = document.body;
 
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours session
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours key
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
 
   const sessionStartKey = 'smh_sessionStart';
-  const keyStorageKey = 'smh_key';
+  const keyStorage = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
-
-  function updateDarkToggleText() {
-    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
-  }
-  darkToggle.onclick = () => {
-    body.classList.toggle('light-mode');
-    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
-    updateDarkToggleText();
-  };
-  if (localStorage.getItem('smh_darkMode') === '1') {
-    body.classList.add('light-mode');
-  }
-  updateDarkToggleText();
 
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
@@ -207,42 +190,87 @@
     keyActiveSection.style.display = 'none';
   }
 
+  function updateDarkToggleText() {
+    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+  }
+  darkToggle.onclick = () => {
+    body.classList.toggle('light-mode');
+    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
+    updateDarkToggleText();
+  };
+  if (localStorage.getItem('smh_darkMode') === '1') {
+    body.classList.add('light-mode');
+  }
+  updateDarkToggleText();
+
+  async function validateKeyFromFirestore(key) {
+    try {
+      const docSnap = await db.collection("keys").doc(key).get();
+      if (!docSnap.exists) return false;
+      const data = docSnap.data();
+      return data.valid === true && typeof data.expiresAt === 'number' && Date.now() < data.expiresAt;
+    } catch (e) {
+      console.error("Firestore validation failed:", e);
+      return false;
+    }
+  }
+
+  async function checkKey() {
+    const key = localStorage.getItem(keyStorage);
+    if (!key) {
+      showNormalUI();
+      return false;
+    }
+
+    const valid = await validateKeyFromFirestore(key);
+    if (!valid) {
+      localStorage.clear();
+      window.location.href = "index.html";
+      return false;
+    }
+
+    showKeyUI(key);
+    return true;
+  }
+
+  async function periodicKeyValidation() {
+    const key = localStorage.getItem(keyStorage);
+    if (!key) return;
+    const valid = await validateKeyFromFirestore(key);
+    if (!valid) {
+      localStorage.clear();
+      alert("Key expired or invalid.");
+      window.location.href = "index.html";
+    }
+  }
+
   function updateTimers() {
     const now = Date.now();
-    const key = localStorage.getItem(keyStorageKey);
+    const key = localStorage.getItem(keyStorage);
     const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
     const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
     if (key && keyTime && !isNaN(keyTime)) {
       const remaining = (keyTime + MAX_KEY_MS) - now;
-
       if (remaining <= 0) {
         localStorage.clear();
         alert('Key expired. Please restart the process.');
         location.reload();
         return;
       }
-
       countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
       if (keyTimerDisplay) keyTimerDisplay.textContent = formatTime(remaining);
-      showKeyUI(key);
     } else {
       const startTime = sessionStart || now;
-      if (!sessionStart) {
-        localStorage.setItem(sessionStartKey, now.toString());
-      }
-
+      if (!sessionStart) localStorage.setItem(sessionStartKey, now.toString());
       const remaining = (startTime + MAX_SESSION_MS) - now;
-
       if (remaining <= 0) {
         localStorage.clear();
         alert('Session expired. Please restart the process.');
         location.reload();
         return;
       }
-
       countdown.textContent = `⏳ Session time remaining: ${formatTime(remaining)}`;
-      showNormalUI();
     }
   }
 
@@ -256,26 +284,21 @@
 
   finishBtn.onclick = () => {
     const now = Date.now();
-    const key = Math.random().toString(36).substring(2, 16).toUpperCase(); // simple fake key
-    localStorage.setItem(keyStorageKey, key);
+    const key = Math.random().toString(36).substring(2, 16).toUpperCase();
+    localStorage.setItem(keyStorage, key);
     localStorage.setItem(keyTimeKey, now.toString());
     localStorage.setItem(sessionStartKey, now.toString());
     window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
   };
 
-  function checkKeyStatus() {
-    const key = localStorage.getItem(keyStorageKey);
-    if (key) {
-      showKeyUI(key);
-    } else {
-      showNormalUI();
-    }
-  }
+  setInterval(() => {
+    updateTimers();
+    periodicKeyValidation();
+  }, 1000);
 
-  setInterval(updateTimers, 1000);
   window.addEventListener("DOMContentLoaded", () => {
     updateTimers();
-    checkKeyStatus();
+    checkKey();
   });
 </script>
 </body>
