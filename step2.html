@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Script Maniac Hub Key System - Step 2</title>
+  <title>Script Maniac Hub KeySystem - Step 2</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
     html, body {
@@ -65,7 +65,7 @@
       box-shadow: 0 0 25px #00eaffaa;
       transform: translateY(-3px);
     }
-    #countdown, #keyTimer {
+    #countdown {
       margin-top: 20px;
       font-weight: bold;
       color: #ffdd57;
@@ -104,39 +104,12 @@
       box-shadow: 0 0 16px #00eaff;
     }
   </style>
-</head>
-<body>
-  <button id="darkToggle">Light Mode</button>
-  <div class="container">
-    <h1>Script Maniac Hub KeySystem</h1>
-    <p id="messageText">Final CheckPoint</p>
 
-    <div id="captchaContainer">
-      <button id="continueBtn">Get Key</button>
-    </div>
-
-    <div id="keyActiveSection" style="display:none;">
-      <p><strong>You have already created a key.</strong></p>
-      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-      <div id="keyBox"></div>
-      <button id="copyBtn">Copy Key</button>
-    </div>
-
-    <div id="countdown">Loading timer...</div>
-  </div>
-
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Referrer enforcement
-    const allowed = ["linkvertise.com", "link-target.net"];
-    const ref = document.referrer.toLowerCase();
-    if (!allowed.some(url => ref.includes(url))) {
-      window.location.href = "index.html";
-    }
-
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
       authDomain: "smh-keysystem.firebaseapp.com",
@@ -148,94 +121,138 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    const continueBtn = document.getElementById("continueBtn");
-    const countdownEl = document.getElementById("countdown");
-    const keyTimerEl = document.getElementById("keyTimer");
-    const keyBox = document.getElementById("keyBox");
-    const keyActiveSection = document.getElementById("keyActiveSection");
-    const captchaContainer = document.getElementById("captchaContainer");
-
-    const SESSION_DURATION = 3 * 60 * 60 * 1000;
-    const KEY_DURATION = 8 * 60 * 60 * 1000;
-
-    function updateCountdown() {
-      const now = Date.now();
-      const sessionStart = localStorage.getItem("smh_sessionStart");
-      const key = localStorage.getItem("smh_key");
-      const expiresAt = parseInt(localStorage.getItem("smh_keyTime") || "0");
-
-      let remaining;
-      if (key && expiresAt) {
-        remaining = expiresAt - now;
-        if (remaining <= 0) {
-          localStorage.clear();
-          location.reload();
-        }
-        keyTimerEl.textContent = formatTime(remaining);
-        countdownEl.textContent = `Key expires in: ${formatTime(remaining)}`;
-      } else if (sessionStart) {
-        remaining = parseInt(sessionStart) + SESSION_DURATION - now;
-        if (remaining <= 0) {
-          localStorage.clear();
-          location.reload();
-        }
-        countdownEl.textContent = `Session expires in: ${formatTime(remaining)}`;
-      } else {
-        localStorage.setItem("smh_sessionStart", now.toString());
-        countdownEl.textContent = `Session started`;
-      }
-    }
-
-    function formatTime(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      return `${hours}h ${minutes}m ${seconds}s`;
-    }
-
-    async function validateKey(key) {
-      const ref = doc(db, "keys", key);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) return false;
-
-      const data = snap.data();
-      return data.valid && data.expiresAt > Date.now();
-    }
-
-    async function init() {
-      const key = localStorage.getItem("smh_key");
-      const expiresAt = localStorage.getItem("smh_keyTime");
-
-      if (key && expiresAt && await validateKey(key)) {
-        keyBox.textContent = key;
-        keyActiveSection.style.display = "block";
-        captchaContainer.style.display = "none";
-      }
-
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
-    }
-
-    document.getElementById("copyBtn").addEventListener("click", () => {
-      navigator.clipboard.writeText(keyBox.textContent).then(() => {
-        alert("Key copied to clipboard.");
-      });
-    });
-
-    document.getElementById("darkToggle").addEventListener("click", () => {
-      document.body.classList.toggle("light-mode");
-      document.getElementById("darkToggle").textContent = document.body.classList.contains("light-mode")
-        ? "Dark Mode"
-        : "Light Mode";
-    });
-
-    continueBtn.addEventListener("click", () => {
-      window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
-    });
-
-    window.onload = init;
+    window.db = db;
   </script>
+</head>
+<body>
+<button id="darkToggle">Light Mode</button>
+<div class="container">
+  <h1>Script Maniac Hub KeySystem</h1>
+  <p id="messageText">Step 2 Verification</p>
+
+  <div id="captchaContainer">
+    <button id="continueBtn">Get Key</button>
+  </div>
+
+  <div id="keyActiveSection" style="display:none;">
+    <p><strong>Your key is still active.</strong></p>
+    <p>Expires in: <span id="countdown">Loading...</span></p>
+    <div id="keyBox"></div>
+    <button id="copyBtn">Copy Key</button>
+  </div>
+</div>
+
+<script type="module">
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const darkToggle = document.getElementById("darkToggle");
+  const countdown = document.getElementById("countdown");
+  const continueBtn = document.getElementById("continueBtn");
+  const copyBtn = document.getElementById("copyBtn");
+  const keyBox = document.getElementById("keyBox");
+  const keyActiveSection = document.getElementById("keyActiveSection");
+  const captchaContainer = document.getElementById("captchaContainer");
+  const body = document.body;
+
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;
+  const keyStorageKey = "smh_key";
+  const keyTimeKey = "smh_keyTime";
+
+  // Referrer check
+  (() => {
+    const allowed = ["linkvertise.com", "link-target.net"];
+    const ref = document.referrer.toLowerCase();
+    if (!allowed.some(site => ref.includes(site))) {
+      window.location.href = "index.html";
+    }
+  })();
+
+  function updateDarkToggleText() {
+    darkToggle.textContent = body.classList.contains("light-mode") ? "Dark Mode" : "Light Mode";
+  }
+  darkToggle.onclick = () => {
+    body.classList.toggle("light-mode");
+    localStorage.setItem("smh_darkMode", body.classList.contains("light-mode") ? "1" : "0");
+    updateDarkToggleText();
+  };
+  if (localStorage.getItem("smh_darkMode") === "1") {
+    body.classList.add("light-mode");
+  }
+  updateDarkToggleText();
+
+  // Validate key from Firestore
+  async function validateKey(key) {
+    try {
+      const docRef = doc(window.db, "keys", key);
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) return false;
+      const data = snap.data();
+      if (!data.valid || Date.now() > data.expiresAt) return false;
+      return true;
+    } catch (e) {
+      console.error("Validation error:", e);
+      return false;
+    }
+  }
+
+  // Countdown display
+  function formatTime(ms) {
+    const total = Math.floor(ms / 1000);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  }
+
+  function showKeyUI(key) {
+    keyBox.textContent = key;
+    captchaContainer.style.display = "none";
+    keyActiveSection.style.display = "block";
+  }
+
+  function showRedirectButton() {
+    captchaContainer.style.display = "block";
+    keyActiveSection.style.display = "none";
+  }
+
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(keyBox.textContent).then(() => alert("Key copied!"));
+  };
+
+  continueBtn.onclick = () => {
+    window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
+  };
+
+  async function init() {
+    const key = localStorage.getItem(keyStorageKey);
+    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+
+    if (key && keyTime) {
+      const valid = await validateKey(key);
+      if (!valid) {
+        localStorage.clear();
+        showRedirectButton();
+        return;
+      }
+
+      showKeyUI(key);
+
+      setInterval(() => {
+        const remaining = MAX_KEY_MS - (Date.now() - keyTime);
+        if (remaining <= 0) {
+          alert("Key expired.");
+          localStorage.clear();
+          location.reload();
+        } else {
+          countdown.textContent = formatTime(remaining);
+        }
+      }, 1000);
+    } else {
+      showRedirectButton();
+    }
+  }
+
+  window.onload = init;
+</script>
 </body>
 </html>
