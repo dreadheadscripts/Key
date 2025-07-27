@@ -242,200 +242,202 @@ body.light-mode #darkToggle:hover {
   </script>
 </head>
 <body>
-<button id="darkToggle">Light Mode</button>
-<div class="container">
-  <h1>Script Maniac Hub KeySystem</h1>
-  <p id="messageText">Final Step: Your Key</p>
+  <button id="darkToggle">Light Mode</button>
+  <div class="container">
+    <h1>Script Maniac Hub KeySystem</h1>
+    <p id="messageText">Final Step: Your Key</p>
 
-  <div id="captchaContainer">
-    <button id="finishBtn">Get Your Key</button>
+    <div id="captchaContainer">
+      <button id="finishBtn">Get Your Key</button>
+    </div>
+
+    <div id="keyActiveSection" style="display:none;">
+      <p><strong>You have already created a key.</strong></p>
+      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
+      <div id="keyBox"></div>
+      <button id="copyBtn">Copy Key</button>
+    </div>
+
+    <div id="countdown">Loading timer...</div>
   </div>
 
-  <div id="keyActiveSection" style="display:none;">
-    <p><strong>You have already created a key.</strong></p>
-    <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-    <div id="keyBox"></div>
-    <button id="copyBtn">Copy Key</button>
-  </div>
+  <script type="module">
+    import {
+      doc, setDoc, getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  <div id="countdown">Loading timer...</div>
-</div>
+    const db = window.firestoreDB;
+    const SESSION_MS = 3 * 60 * 60 * 1000;
+    const KEY_MS = 8 * 60 * 60 * 1000;
+    const keyStorage = 'smh_key';
+    const keyTimeStorage = 'smh_keyTime';
+    const sessionStart = 'smh_sessionStart';
 
-<script type="module">
-  import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const darkToggle = document.getElementById('darkToggle');
+    const countdown = document.getElementById('countdown');
+    const finishBtn = document.getElementById('finishBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const keyBox = document.getElementById('keyBox');
+    const keyActiveSection = document.getElementById('keyActiveSection');
+    const captchaContainer = document.getElementById('captchaContainer');
+    const messageText = document.getElementById('messageText');
+    const keyTimerDisplay = document.getElementById('keyTimer');
 
-  const db = window.firestoreDB;
-  const SESSION_MS = 3 * 60 * 60 * 1000;
-  const KEY_MS = 8 * 60 * 60 * 1000;
-  const keyStorage = 'smh_key';
-  const keyTimeStorage = 'smh_keyTime';
-  const sessionStart = 'smh_sessionStart';
-
-  const darkToggle = document.getElementById('darkToggle');
-  const countdown = document.getElementById('countdown');
-  const finishBtn = document.getElementById('finishBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const keyBox = document.getElementById('keyBox');
-  const keyActiveSection = document.getElementById('keyActiveSection');
-  const captchaContainer = document.getElementById('captchaContainer');
-  const messageText = document.getElementById('messageText');
-  const keyTimerDisplay = document.getElementById('keyTimer');
-
-  // Dark mode
-  function updateDarkToggleText() {
-    darkToggle.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
-  }
-  darkToggle.onclick = () => {
-    document.body.classList.toggle('light-mode');
-    localStorage.setItem('smh_darkMode', document.body.classList.contains('light-mode') ? '1' : '0');
+    function updateDarkToggleText() {
+      darkToggle.textContent = document.body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+    }
+    darkToggle.onclick = () => {
+      document.body.classList.toggle('light-mode');
+      localStorage.setItem('smh_darkMode', document.body.classList.contains('light-mode') ? '1' : '0');
+      updateDarkToggleText();
+    };
+    if (localStorage.getItem('smh_darkMode') === '1') {
+      document.body.classList.add('light-mode');
+    }
     updateDarkToggleText();
-  };
-  if (localStorage.getItem('smh_darkMode') === '1') {
-    document.body.classList.add('light-mode');
-  }
-  updateDarkToggleText();
 
-  if (!localStorage.getItem(sessionStart)) {
-    localStorage.setItem(sessionStart, Date.now().toString());
-  }
-
-  function formatTime(ms) {
-    if (ms < 0) return "00:00:00";
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600).toString().padStart(2, '0');
-    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-    const sec = (s % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${sec}`;
-  }
-
-  function showKeyUI(key) {
-    messageText.style.display = 'none';
-    captchaContainer.style.display = 'none';
-    keyActiveSection.style.display = 'block';
-    keyBox.textContent = key;
-  }
-
-  function showNormalUI() {
-    messageText.style.display = 'block';
-    captchaContainer.style.display = 'block';
-    keyActiveSection.style.display = 'none';
-    keyBox.textContent = '';
-  }
-
-  async function validateKeyFromFirestore(key) {
-    try {
-      const docSnap = await getDoc(doc(db, "keys", key));
-      if (!docSnap.exists()) return false;
-      const data = docSnap.data();
-      const now = Date.now();
-      return data.valid === true && typeof data.expiresAt === 'number' && now < data.expiresAt;
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
-  }
-
-  async function checkKey() {
-    const key = localStorage.getItem(keyStorage);
-    if (!key) {
-      showNormalUI();
-      return false;
+    if (!localStorage.getItem(sessionStart)) {
+      localStorage.setItem(sessionStart, Date.now().toString());
     }
 
-    const valid = await validateKeyFromFirestore(key);
-    if (!valid) {
-      localStorage.clear();
-      window.location.href = "index.html";
-      return false;
+    function formatTime(ms) {
+      if (ms < 0) return "00:00:00";
+      const s = Math.floor(ms / 1000);
+      const h = Math.floor(s / 3600).toString().padStart(2, '0');
+      const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+      const sec = (s % 60).toString().padStart(2, '0');
+      return `${h}:${m}:${sec}`;
     }
 
-    showKeyUI(key);
-    return true;
-  }
-
-  async function createNewKey() {
-    finishBtn.disabled = true;
-    finishBtn.textContent = "Creating Key...";
-
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let key = "SMH-";
-    for (let i = 0; i < 16; i++) {
-      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    function showKeyUI(key) {
+      messageText.style.display = 'none';
+      captchaContainer.style.display = 'none';
+      keyActiveSection.style.display = 'block';
+      keyBox.textContent = key;
     }
 
-    const now = Date.now();
-    const expiresAt = now + KEY_MS;
+    function showNormalUI() {
+      messageText.style.display = 'block';
+      captchaContainer.style.display = 'block';
+      keyActiveSection.style.display = 'none';
+      keyBox.textContent = '';
+    }
 
-    try {
-      await setDoc(doc(db, "keys", key), {
-        valid: true,
-        expiresAt
-      });
+    async function validateKeyFromFirestore(key) {
+      try {
+        const docSnap = await getDoc(doc(db, "keys", key));
+        if (!docSnap.exists()) return false;
+        const data = docSnap.data();
+        const now = Date.now();
+        return data.valid === true && typeof data.expiresAt === 'number' && now < data.expiresAt;
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    }
 
-      localStorage.setItem(keyStorage, key);
-      localStorage.setItem(keyTimeStorage, expiresAt.toString());
-      localStorage.setItem(sessionStart, now.toString());
+    async function checkKey() {
+      const key = localStorage.getItem(keyStorage);
+      if (!key) {
+        showNormalUI();
+        return false;
+      }
+
+      const valid = await validateKeyFromFirestore(key);
+      if (!valid) {
+        localStorage.clear();
+        window.location.href = "index.html";
+        return false;
+      }
 
       showKeyUI(key);
-      finishBtn.style.display = "none";
-      messageText.style.display = "none";
+      return true;
+    }
+
+    async function createNewKey() {
+      finishBtn.disabled = true;
+      finishBtn.textContent = "Creating Key...";
+
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let key = "SMH-";
+      for (let i = 0; i < 16; i++) {
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      const now = Date.now();
+      const expiresAt = now + KEY_MS;
+
+      try {
+        await setDoc(doc(db, "keys", key), {
+          valid: true,
+          expiresAt: expiresAt
+        });
+
+        localStorage.setItem(keyStorage, key);
+        localStorage.setItem(keyTimeStorage, expiresAt.toString());
+        localStorage.setItem(sessionStart, now.toString());
+
+        showKeyUI(key);
+        finishBtn.style.display = "none";
+        messageText.style.display = "none";
+        updateTimerUI();
+      } catch (e) {
+        alert("Error creating key.");
+        finishBtn.disabled = false;
+        finishBtn.textContent = "Get Your Key";
+      }
+    }
+
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(keyBox.textContent);
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => copyBtn.textContent = "Copy Key", 2000);
+    };
+
+    finishBtn.onclick = createNewKey;
+
+    function updateTimerUI() {
+      const key = localStorage.getItem(keyStorage);
+      const keyExpires = parseInt(localStorage.getItem(keyTimeStorage), 10);
+      const sessionStartTime = parseInt(localStorage.getItem(sessionStart), 10);
+      const now = Date.now();
+
+      const sessionRemaining = SESSION_MS - (now - sessionStartTime);
+      const keyRemaining = keyExpires - now;
+
+      if (key && keyRemaining > 0) {
+        countdown.textContent = `Key valid for: ${formatTime(keyRemaining)}`;
+        keyTimerDisplay.textContent = formatTime(keyRemaining);
+      } else if (!key && sessionRemaining > 0) {
+        countdown.textContent = `Session valid for: ${formatTime(sessionRemaining)}`;
+      } else {
+        countdown.textContent = "Session expired. Redirecting...";
+        localStorage.clear();
+        setTimeout(() => window.location.href = "index.html", 1500);
+      }
+    }
+
+    async function periodicKeyValidation() {
+      const key = localStorage.getItem(keyStorage);
+      if (!key) return;
+      const valid = await validateKeyFromFirestore(key);
+      if (!valid) {
+        localStorage.clear();
+        alert("Key expired or invalid.");
+        window.location.href = "index.html";
+      }
+    }
+
+    async function main() {
+      const hasKey = await checkKey();
+      if (!hasKey) showNormalUI();
       updateTimerUI();
-    } catch (e) {
-      alert("Error creating key.");
-      finishBtn.disabled = false;
-      finishBtn.textContent = "Get Your Key";
+      setInterval(updateTimerUI, 1000);
+      setInterval(periodicKeyValidation, 60000);
     }
-  }
 
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent);
-    copyBtn.textContent = "Copied!";
-    setTimeout(() => copyBtn.textContent = "Copy Key", 2000);
-  };
-
-  finishBtn.onclick = createNewKey;
-
-  function updateTimerUI() {
-    const key = localStorage.getItem(keyStorage);
-    const keyExpires = parseInt(localStorage.getItem(keyTimeStorage), 10);
-    const sessionStartTime = parseInt(localStorage.getItem(sessionStart), 10);
-    const now = Date.now();
-
-    const sessionRemaining = SESSION_MS - (now - sessionStartTime);
-    const keyRemaining = keyExpires - now;
-
-    if (key && keyRemaining > 0) {
-      countdown.textContent = `Key valid for: ${formatTime(keyRemaining)}`;
-      keyTimerDisplay.textContent = formatTime(keyRemaining);
-    } else if (!key && sessionRemaining > 0) {
-      countdown.textContent = `Session valid for: ${formatTime(sessionRemaining)}`;
-    } else {
-      countdown.textContent = "Session expired. Redirecting...";
-      localStorage.clear();
-      setTimeout(() => window.location.href = "index.html", 1500);
-    }
-  }
-
-  async function periodicKeyValidation() {
-    const key = localStorage.getItem(keyStorage);
-    if (!key) return;
-    const valid = await validateKeyFromFirestore(key);
-    if (!valid) {
-      localStorage.clear();
-      alert("Key expired or invalid.");
-      window.location.href = "index.html";
-    }
-  }
-
-  async function main() {
-    const hasKey = await checkKey();
-    if (!hasKey) showNormalUI();
-    updateTimerUI();
-    setInterval(updateTimerUI, 1000);
-    setInterval(periodicKeyValidation, 60000);
-  }
-
-  main();
-</script>
+    main();
+  </script>
 </body>
+</html>
 </html>
