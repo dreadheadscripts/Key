@@ -223,7 +223,7 @@ body.light-mode #darkToggle:hover {
   </style>
 
   <!-- ✅ Referrer check -->
-  <script>
+    <script>
     (() => {
       const allowed = ["linkvertise.com", "link-target.net"];
       const ref = document.referrer.toLowerCase();
@@ -258,7 +258,7 @@ body.light-mode #darkToggle:hover {
 </div>
 
 <script>
-  // Firebase Init
+  // ✅ Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
     authDomain: "smh-keysystem.firebaseapp.com",
@@ -267,6 +267,7 @@ body.light-mode #darkToggle:hover {
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // ✅ DOM Elements
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
@@ -278,6 +279,7 @@ body.light-mode #darkToggle:hover {
   const keyTimerDisplay = document.getElementById("keyTimer");
   const body = document.body;
 
+  // ✅ Constants
   const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
   const MAX_KEY_MS = 8 * 60 * 60 * 1000;
 
@@ -309,14 +311,17 @@ body.light-mode #darkToggle:hover {
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
+
   darkToggle.onclick = () => {
     body.classList.toggle('light-mode');
     localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
     updateDarkToggleText();
   };
+
   if (localStorage.getItem('smh_darkMode') === '1') {
     body.classList.add('light-mode');
   }
+
   updateDarkToggleText();
 
   async function validateKeyFromFirestore(key) {
@@ -390,6 +395,7 @@ body.light-mode #darkToggle:hover {
     }
   }
 
+  // ✅ Copy to clipboard
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -398,9 +404,12 @@ body.light-mode #darkToggle:hover {
     });
   };
 
+  // ✅ Final redirect button
   finishBtn.onclick = () => {
-  window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
-};
+    window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
+  };
+
+  // ✅ Run timers + key check every second
   setInterval(() => {
     updateTimers();
     periodicKeyValidation();
