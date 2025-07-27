@@ -124,11 +124,13 @@
 
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
-        if (data.expiresAt && data.expiresAt < now) {
+        const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
+
+        if (typeof expTime === "number" && expTime < now) {
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${docSnap.id}</td>
-            <td>${new Date(data.expiresAt).toLocaleString()}</td>
+            <td>${new Date(expTime).toLocaleString()}</td>
             <td><button onclick="deleteKey('${docSnap.id}', this)">Delete</button></td>
           `;
           keyList.appendChild(row);
@@ -156,7 +158,9 @@
 
       snapshot.forEach(docSnap => {
         const data = docSnap.data();
-        if (data.expiresAt && data.expiresAt < now) {
+        const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
+
+        if (typeof expTime === "number" && expTime < now) {
           deletes.push(deleteDoc(doc(db, "keys", docSnap.id)));
         }
       });
