@@ -106,6 +106,7 @@
 
     const correctPassword = "OwnerPass12436";
 
+    // Unlock on password
     enterPasswordBtn.addEventListener("click", () => {
       if (passwordInput.value === correctPassword) {
         passwordGate.style.display = "none";
@@ -117,16 +118,19 @@
       }
     });
 
+    // Load all expired keys
     async function loadExpiredKeys() {
       const snapshot = await getDocs(collection(db, "keys"));
       const now = Date.now();
       keyList.innerHTML = "";
 
-      snapshot.forEach(docSnap => {
+      let found = false;
+      for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
         const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
 
         if (typeof expTime === "number" && expTime < now) {
+          found = true;
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${docSnap.id}</td>
@@ -135,37 +139,40 @@
           `;
           keyList.appendChild(row);
         }
-      });
+      }
 
-      if (keyList.children.length === 0) {
+      if (!found) {
         keyList.innerHTML = "<tr><td colspan='3'>✅ No expired keys found</td></tr>";
       }
     }
 
-    window.deleteKey = async function(keyId, button) {
+    // Delete a specific key
+    window.deleteKey = async function (keyId, button) {
       button.disabled = true;
       button.textContent = "Deleting...";
       await deleteDoc(doc(db, "keys", keyId));
       await loadExpiredKeys();
     };
 
+    // Delete all expired keys
     deleteAllBtn.onclick = async () => {
       deleteAllBtn.disabled = true;
       deleteAllBtn.textContent = "Deleting expired keys...";
+
       const snapshot = await getDocs(collection(db, "keys"));
       const now = Date.now();
-      const deletes = [];
+      const expired = [];
 
-      snapshot.forEach(docSnap => {
+      for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
         const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
 
         if (typeof expTime === "number" && expTime < now) {
-          deletes.push(deleteDoc(doc(db, "keys", docSnap.id)));
+          expired.push(deleteDoc(doc(db, "keys", docSnap.id)));
         }
-      });
+      }
 
-      await Promise.all(deletes);
+      await Promise.all(expired);
       await loadExpiredKeys();
       deleteAllBtn.textContent = "🧹 Delete All Expired Keys";
       deleteAllBtn.disabled = false;
