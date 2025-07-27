@@ -109,6 +109,7 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <button id="darkToggle">Light Mode</button>
@@ -131,7 +132,7 @@
 </div>
 
 <script>
-  // Firebase initialization
+  // Firebase Init
   const firebaseConfig = {
     apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
     authDomain: "smh-keysystem.firebaseapp.com",
@@ -143,6 +144,7 @@
   };
   firebase.initializeApp(firebaseConfig);
   firebase.analytics();
+  const db = firebase.firestore();
 
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
@@ -155,25 +157,10 @@
   const keyTimerDisplay = document.getElementById('keyTimer');
   const body = document.body;
 
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
-
-  const sessionStartKey = 'smh_sessionStart';
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
-
-  function updateDarkToggleText() {
-    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
-  }
-  darkToggle.onclick = () => {
-    body.classList.toggle('light-mode');
-    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
-    updateDarkToggleText();
-  };
-  if (localStorage.getItem('smh_darkMode') === '1') {
-    body.classList.add('light-mode');
-  }
-  updateDarkToggleText();
+  const sessionStartKey = 'smh_sessionStart';
 
   function formatTime(ms) {
     if (ms < 0) return "00:00:00";
@@ -183,6 +170,22 @@
     const sec = (s % 60).toString().padStart(2, '0');
     return `${h}:${m}:${sec}`;
   }
+
+  function updateDarkToggleText() {
+    darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
+  }
+
+  darkToggle.onclick = () => {
+    body.classList.toggle('light-mode');
+    localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
+    updateDarkToggleText();
+  };
+
+  if (localStorage.getItem('smh_darkMode') === '1') {
+    body.classList.add('light-mode');
+  }
+
+  updateDarkToggleText();
 
   function showKeyUI(key) {
     messageText.style.display = 'none';
@@ -197,69 +200,75 @@
     keyActiveSection.style.display = 'none';
   }
 
-  function updateTimers() {
+  async function validateKeyFromFirestore(key) {
+    try {
+      const docSnap = await db.collection("keys").doc(key).get();
+      if (!docSnap.exists) return false;
+      const data = docSnap.data();
+      const now = Date.now();
+      return data.valid === true && typeof data.expiresAt === 'number' && now < data.expiresAt;
+    } catch (e) {
+      console.error("Validation error:", e);
+      return false;
+    }
+  }
+
+  async function updateTimers() {
     const now = Date.now();
     const key = localStorage.getItem(keyStorageKey);
-    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const keyStart = parseInt(localStorage.getItem(keyTimeKey), 10);
     const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
-    if (key && keyTime) {
-      const keyRemaining = (keyTime + MAX_KEY_MS) - now;
-      if (keyRemaining <= 0) {
+    if (key && keyStart) {
+      const valid = await validateKeyFromFirestore(key);
+      if (!valid) {
         localStorage.clear();
-        alert('Key expired. Please restart the process.');
-        window.location.href = "index.html";
+        alert("Key expired or invalid.");
+        location.href = "index.html";
         return;
       }
-      const timeStr = formatTime(keyRemaining);
-      countdown.textContent = `⏳ Time remaining: ${timeStr}`;
-      keyTimerDisplay.textContent = timeStr;
+      const remaining = (keyStart + 8 * 60 * 60 * 1000) - now;
+      countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
+      keyTimerDisplay.textContent = formatTime(remaining);
       showKeyUI(key);
     } else {
-      const start = sessionStart || now;
+      const session = sessionStart || now;
       if (!sessionStart) localStorage.setItem(sessionStartKey, now.toString());
-
-      const sessionRemaining = MAX_SESSION_MS - (now - start);
-      if (sessionRemaining <= 0) {
+      const remaining = MAX_SESSION_MS - (now - session);
+      if (remaining <= 0) {
         localStorage.clear();
-        alert('Session expired. Please restart the process.');
-        window.location.href = "index.html";
+        alert("Session expired.");
+        location.href = "index.html";
         return;
       }
-      countdown.textContent = `⏳ Session time remaining: ${formatTime(sessionRemaining)}`;
+      countdown.textContent = `⏳ Session time remaining: ${formatTime(remaining)}`;
       showNormalUI();
     }
   }
 
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(keyBox.textContent).then(() => {
-      alert('Key copied to clipboard!');
-    }).catch(() => {
-      alert('Failed to copy key.');
-    });
-  };
-
   finishBtn.onclick = () => {
-    const now = Date.now();
     const key = Math.random().toString(36).substring(2, 12).toUpperCase();
+    const now = Date.now();
     localStorage.setItem(keyStorageKey, key);
     localStorage.setItem(keyTimeKey, now.toString());
     localStorage.setItem(sessionStartKey, now.toString());
-    location.reload();
+
+    db.collection("keys").doc(key).set({
+      valid: true,
+      expiresAt: now + 8 * 60 * 60 * 1000
+    }).then(() => {
+      location.reload();
+    });
   };
 
-  function checkKeyStatus() {
-    const key = localStorage.getItem(keyStorageKey);
-    if (key) {
-      showKeyUI(key);
-    } else {
-      showNormalUI();
-    }
-  }
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(keyBox.textContent)
+      .then(() => alert('Key copied to clipboard!'))
+      .catch(() => alert('Failed to copy key.'));
+  };
 
   setInterval(updateTimers, 1000);
   updateTimers();
-  checkKeyStatus();
 </script>
 </body>
 </html>
