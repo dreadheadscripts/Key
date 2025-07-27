@@ -359,8 +359,10 @@
     const keyRemaining = keyExpireTime ? (keyExpireTime - now) : 0;
 
     // Decide what timer to show and if expired
-    if (key && keyRemaining > 0) {
-      countdown.textContent = `Key valid for: ${formatTime(keyRemaining)}`;
+ if (key && keyRemaining > 0) {
+  const formatted = formatTime(keyRemaining);
+  countdown.textContent = `Key valid for: ${formatted}`;
+  document.getElementById("keyTimer").textContent = formatted;
     } else if (!key && sessionRemaining > 0) {
       countdown.textContent = `Session valid for: ${formatTime(sessionRemaining)}`;
     } else {
