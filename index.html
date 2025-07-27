@@ -362,20 +362,9 @@ body.light-mode #darkToggle:hover {
     }
   }
 
-  finishBtn.onclick = () => {
-    const key = Math.random().toString(36).substring(2, 12).toUpperCase();
-    const now = Date.now();
-    localStorage.setItem(keyStorageKey, key);
-    localStorage.setItem(keyTimeKey, now.toString());
-    localStorage.setItem(sessionStartKey, now.toString());
-
-    db.collection("keys").doc(key).set({
-      valid: true,
-      expiresAt: now + 8 * 60 * 60 * 1000
-    }).then(() => {
-      location.reload();
-    });
-  };
+finishBtn.onclick = () => {
+  window.location.href = "https://your-link.com"; // 👈 Replace with your actual URL
+};
 
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent)
