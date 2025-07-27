@@ -399,14 +399,8 @@ body.light-mode #darkToggle:hover {
   };
 
   finishBtn.onclick = () => {
-    const now = Date.now();
-    const key = Math.random().toString(36).substring(2, 16).toUpperCase();
-    localStorage.setItem(keyStorage, key);
-    localStorage.setItem(keyTimeKey, now.toString());
-    localStorage.setItem(sessionStartKey, now.toString());
-    window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
-  };
-
+  window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
+};
   setInterval(() => {
     updateTimers();
     periodicKeyValidation();
