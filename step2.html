@@ -108,7 +108,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -121,6 +121,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
     window.firestoreDB = db;
   </script>
 </head>
@@ -145,6 +146,8 @@
 </div>
 
 <script type="module">
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
   // Referrer enforcement
   (() => {
     const allowed = ["linkvertise.com", "link-target.net", "your-index-domain.com"];
@@ -195,33 +198,7 @@
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
-  function updateTimers() {
-    const now = Date.now();
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
-    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const key = localStorage.getItem(keyStorageKey);
-
-    if (key && keyTime) {
-      const remaining = MAX_KEY_MS - (now - keyTime);
-      if (remaining <= 0) {
-        localStorage.clear();
-        location.reload();
-      } else {
-        keyTimer.textContent = formatTime(remaining);
-        countdown.textContent = '';
-      }
-    } else {
-      const sessionElapsed = now - sessionStart;
-      if (sessionElapsed >= MAX_SESSION_MS) {
-        alert('Session expired. Restart from Step 1.');
-        localStorage.clear();
-        location.href = 'index.html';
-      } else {
-        countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - sessionElapsed)}`;
-      }
-    }
-  }
-
+  // Show key UI
   function showKeyUI(key) {
     keyBox.textContent = key;
     captchaContainer.style.display = 'none';
@@ -229,6 +206,7 @@
     keyActiveSection.style.display = 'block';
   }
 
+  // Show normal UI
   function showNormalUI() {
     messageText.style.display = 'block';
     captchaContainer.style.display = 'block';
@@ -240,22 +218,153 @@
     navigator.clipboard.writeText(keyBox.textContent).then(() => alert('Key copied!'));
   };
 
-  // On load
-  const storedKey = localStorage.getItem(keyStorageKey);
-  const storedKeyTime = localStorage.getItem(keyTimeKey);
-  if (storedKey && storedKeyTime) {
-    showKeyUI(storedKey);
-  } else {
-    showNormalUI();
+  // Generate a random key string
+  function generateRandomKey(length = 20) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for(let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   }
 
-  setInterval(updateTimers, 1000);
-  updateTimers();
+  // Save key & expiration to Firestore
+  async function saveKeyToFirestore(key, expiresAt) {
+    const db = window.firestoreDB;
+    try {
+      await setDoc(doc(db, "keys", key), {
+        valid: true,
+        expiresAt: expiresAt
+      });
+      return true;
+    } catch (e) {
+      console.error("Error saving key:", e);
+      return false;
+    }
+  }
 
-  // Get Key
-  continueBtn.onclick = () => {
-    window.location.href = 'https://link-target.net/1365830/WbdU2hopNwcu';
+  // Check if a key is valid in Firestore
+  async function validateKeyFromFirestore(key) {
+    const db = window.firestoreDB;
+    try {
+      const docRef = doc(db, "keys", key);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) return false;
+      const data = docSnap.data();
+      if (!data.valid) return false;
+      if (Date.now() > data.expiresAt) return false;
+      return true;
+    } catch (e) {
+      console.error("Error validating key:", e);
+      return false;
+    }
+  }
+
+  // Update timers every second, checking both localStorage and Firestore timing
+  async function updateTimers() {
+    const now = Date.now();
+    const key = localStorage.getItem(keyStorageKey);
+    const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
+
+    if (key && keyTime) {
+      // Check Firestore if still valid (only once per minute to save reads)
+      if (!window.lastFirestoreCheck || now - window.lastFirestoreCheck > 60 * 1000) {
+        window.lastFirestoreCheck = now;
+        const valid = await validateKeyFromFirestore(key);
+        if (!valid) {
+          alert("Your key expired or is invalid. Restarting...");
+          localStorage.clear();
+          location.reload();
+          return;
+        }
+      }
+
+      const remaining = MAX_KEY_MS - (now - keyTime);
+      if (remaining <= 0) {
+        alert("Your key expired. Restarting...");
+        localStorage.clear();
+        location.reload();
+      } else {
+        keyTimer.textContent = formatTime(remaining);
+        countdown.textContent = "";
+        showKeyUI(key);
+      }
+    } else {
+      // No key, count down session time
+      if (sessionStart) {
+        const sessionElapsed = now - sessionStart;
+        if (sessionElapsed >= MAX_SESSION_MS) {
+          alert("Session expired. Restart from Step 1.");
+          localStorage.clear();
+          location.href = "index.html";
+        } else {
+          countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS - sessionElapsed)}`;
+          showNormalUI();
+        }
+      } else {
+        // No session start found, reset
+        localStorage.setItem(sessionStartKey, now.toString());
+        countdown.textContent = `⏳ Time remaining (Step 2): ${formatTime(MAX_SESSION_MS)}`;
+        showNormalUI();
+      }
+    }
+  }
+
+  // Initial check for stored key + Firestore validation
+  async function init() {
+    const storedKey = localStorage.getItem(keyStorageKey);
+    const storedKeyTime = localStorage.getItem(keyTimeKey);
+
+    if (storedKey && storedKeyTime) {
+      const valid = await validateKeyFromFirestore(storedKey);
+      if (valid) {
+        showKeyUI(storedKey);
+      } else {
+        localStorage.clear();
+        showNormalUI();
+      }
+    } else {
+      showNormalUI();
+    }
+    updateTimers();
+    setInterval(updateTimers, 1000);
+  }
+
+  // Handle Get Key button click: generate + save key then redirect
+  continueBtn.onclick = async () => {
+    continueBtn.disabled = true;
+    continueBtn.textContent = "Generating Key...";
+    // Generate key & expiry time
+    const newKey = generateRandomKey();
+    const expiresAt = Date.now() + MAX_KEY_MS;
+
+    // Save to Firestore
+    const success = await saveKeyToFirestore(newKey, expiresAt);
+    if (!success) {
+      alert("Failed to generate key. Try again later.");
+      continueBtn.disabled = false;
+      continueBtn.textContent = "Get Key";
+      return;
+    }
+
+    // Save locally
+    localStorage.setItem(keyStorageKey, newKey);
+    localStorage.setItem(keyTimeKey, Date.now().toString());
+
+    // Show key UI immediately
+    showKeyUI(newKey);
+    updateTimers();
+
+    // Redirect to Linkvertise after short delay to show key to user
+    setTimeout(() => {
+      window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
+    }, 1500);
   };
+
+  // On load
+  init();
+
 </script>
 </body>
 </html>
