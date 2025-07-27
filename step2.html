@@ -142,6 +142,7 @@
 </div>
 
 <script>
+  // Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
     authDomain: "smh-keysystem.firebaseapp.com",
@@ -162,10 +163,11 @@
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
+  const keyTimerDisplay = document.getElementById("keyTimer");
   const body = document.body;
 
-  const MAX_SESSION_MS = 8 * 60 * 60 * 1000; // 8 hours
-  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours session
+  const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours key
 
   const sessionStartKey = 'smh_sessionStart';
   const keyStorageKey = 'smh_key';
@@ -211,9 +213,8 @@
     const keyTime = parseInt(localStorage.getItem(keyTimeKey), 10);
     const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
-    if (key && keyTime) {
-      const elapsed = now - keyTime;
-      const remaining = MAX_KEY_MS - elapsed;
+    if (key && keyTime && !isNaN(keyTime)) {
+      const remaining = (keyTime + MAX_KEY_MS) - now;
 
       if (remaining <= 0) {
         localStorage.clear();
@@ -222,9 +223,8 @@
         return;
       }
 
-      const timeStr = formatTime(remaining);
-      countdown.textContent = `⏳ Time remaining: ${timeStr}`;
-      document.getElementById("keyTimer").textContent = timeStr;
+      countdown.textContent = `⏳ Time remaining: ${formatTime(remaining)}`;
+      if (keyTimerDisplay) keyTimerDisplay.textContent = formatTime(remaining);
       showKeyUI(key);
     } else {
       const startTime = sessionStart || now;
@@ -232,8 +232,7 @@
         localStorage.setItem(sessionStartKey, now.toString());
       }
 
-      const elapsed = now - startTime;
-      const remaining = MAX_SESSION_MS - elapsed;
+      const remaining = (startTime + MAX_SESSION_MS) - now;
 
       if (remaining <= 0) {
         localStorage.clear();
@@ -257,6 +256,8 @@
 
   finishBtn.onclick = () => {
     const now = Date.now();
+    const key = Math.random().toString(36).substring(2, 16).toUpperCase(); // simple fake key
+    localStorage.setItem(keyStorageKey, key);
     localStorage.setItem(keyTimeKey, now.toString());
     localStorage.setItem(sessionStartKey, now.toString());
     window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
@@ -272,8 +273,10 @@
   }
 
   setInterval(updateTimers, 1000);
-  updateTimers();
-  checkKeyStatus();
+  window.addEventListener("DOMContentLoaded", () => {
+    updateTimers();
+    checkKeyStatus();
+  });
 </script>
 </body>
 </html>
