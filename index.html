@@ -104,6 +104,10 @@
       box-shadow: 0 0 16px #00eaff;
     }
   </style>
+
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
 </head>
 <body>
 <button id="darkToggle">Light Mode</button>
@@ -126,6 +130,19 @@
 </div>
 
 <script>
+  // Initialize Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
+    authDomain: "smh-keysystem.firebaseapp.com",
+    projectId: "smh-keysystem",
+    storageBucket: "smh-keysystem.firebasestorage.app",
+    messagingSenderId: "619718800070",
+    appId: "1:619718800070:web:56ea94a00d5dfcd8e09dc7",
+    measurementId: "G-QBXKHSRKT0"
+  };
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
   const darkToggle = document.getElementById('darkToggle');
   const countdown = document.getElementById('countdown');
   const finishBtn = document.getElementById('finishBtn');
@@ -238,8 +255,22 @@
     window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
   };
 
-  updateTimers();
+  // Check if key exists in localStorage and show UI accordingly
+  function checkKeyStatus() {
+    const key = localStorage.getItem(keyStorageKey);
+    if (key) {
+      showKeyUI(key);
+    } else {
+      showNormalUI();
+    }
+  }
+
+  // Periodic timer update every second
   setInterval(updateTimers, 1000);
+
+  // Initial UI update
+  updateTimers();
+  checkKeyStatus();
 </script>
 </body>
 </html>
