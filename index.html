@@ -6,6 +6,7 @@
   <title>Script Maniac Hub Key System</title>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
   <style>
+    /* ... your existing styles ... */
     html, body {
       height: 100%;
       margin: 0;
@@ -160,6 +161,7 @@
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
 
+  // Dark mode toggle
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
@@ -173,6 +175,7 @@
   }
   updateDarkToggleText();
 
+  // Format milliseconds to HH:MM:SS string
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
@@ -181,6 +184,7 @@
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
+  // Show key UI when key exists
   function showKeyUI(key) {
     messageText.style.display = 'none';
     captchaContainer.style.display = 'none';
@@ -188,12 +192,14 @@
     keyBox.textContent = key;
   }
 
+  // Show normal UI when no key
   function showNormalUI() {
     messageText.style.display = 'block';
     captchaContainer.style.display = 'block';
     keyActiveSection.style.display = 'none';
   }
 
+  // Main timer update function, calculates remaining time based on stored timestamps
   function updateTimers() {
     const now = Date.now();
     const key = localStorage.getItem(keyStorageKey);
@@ -201,10 +207,12 @@
     const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
     if (key && keyTime) {
+      // Calculate elapsed time since key creation
       const elapsed = now - keyTime;
       const remaining = MAX_KEY_MS - elapsed;
 
       if (remaining <= 0) {
+        // Key expired: clear storage and reload
         localStorage.clear();
         alert('Key expired. Please restart the process.');
         location.reload();
@@ -215,7 +223,7 @@
       document.getElementById("keyTimer").textContent = formatTime(remaining);
       showKeyUI(key);
     } else {
-      // No key created yet, use 3-hour session
+      // No key created yet, count down session timer (3 hours max)
       let startTime = sessionStart || now;
       if (!sessionStart) {
         localStorage.setItem(sessionStartKey, now.toString());
@@ -225,6 +233,7 @@
       const remaining = MAX_SESSION_MS - elapsed;
 
       if (remaining <= 0) {
+        // Session expired: clear storage and reload
         localStorage.clear();
         alert('Session expired. Please restart the process.');
         location.reload();
@@ -236,7 +245,7 @@
     }
   }
 
-  // Copy Key
+  // Copy key to clipboard
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent).then(() => {
       alert('Key copied to clipboard!');
@@ -245,17 +254,16 @@
     });
   };
 
-  // Redirect to Linkvertise
+  // Redirect to Linkvertise and save the key time
   finishBtn.onclick = () => {
-    // Save the current timestamp as key time
     const now = Date.now();
     localStorage.setItem(keyTimeKey, now.toString());
-    localStorage.setItem(sessionStartKey, now.toString()); // sync both timers
-    // NOTE: You should set `smh_key` in Step 3 or after redirect
+    localStorage.setItem(sessionStartKey, now.toString()); // sync session timer with key timer
+    // Key itself should be set in step 3 or after redirect
     window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
   };
 
-  // Check if key exists in localStorage and show UI accordingly
+  // Check if key exists and update UI accordingly
   function checkKeyStatus() {
     const key = localStorage.getItem(keyStorageKey);
     if (key) {
@@ -265,12 +273,13 @@
     }
   }
 
-  // Periodic timer update every second
+  // Run updateTimers every second to update countdown accurately
   setInterval(updateTimers, 1000);
 
-  // Initial UI update
+  // Run immediately on load to avoid delay in UI
   updateTimers();
   checkKeyStatus();
+
 </script>
 </body>
 </html>
