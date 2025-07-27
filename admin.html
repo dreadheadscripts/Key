@@ -42,22 +42,29 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      gap: 1rem;
     }
     input[type="password"] {
       padding: 0.5rem;
-      margin-top: 1rem;
       font-size: 1rem;
       border-radius: 5px;
       border: none;
     }
+    #enterPasswordBtn {
+      background-color: #0077ff;
+      padding: 0.5rem 1.5rem;
+    }
   </style>
 </head>
 <body>
+  <!-- Password Gate -->
   <div id="passwordGate">
     <h2>Enter Admin Password</h2>
     <input type="password" id="passwordInput" placeholder="Password..." />
+    <button id="enterPasswordBtn">Enter</button>
   </div>
 
+  <!-- Main App -->
   <div id="app" style="display:none;">
     <h1>Expired Key Cleaner</h1>
     <button id="deleteAllBtn">🧹 Delete All Expired Keys</button>
@@ -92,6 +99,23 @@
 
     const keyList = document.getElementById("keyList");
     const deleteAllBtn = document.getElementById("deleteAllBtn");
+    const passwordInput = document.getElementById("passwordInput");
+    const enterPasswordBtn = document.getElementById("enterPasswordBtn");
+    const passwordGate = document.getElementById("passwordGate");
+    const appDiv = document.getElementById("app");
+
+    const correctPassword = "OwnerPass12436";
+
+    enterPasswordBtn.addEventListener("click", () => {
+      if (passwordInput.value === correctPassword) {
+        passwordGate.style.display = "none";
+        appDiv.style.display = "block";
+        loadExpiredKeys();
+      } else {
+        alert("❌ Incorrect password");
+        passwordInput.value = "";
+      }
+    });
 
     async function loadExpiredKeys() {
       const snapshot = await getDocs(collection(db, "keys"));
@@ -142,31 +166,6 @@
       deleteAllBtn.textContent = "🧹 Delete All Expired Keys";
       deleteAllBtn.disabled = false;
     };
-
-    // Simple password check
-    const correctPassword = "OwnerPass12436";
-    const passwordInput = document.getElementById("passwordInput");
-    const passwordGate = document.getElementById("passwordGate");
-    const appDiv = document.getElementById("app");
-
-    passwordInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        checkPassword();
-      }
-    });
-
-    passwordInput.focus();
-
-    function checkPassword() {
-      if (passwordInput.value === correctPassword) {
-        passwordGate.style.display = "none";
-        appDiv.style.display = "block";
-        loadExpiredKeys();
-      } else {
-        alert("❌ Incorrect password");
-        passwordInput.value = "";
-      }
-    }
   </script>
 </body>
 </html>
