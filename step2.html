@@ -106,6 +106,17 @@
     }
   </style>
 
+  <!-- ✅ Referrer check -->
+  <script>
+    (() => {
+      const allowed = ["linkvertise.com", "link-target.net"];
+      const ref = document.referrer.toLowerCase();
+      if (!allowed.some(site => ref.includes(site))) {
+        window.location.href = "index.html";
+      }
+    })();
+  </script>
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics-compat.js"></script>
@@ -131,7 +142,6 @@
 </div>
 
 <script>
-  // Firebase initialization
   const firebaseConfig = {
     apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
     authDomain: "smh-keysystem.firebaseapp.com",
