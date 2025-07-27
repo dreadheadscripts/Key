@@ -152,9 +152,10 @@
   const keyActiveSection = document.getElementById('keyActiveSection');
   const captchaContainer = document.getElementById('captchaContainer');
   const messageText = document.getElementById('messageText');
+  const keyTimerDisplay = document.getElementById('keyTimer');
   const body = document.body;
 
-  const MAX_SESSION_MS = 8 * 60 * 60 * 1000; // 8 hours
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
   const MAX_KEY_MS = 8 * 60 * 60 * 1000;     // 8 hours
 
   const sessionStartKey = 'smh_sessionStart';
@@ -175,11 +176,12 @@
   updateDarkToggleText();
 
   function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    if (ms < 0) return "00:00:00";
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600).toString().padStart(2, '0');
+    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${sec}`;
   }
 
   function showKeyUI(key) {
@@ -202,37 +204,29 @@
     const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
     if (key && keyTime) {
-      const elapsed = now - keyTime;
-      const remaining = MAX_KEY_MS - elapsed;
-
-      if (remaining <= 0) {
+      const keyRemaining = (keyTime + MAX_KEY_MS) - now;
+      if (keyRemaining <= 0) {
         localStorage.clear();
         alert('Key expired. Please restart the process.');
-        location.reload();
+        window.location.href = "index.html";
         return;
       }
-
-      const timeStr = formatTime(remaining);
+      const timeStr = formatTime(keyRemaining);
       countdown.textContent = `⏳ Time remaining: ${timeStr}`;
-      document.getElementById("keyTimer").textContent = timeStr;
+      keyTimerDisplay.textContent = timeStr;
       showKeyUI(key);
     } else {
-      const startTime = sessionStart || now;
-      if (!sessionStart) {
-        localStorage.setItem(sessionStartKey, now.toString());
-      }
+      const start = sessionStart || now;
+      if (!sessionStart) localStorage.setItem(sessionStartKey, now.toString());
 
-      const elapsed = now - startTime;
-      const remaining = MAX_SESSION_MS - elapsed;
-
-      if (remaining <= 0) {
+      const sessionRemaining = MAX_SESSION_MS - (now - start);
+      if (sessionRemaining <= 0) {
         localStorage.clear();
         alert('Session expired. Please restart the process.');
-        location.reload();
+        window.location.href = "index.html";
         return;
       }
-
-      countdown.textContent = `⏳ Session time remaining: ${formatTime(remaining)}`;
+      countdown.textContent = `⏳ Session time remaining: ${formatTime(sessionRemaining)}`;
       showNormalUI();
     }
   }
@@ -247,9 +241,11 @@
 
   finishBtn.onclick = () => {
     const now = Date.now();
+    const key = Math.random().toString(36).substring(2, 12).toUpperCase();
+    localStorage.setItem(keyStorageKey, key);
     localStorage.setItem(keyTimeKey, now.toString());
     localStorage.setItem(sessionStartKey, now.toString());
-    window.location.href = "https://link-hub.net/1365830/kMSTNmMeRrxy";
+    location.reload();
   };
 
   function checkKeyStatus() {
