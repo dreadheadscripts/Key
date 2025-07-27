@@ -287,6 +287,10 @@ body.light-mode #darkToggle:hover {
   const keyStorage = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
 
+  if (!localStorage.getItem(sessionStartKey)) {
+    localStorage.setItem(sessionStartKey, Date.now().toString());
+  }
+
   function formatTime(ms) {
     const totalSec = Math.floor(ms / 1000);
     const h = Math.floor(totalSec / 3600);
@@ -372,7 +376,7 @@ body.light-mode #darkToggle:hover {
     const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
     if (key && keyTime && !isNaN(keyTime)) {
-      const remaining = (keyTime + MAX_KEY_MS) - now;
+      const remaining = keyTime - now;
       if (remaining <= 0) {
         localStorage.clear();
         alert('Key expired. Please restart the process.');
@@ -405,11 +409,37 @@ body.light-mode #darkToggle:hover {
   };
 
   // ✅ Final redirect button
-  finishBtn.onclick = () => {
-    window.location.href = "https://link-target.net/1365830/WbdU2hopNwcu";
+  finishBtn.onclick = async () => {
+    // Key generation logic with timestamp and Firestore save
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let key = "SMH-";
+    for (let i = 0; i < 16; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    const now = Date.now();
+    const expiresAt = now + MAX_KEY_MS;
+
+    try {
+      await db.collection("keys").doc(key).set({
+        valid: true,
+        expiresAt: expiresAt
+      });
+
+      localStorage.setItem(keyStorage, key);
+      localStorage.setItem(keyTimeKey, expiresAt.toString());
+      localStorage.setItem(sessionStartKey, now.toString());
+
+      showKeyUI(key);
+      captchaContainer.style.display = 'none';
+      messageText.style.display = 'none';
+      updateTimers();
+    } catch (e) {
+      alert("Error creating key.");
+    }
   };
 
-  // ✅ Run timers + key check every second
+  // ✅ Start loop
   setInterval(() => {
     updateTimers();
     periodicKeyValidation();
