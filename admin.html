@@ -14,16 +14,6 @@
       color: #00eaff;
       text-align: center;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 2rem;
-    }
-    th, td {
-      border: 1px solid #00eaff44;
-      padding: 0.5rem;
-      text-align: center;
-    }
     button {
       background-color: #ff4444;
       color: white;
@@ -31,10 +21,24 @@
       padding: 0.5rem 1rem;
       border-radius: 8px;
       cursor: pointer;
+      margin-right: 0.5rem;
     }
     #deleteAllBtn {
       background-color: #ff9900;
       margin-bottom: 1rem;
+    }
+    #tabs {
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #00eaff44;
+      padding: 0.5rem;
+      text-align: center;
     }
     #passwordGate {
       display: flex;
@@ -54,6 +58,9 @@
       background-color: #0077ff;
       padding: 0.5rem 1.5rem;
     }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -67,17 +74,39 @@
   <!-- Main App -->
   <div id="app" style="display:none;">
     <h1>Expired Key Cleaner</h1>
-    <button id="deleteAllBtn">🧹 Delete All Expired Keys</button>
-    <table>
-      <thead>
-        <tr>
-          <th>Key ID</th>
-          <th>Expires At</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="keyList"></tbody>
-    </table>
+
+    <div id="tabs">
+      <button id="expiredTabBtn" style="background-color:#ff9900;">Expired Keys</button>
+      <button id="activeTabBtn">Active Keys</button>
+    </div>
+
+    <!-- Expired keys section -->
+    <div id="expiredSection">
+      <button id="deleteAllBtn">🧹 Delete All Expired Keys</button>
+      <table>
+        <thead>
+          <tr>
+            <th>Key ID</th>
+            <th>Expires At</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="expiredKeyList"></tbody>
+      </table>
+    </div>
+
+    <!-- Active keys section -->
+    <div id="activeSection" class="hidden">
+      <table>
+        <thead>
+          <tr>
+            <th>Key ID</th>
+            <th>Expires At</th>
+          </tr>
+        </thead>
+        <tbody id="activeKeyList"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -97,61 +126,112 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const keyList = document.getElementById("keyList");
-    const deleteAllBtn = document.getElementById("deleteAllBtn");
     const passwordInput = document.getElementById("passwordInput");
     const enterPasswordBtn = document.getElementById("enterPasswordBtn");
     const passwordGate = document.getElementById("passwordGate");
     const appDiv = document.getElementById("app");
 
+    const expiredTabBtn = document.getElementById("expiredTabBtn");
+    const activeTabBtn = document.getElementById("activeTabBtn");
+
+    const expiredSection = document.getElementById("expiredSection");
+    const activeSection = document.getElementById("activeSection");
+
+    const expiredKeyList = document.getElementById("expiredKeyList");
+    const activeKeyList = document.getElementById("activeKeyList");
+
+    const deleteAllBtn = document.getElementById("deleteAllBtn");
+
     const correctPassword = "OwnerPass12436";
 
-    // Unlock on password
+    // Password gate logic
     enterPasswordBtn.addEventListener("click", () => {
       if (passwordInput.value === correctPassword) {
         passwordGate.style.display = "none";
         appDiv.style.display = "block";
-        loadExpiredKeys();
+        loadKeys();
       } else {
         alert("❌ Incorrect password");
         passwordInput.value = "";
       }
     });
 
-    // Load all expired keys
-    async function loadExpiredKeys() {
+    // Tab switching
+    expiredTabBtn.addEventListener("click", () => {
+      expiredSection.classList.remove("hidden");
+      activeSection.classList.add("hidden");
+      expiredTabBtn.style.backgroundColor = "#ff9900";
+      activeTabBtn.style.backgroundColor = "";
+    });
+
+    activeTabBtn.addEventListener("click", () => {
+      activeSection.classList.remove("hidden");
+      expiredSection.classList.add("hidden");
+      activeTabBtn.style.backgroundColor = "#ff9900";
+      expiredTabBtn.style.backgroundColor = "";
+    });
+
+    // Load keys from Firestore and populate both tables
+    async function loadKeys() {
       const snapshot = await getDocs(collection(db, "keys"));
       const now = Date.now();
-      keyList.innerHTML = "";
 
-      let found = false;
+      expiredKeyList.innerHTML = "";
+      activeKeyList.innerHTML = "";
+
+      let foundExpired = false;
+      let foundActive = false;
+
       for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
+        const keyId = docSnap.id;
+        // Handle expiresAt timestamp or number
         const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
 
-        if (typeof expTime === "number" && expTime < now) {
-          found = true;
+        if (typeof expTime !== "number") continue; // skip invalid
+
+        if (expTime < now) {
+          // Expired key
+          foundExpired = true;
           const row = document.createElement("tr");
           row.innerHTML = `
-            <td>${docSnap.id}</td>
+            <td>${keyId}</td>
             <td>${new Date(expTime).toLocaleString()}</td>
-            <td><button onclick="deleteKey('${docSnap.id}', this)">Delete</button></td>
+            <td><button onclick="deleteKey('${keyId}', this)">Delete</button></td>
           `;
-          keyList.appendChild(row);
+          expiredKeyList.appendChild(row);
+        } else {
+          // Active key
+          foundActive = true;
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${keyId}</td>
+            <td>${new Date(expTime).toLocaleString()}</td>
+          `;
+          activeKeyList.appendChild(row);
         }
       }
 
-      if (!found) {
-        keyList.innerHTML = "<tr><td colspan='3'>✅ No expired keys found</td></tr>";
+      if (!foundExpired) {
+        expiredKeyList.innerHTML = `<tr><td colspan="3">✅ No expired keys found</td></tr>`;
+      }
+      if (!foundActive) {
+        activeKeyList.innerHTML = `<tr><td colspan="2">✅ No active keys found</td></tr>`;
       }
     }
 
-    // Delete a specific key
+    // Delete a single key
     window.deleteKey = async function (keyId, button) {
       button.disabled = true;
       button.textContent = "Deleting...";
-      await deleteDoc(doc(db, "keys", keyId));
-      await loadExpiredKeys();
+      try {
+        await deleteDoc(doc(db, "keys", keyId));
+        await loadKeys();
+      } catch (e) {
+        alert("Failed to delete key: " + e.message);
+        button.disabled = false;
+        button.textContent = "Delete";
+      }
     };
 
     // Delete all expired keys
@@ -159,21 +239,27 @@
       deleteAllBtn.disabled = true;
       deleteAllBtn.textContent = "Deleting expired keys...";
 
-      const snapshot = await getDocs(collection(db, "keys"));
-      const now = Date.now();
-      const expired = [];
+      try {
+        const snapshot = await getDocs(collection(db, "keys"));
+        const now = Date.now();
+        const expiredDeletes = [];
 
-      for (const docSnap of snapshot.docs) {
-        const data = docSnap.data();
-        const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
+        for (const docSnap of snapshot.docs) {
+          const data = docSnap.data();
+          const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
 
-        if (typeof expTime === "number" && expTime < now) {
-          expired.push(deleteDoc(doc(db, "keys", docSnap.id)));
+          if (typeof expTime === "number" && expTime < now) {
+            expiredDeletes.push(deleteDoc(doc(db, "keys", docSnap.id)));
+          }
         }
+
+        await Promise.all(expiredDeletes);
+        await loadKeys();
+        alert(`✅ Deleted ${expiredDeletes.length} expired key(s).`);
+      } catch (e) {
+        alert("❌ Failed to delete expired keys: " + e.message);
       }
 
-      await Promise.all(expired);
-      await loadExpiredKeys();
       deleteAllBtn.textContent = "🧹 Delete All Expired Keys";
       deleteAllBtn.disabled = false;
     };
