@@ -275,15 +275,15 @@ body.light-mode #darkToggle:hover {
   const body = document.body;
 
   // ⏱️ Time Constants
-  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;
-  const KEY_LIFETIME_MS = 8 * 60 * 60 * 1000;
+  const MAX_SESSION_MS = 3 * 60 * 60 * 1000;       // 3 hours session max
+  const KEY_LIFETIME_MS = 8 * 60 * 60 * 1000;      // 8 hours key life max
 
   // 🔑 LocalStorage Keys
   const keyStorageKey = 'smh_key';
   const keyTimeKey = 'smh_keyTime';
   const sessionStartKey = 'smh_sessionStart';
 
-  // 🕓 Format time
+  // 🕓 Format time as hh:mm:ss
   function formatTime(ms) {
     const s = Math.floor(ms / 1000);
     const h = Math.floor(s / 3600).toString().padStart(2, '0');
@@ -296,26 +296,23 @@ body.light-mode #darkToggle:hover {
   function updateDarkToggleText() {
     darkToggle.textContent = body.classList.contains('light-mode') ? 'Dark Mode' : 'Light Mode';
   }
-
   darkToggle.onclick = () => {
     body.classList.toggle('light-mode');
     localStorage.setItem('smh_darkMode', body.classList.contains('light-mode') ? '1' : '0');
     updateDarkToggleText();
   };
-
   if (localStorage.getItem('smh_darkMode') === '1') {
     body.classList.add('light-mode');
   }
   updateDarkToggleText();
 
-  // 🔐 UI
+  // 🔐 UI show/hide functions
   function showKeyUI(key) {
     messageText.style.display = 'none';
     captchaContainer.style.display = 'none';
     keyActiveSection.style.display = 'block';
     keyBox.textContent = key;
   }
-
   function showNormalUI() {
     messageText.style.display = 'block';
     captchaContainer.style.display = 'block';
@@ -337,18 +334,21 @@ body.light-mode #darkToggle:hover {
     }
   }
 
-  // 🔄 Timer Updater
+  // 🔄 Timer Updater - checks session and key times and updates UI
   async function updateTimers() {
     const now = Date.now();
     const key = localStorage.getItem(keyStorageKey);
-    const keyStart = parseInt(localStorage.getItem(keyTimeKey), 10);
-    const sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10) || now;
+    const keySetTime = parseInt(localStorage.getItem(keyTimeKey), 10);
+    let sessionStart = parseInt(localStorage.getItem(sessionStartKey), 10);
 
-    if (!localStorage.getItem(sessionStartKey)) {
+    // Initialize session start time if missing
+    if (!sessionStart) {
+      sessionStart = now;
       localStorage.setItem(sessionStartKey, now.toString());
     }
 
-    if (key && !isNaN(keyStart)) {
+    if (key && !isNaN(keySetTime)) {
+      // Validate key on Firestore every update (could optimize frequency)
       const valid = await validateKeyFromFirestore(key);
       if (!valid) {
         localStorage.clear();
@@ -356,18 +356,25 @@ body.light-mode #darkToggle:hover {
         location.href = "index.html";
         return;
       }
-      const remaining = (keyStart + KEY_LIFETIME_MS) - now;
+
+      // Calculate remaining key time
+      const elapsed = now - keySetTime;
+      const remaining = KEY_LIFETIME_MS - elapsed;
       if (remaining <= 0) {
         localStorage.clear();
         alert("Key expired. Please generate a new one.");
         location.reload();
         return;
       }
+
       countdown.textContent = `⏳ Key Time Remaining: ${formatTime(remaining)}`;
       keyTimerDisplay.textContent = formatTime(remaining);
       showKeyUI(key);
+
     } else {
-      const sessionRemaining = (sessionStart + MAX_SESSION_MS) - now;
+      // No key, show session timer
+      const elapsedSession = now - sessionStart;
+      const sessionRemaining = MAX_SESSION_MS - elapsedSession;
       if (sessionRemaining <= 0) {
         localStorage.clear();
         alert("Session expired.");
@@ -375,18 +382,19 @@ body.light-mode #darkToggle:hover {
         return;
       }
       countdown.textContent = `⏳ Session Time Remaining: ${formatTime(sessionRemaining)}`;
+      keyTimerDisplay.textContent = 'No active key';
       showNormalUI();
     }
   }
 
-  // 📋 Copy key
+  // 📋 Copy key button handler
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(keyBox.textContent)
       .then(() => alert('Key copied to clipboard!'))
       .catch(() => alert('Failed to copy key.'));
   };
 
-  // 🔗 Redirect when clicking "Get Key"
+  // 🔗 Get Key button handler - generate key, save, and show UI
   finishBtn.onclick = async () => {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let key = "SMH-";
@@ -395,12 +403,11 @@ body.light-mode #darkToggle:hover {
     }
 
     const now = Date.now();
-    const expiresAt = now + KEY_LIFETIME_MS;
 
     try {
       await db.collection("keys").doc(key).set({
         valid: true,
-        expiresAt: expiresAt
+        expiresAt: now + KEY_LIFETIME_MS
       });
 
       localStorage.setItem(keyStorageKey, key);
@@ -409,12 +416,14 @@ body.light-mode #darkToggle:hover {
 
       showKeyUI(key);
       updateTimers();
+
     } catch (e) {
       alert("Error creating key.");
+      console.error(e);
     }
   };
 
-  // ⏲️ Begin timers
+  // ⏲️ Start timer loop
   setInterval(updateTimers, 1000);
   updateTimers();
 </script>
