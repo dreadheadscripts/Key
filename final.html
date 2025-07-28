@@ -244,7 +244,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -257,36 +257,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    window.firestoreDB = db;
-  </script>
-</head>
-<body>
-  <button id="darkToggle">Light Mode</button>
-  <div class="container">
-    <h1>Script Maniac Hub KeySystem</h1>
-    <p id="messageText">Your Key is Ready</p>
 
-    <div id="captchaContainer">
-      <button id="finishBtn">Get Your Key</button>
-    </div>
-
-    <div id="keyActiveSection" style="display:none;">
-      <p><strong>You have already created a key.</strong></p>
-      <p>Key is still active: <span id="keyTimer">Loading...</span></p>
-      <div id="keyBox"></div>
-      <button id="copyBtn">Copy Key</button>
-    </div>
-
-    <div id="countdown">Loading timer...</div>
-  </div>
-
-  <script type="module">
-    import {
-      doc, setDoc, getDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const db = window.firestoreDB;
-    const SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours session (if needed)
+    const SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours session (optional)
     const KEY_MS = 8 * 60 * 60 * 1000; // 8 hours key validity
 
     const keyStorage = 'smh_key';
@@ -404,11 +376,12 @@
       const expiresAt = now + KEY_MS;
 
       try {
-      await setDoc(doc(db, "keys", key), {
-  valid: true,
-  expiresAt: expiresAt,
-  inUse: false
-});
+        await setDoc(doc(db, "keys", key), {
+          valid: true,
+          expiresAt: expiresAt,
+          inUse: false,
+          boundTo: currentRobloxUserId
+        });
 
         localStorage.setItem(keyStorage, key);
         localStorage.setItem(keyTimeStorage, expiresAt.toString());
@@ -465,12 +438,28 @@
       }
     }
 
+    // Heartbeat to update lastPing every 5 seconds
+    async function heartbeat() {
+      const key = localStorage.getItem(keyStorage);
+      if (!key) return;
+
+      try {
+        const ref = doc(db, "keys", key);
+        await setDoc(ref, {
+          lastPing: Date.now()
+        }, { merge: true });
+      } catch (e) {
+        console.error("Failed to update lastPing:", e);
+      }
+    }
+
     async function main() {
       const hasKey = await checkKey();
       if (!hasKey) showNormalUI();
       updateTimerUI();
       setInterval(updateTimerUI, 1000);
       setInterval(periodicKeyValidation, 60000);
+      setInterval(heartbeat, 5000); // heartbeat every 5 seconds
     }
 
     main();
