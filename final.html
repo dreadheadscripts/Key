@@ -222,24 +222,24 @@
     }
   </style>
 
-    <!-- ✅ Linkvertise Referrer Check -->
-<script>
-  (function () {
-    const allowedReferrers = [
-      "linkvertise.com",
-      "link-target.net"
-    ];
+  <!-- ✅ Linkvertise Referrer Check -->
+  <script>
+    (function () {
+      const allowedReferrers = [
+        "linkvertise.com",
+        "link-target.net"
+      ];
 
-    const referrer = document.referrer.toLowerCase();
+      const referrer = document.referrer.toLowerCase();
 
-    const isAllowed = allowedReferrers.some(domain => referrer.includes(domain));
+      const isAllowed = allowedReferrers.some(domain => referrer.includes(domain));
 
-    if (!isAllowed) {
-      console.warn("Access denied: invalid referrer.");
-      window.location.href = "index.html"; // Redirect if not from Linkvertise
-    }
-  })();
-</script>
+      if (!isAllowed) {
+        console.warn("Access denied: invalid referrer.");
+        window.location.href = "index.html"; // Redirect if not from Linkvertise
+      }
+    })();
+  </script>
 
   <!-- Firebase SDK -->
   <script type="module">
