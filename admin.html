@@ -72,19 +72,6 @@
     .hidden {
       display: none;
     }
-    #quickLinks {
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    #quickLinks button {
-      background-color: #0077ff;
-      margin: 0 0.5rem 1rem 0.5rem;
-      padding: 0.5rem 1.25rem;
-      font-weight: 600;
-    }
-    #quickLinks button:hover {
-      background-color: #005bbb;
-    }
   </style>
 </head>
 <body>
@@ -101,12 +88,6 @@
       Expired Key Cleaner
       <button id="logoutBtn">🔓 Log Out</button>
     </h1>
-
-    <!-- Quick Links -->
-    <div id="quickLinks">
-      <button id="getKeyBtn">🔑 Get Key Directly</button>
-      <button id="discordBtn">📎 Discord</button>
-    </div>
 
     <div id="tabs">
       <button id="expiredTabBtn" style="background-color:#ff9900;">Expired Keys</button>
@@ -137,6 +118,8 @@
             <th>Expires At</th>
             <th>In Use</th>
             <th>Session ID</th>
+            <th>User ID</th>
+            <th>Last Ping</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -148,13 +131,13 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { 
-      getFirestore, 
-      collection, 
-      getDocs, 
-      deleteDoc, 
-      doc, 
-      updateDoc 
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      deleteDoc,
+      doc,
+      updateDoc
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -186,9 +169,6 @@
     const deleteAllBtn = document.getElementById("deleteAllBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    const getKeyBtn = document.getElementById("getKeyBtn");
-    const discordBtn = document.getElementById("discordBtn");
-
     const correctPassword = "OwnerPass12436";
 
     // Auto-login if saved
@@ -211,21 +191,11 @@
       location.reload();
     });
 
-    getKeyBtn.addEventListener("click", () => {
-      const url = "https://your-key-page.com"; // Replace with your key page URL
-      window.open(url, "_blank");
-    });
-
-    discordBtn.addEventListener("click", () => {
-      const url = "https://discord.gg/YOURINVITECODE"; // Replace with your Discord invite link
-      window.open(url, "_blank");
-    });
-
     function loginSuccess() {
       passwordGate.style.display = "none";
       appDiv.style.display = "block";
       loadKeys();
-      setInterval(loadKeys, 10000); // Auto-refresh every 10 seconds
+      setInterval(loadKeys, 10000); // Refresh every 10 seconds
     }
 
     expiredTabBtn.addEventListener("click", () => {
@@ -256,36 +226,37 @@
         const data = docSnap.data();
         const keyId = docSnap.id;
 
-        // Handle expiresAt as Firestore Timestamp or number
         let expTime = data.expiresAt;
         if (expTime && typeof expTime.toMillis === "function") {
           expTime = expTime.toMillis();
         }
-
         if (typeof expTime !== "number") continue;
 
         if (expTime < now) {
           foundExpired = true;
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${keyId}</td>
-            <td>${new Date(expTime).toLocaleString()}</td>
-            <td><button onclick="deleteKey('${keyId}', this)">Delete</button></td>
-          `;
-          expiredKeyList.appendChild(row);
+          expiredKeyList.innerHTML += `
+            <tr>
+              <td>${keyId}</td>
+              <td>${new Date(expTime).toLocaleString()}</td>
+              <td><button onclick="deleteKey('${keyId}', this)">Delete</button></td>
+            </tr>`;
         } else {
           foundActive = true;
           const inUse = data.inUse ? "✅" : "❌";
           const sessionId = data.sessionId || "—";
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${keyId}</td>
-            <td>${new Date(expTime).toLocaleString()}</td>
-            <td>${inUse}</td>
-            <td>${sessionId}</td>
-            <td><button onclick="unlockKey('${keyId}', this)">🔓 Unlock</button></td>
-          `;
-          activeKeyList.appendChild(row);
+          const userId = data.userId || "—";
+          const lastPing = data.lastPing ? new Date(data.lastPing).toLocaleTimeString() : "—";
+
+          activeKeyList.innerHTML += `
+            <tr>
+              <td>${keyId}</td>
+              <td>${new Date(expTime).toLocaleString()}</td>
+              <td>${inUse}</td>
+              <td>${sessionId}</td>
+              <td>${userId}</td>
+              <td>${lastPing}</td>
+              <td><button onclick="unlockKey('${keyId}', this)">🔓 Unlock</button></td>
+            </tr>`;
         }
       }
 
@@ -293,7 +264,7 @@
         expiredKeyList.innerHTML = `<tr><td colspan="3">✅ No expired keys found</td></tr>`;
       }
       if (!foundActive) {
-        activeKeyList.innerHTML = `<tr><td colspan="5">✅ No active keys found</td></tr>`;
+        activeKeyList.innerHTML = `<tr><td colspan="7">✅ No active keys found</td></tr>`;
       }
     }
 
@@ -314,10 +285,11 @@
       button.disabled = true;
       button.textContent = "Unlocking...";
       try {
-        const keyRef = doc(db, "keys", keyId);
-        await updateDoc(keyRef, {
+        await updateDoc(doc(db, "keys", keyId), {
           inUse: false,
-          sessionId: ""
+          sessionId: "",
+          userId: "",
+          lastPing: 0
         });
         await loadKeys();
       } catch (e) {
@@ -325,6 +297,37 @@
         button.disabled = false;
         button.textContent = "🔓 Unlock";
       }
+    };
+
+    deleteAllBtn.onclick = async () => {
+      deleteAllBtn.disabled = true;
+      deleteAllBtn.textContent = "Deleting expired keys...";
+
+      try {
+        const snapshot = await getDocs(collection(db, "keys"));
+        const now = Date.now();
+        const expiredDeletes = [];
+
+        for (const docSnap of snapshot.docs) {
+          const data = docSnap.data();
+          let expTime = data.expiresAt;
+          if (expTime && typeof expTime.toMillis === "function") {
+            expTime = expTime.toMillis();
+          }
+          if (typeof expTime === "number" && expTime < now) {
+            expiredDeletes.push(deleteDoc(doc(db, "keys", docSnap.id)));
+          }
+        }
+
+        await Promise.all(expiredDeletes);
+        await loadKeys();
+        alert(`✅ Deleted ${expiredDeletes.length} expired key(s).`);
+      } catch (e) {
+        alert("❌ Failed to delete expired keys: " + e.message);
+      }
+
+      deleteAllBtn.textContent = "🧹 Delete All Expired Keys";
+      deleteAllBtn.disabled = false;
     };
   </script>
 </body>
