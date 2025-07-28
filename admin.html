@@ -102,6 +102,8 @@
           <tr>
             <th>Key ID</th>
             <th>Expires At</th>
+            <th>In Use</th>
+            <th>Session ID</th>
           </tr>
         </thead>
         <tbody id="activeKeyList"></tbody>
@@ -185,13 +187,11 @@
       for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
         const keyId = docSnap.id;
-        // Handle expiresAt timestamp or number
         const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
 
-        if (typeof expTime !== "number") continue; // skip invalid
+        if (typeof expTime !== "number") continue;
 
         if (expTime < now) {
-          // Expired key
           foundExpired = true;
           const row = document.createElement("tr");
           row.innerHTML = `
@@ -201,12 +201,15 @@
           `;
           expiredKeyList.appendChild(row);
         } else {
-          // Active key
           foundActive = true;
+          const inUse = data.inUse === true ? "✅" : "❌";
+          const sessionId = data.sessionId || "—";
           const row = document.createElement("tr");
           row.innerHTML = `
             <td>${keyId}</td>
             <td>${new Date(expTime).toLocaleString()}</td>
+            <td>${inUse}</td>
+            <td>${sessionId}</td>
           `;
           activeKeyList.appendChild(row);
         }
@@ -216,7 +219,7 @@
         expiredKeyList.innerHTML = `<tr><td colspan="3">✅ No expired keys found</td></tr>`;
       }
       if (!foundActive) {
-        activeKeyList.innerHTML = `<tr><td colspan="2">✅ No active keys found</td></tr>`;
+        activeKeyList.innerHTML = `<tr><td colspan="4">✅ No active keys found</td></tr>`;
       }
     }
 
