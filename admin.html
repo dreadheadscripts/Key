@@ -27,6 +27,11 @@
       background-color: #ff9900;
       margin-bottom: 1rem;
     }
+    #logoutBtn {
+      background-color: #4444ff;
+      float: right;
+      margin-bottom: 1rem;
+    }
     #tabs {
       margin-bottom: 1rem;
     }
@@ -73,7 +78,10 @@
 
   <!-- Main App -->
   <div id="app" style="display:none;">
-    <h1>Expired Key Cleaner</h1>
+    <h1>
+      Expired Key Cleaner
+      <button id="logoutBtn">🔓 Log Out</button>
+    </h1>
 
     <div id="tabs">
       <button id="expiredTabBtn" style="background-color:#ff9900;">Expired Keys</button>
@@ -143,22 +151,37 @@
     const activeKeyList = document.getElementById("activeKeyList");
 
     const deleteAllBtn = document.getElementById("deleteAllBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
 
     const correctPassword = "OwnerPass12436";
 
-    // Password gate logic
+    // Auto-login if saved
+    if (localStorage.getItem("smh_logged_in") === "true") {
+      loginSuccess();
+    }
+
     enterPasswordBtn.addEventListener("click", () => {
       if (passwordInput.value === correctPassword) {
-        passwordGate.style.display = "none";
-        appDiv.style.display = "block";
-        loadKeys();
+        localStorage.setItem("smh_logged_in", "true");
+        loginSuccess();
       } else {
         alert("❌ Incorrect password");
         passwordInput.value = "";
       }
     });
 
-    // Tab switching
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("smh_logged_in");
+      location.reload();
+    });
+
+    function loginSuccess() {
+      passwordGate.style.display = "none";
+      appDiv.style.display = "block";
+      loadKeys();
+      setInterval(loadKeys, 10000); // Auto-refresh
+    }
+
     expiredTabBtn.addEventListener("click", () => {
       expiredSection.classList.remove("hidden");
       activeSection.classList.add("hidden");
@@ -173,7 +196,6 @@
       expiredTabBtn.style.backgroundColor = "";
     });
 
-    // Load keys from Firestore and populate both tables
     async function loadKeys() {
       const snapshot = await getDocs(collection(db, "keys"));
       const now = Date.now();
@@ -223,7 +245,6 @@
       }
     }
 
-    // Delete a single key
     window.deleteKey = async function (keyId, button) {
       button.disabled = true;
       button.textContent = "Deleting...";
@@ -237,7 +258,6 @@
       }
     };
 
-    // Delete all expired keys
     deleteAllBtn.onclick = async () => {
       deleteAllBtn.disabled = true;
       deleteAllBtn.textContent = "Deleting expired keys...";
