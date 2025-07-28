@@ -360,10 +360,7 @@
           return false;
         }
 
-        // Check if the key is bound to this Roblox UserId
-        if (typeof data.boundTo === 'string' && data.boundTo !== currentRobloxUserId) {
-          return false;
-        }
+        // **Removed boundTo blocking here, so anyone can use a bound key**
 
         return true;
       } catch (e) {
@@ -404,13 +401,13 @@
       const expiresAt = now + KEY_MS;
 
       try {
-      await setDoc(doc(db, "keys", key), {
-  valid: true,
-  expiresAt,
-  inUse: false,
-  boundTo: currentRobloxUserId,
-  lastPing: Date.now()
-});
+        await setDoc(doc(db, "keys", key), {
+          valid: true,
+          expiresAt,
+          inUse: false,
+          boundTo: currentRobloxUserId,
+          lastPing: Date.now()
+        });
 
         localStorage.setItem(keyStorage, key);
         localStorage.setItem(keyTimeStorage, expiresAt.toString());
@@ -462,33 +459,33 @@
       const valid = await validateKeyFromFirestore(key);
       if (!valid) {
         localStorage.clear();
-        alert("Key expired, invalid, or bound to another user.");
+        alert("Key expired or invalid.");
         window.location.href = "index.html";
       }
     }
 
     async function main() {
-  const hasKey = await checkKey();
-  if (!hasKey) showNormalUI();
-  updateTimerUI();
-  setInterval(updateTimerUI, 1000);
-  setInterval(periodicKeyValidation, 60000);
+      const hasKey = await checkKey();
+      if (!hasKey) showNormalUI();
+      updateTimerUI();
+      setInterval(updateTimerUI, 1000);
+      setInterval(periodicKeyValidation, 60000);
 
-  // ✅ Periodic Firestore ping to update lastPing
-  setInterval(async () => {
-    const key = localStorage.getItem(keyStorage);
-    if (!key) return;
+      // ✅ Periodic Firestore ping to update lastPing
+      setInterval(async () => {
+        const key = localStorage.getItem(keyStorage);
+        if (!key) return;
 
-    try {
-      const ref = doc(db, "keys", key);
-      await setDoc(ref, {
-        lastPing: Date.now()
-      }, { merge: true });
-    } catch (e) {
-      console.error("Failed to update lastPing:", e);
+        try {
+          const ref = doc(db, "keys", key);
+          await setDoc(ref, {
+            lastPing: Date.now()
+          }, { merge: true });
+        } catch (e) {
+          console.error("Failed to update lastPing:", e);
+        }
+      }, 1000);
     }
-  }, 1000);
-}
 
     main();
   </script>
