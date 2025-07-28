@@ -381,73 +381,80 @@
       return true;
     }
 
-   async function createNewKey() {
-  finishBtn.disabled = true;
-  finishBtn.textContent = "Creating Key...";
+    async function createNewKey() {
+      finishBtn.disabled = true;
+      finishBtn.textContent = "Creating Key...";
 
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let key = "SMH-";
-  for (let i = 0; i < 16; i++) {
-    key += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let key = "SMH-";
+      for (let i = 0; i < 16; i++) {
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
 
-  const now = Date.now();
-  const expiresAt = now + KEY_MS;
-  const sessionId = `${currentRobloxUserId}_${Math.floor(now / 1000)}`;
+      const now = Date.now();
+      const expiresAt = now + KEY_MS;
 
-  try {
-    await setDoc(doc(db, "keys", key), {
-      valid: true,
-      expiresAt: expiresAt,
-      boundTo: currentRobloxUserId,
-      inUse: true,
-      sessionId: sessionId
-    });
+      try {
+        await setDoc(doc(db, "keys", key), {
+          valid: true,
+          expiresAt: expiresAt,
+          boundTo: currentRobloxUserId
+        });
 
-    localStorage.setItem(keyStorage, key);
-    localStorage.setItem(keyTimeStorage, expiresAt.toString());
-    localStorage.setItem(sessionStart, now.toString());
-    localStorage.setItem("smh_sessionId", sessionId);
+        localStorage.setItem(keyStorage, key);
+        localStorage.setItem(keyTimeStorage, expiresAt.toString());
+        localStorage.setItem(sessionStart, now.toString());
 
-    showKeyUI(key);
-    finishBtn.style.display = "none";
-    messageText.style.display = "none";
-    updateTimerUI();
-  } catch (e) {
-    alert("Error creating key.");
-    finishBtn.disabled = false;
-    finishBtn.textContent = "Get Your Key";
-  }
-}
-
-    async function validateKeyFromFirestore(key) {
-  try {
-    const docSnap = await getDoc(doc(db, "keys", key));
-    if (!docSnap.exists()) return false;
-
-    const data = docSnap.data();
-    const now = Date.now();
-    const localSessionId = localStorage.getItem("smh_sessionId");
-
-    if (data.valid !== true || typeof data.expiresAt !== 'number' || now >= data.expiresAt) {
-      return false;
+        showKeyUI(key);
+        finishBtn.style.display = "none";
+        messageText.style.display = "none";
+        updateTimerUI();
+      } catch (e) {
+        alert("Error creating key.");
+        finishBtn.disabled = false;
+        finishBtn.textContent = "Get Your Key";
+      }
     }
 
-    if (typeof data.boundTo === 'string' && data.boundTo !== currentRobloxUserId) {
-      return false;
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(keyBox.textContent);
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => copyBtn.textContent = "Copy Key", 2000);
+    };
+
+    finishBtn.onclick = createNewKey;
+
+    function updateTimerUI() {
+      const key = localStorage.getItem(keyStorage);
+      const keyExpires = parseInt(localStorage.getItem(keyTimeStorage), 10);
+      const sessionStartTime = parseInt(localStorage.getItem(sessionStart), 10);
+      const now = Date.now();
+
+      const sessionRemaining = SESSION_MS - (now - sessionStartTime);
+      const keyRemaining = keyExpires - now;
+
+      if (key && keyRemaining > 0) {
+        countdown.textContent = `Key valid for: ${formatTime(keyRemaining)}`;
+        keyTimerDisplay.textContent = formatTime(keyRemaining);
+      } else if (!key && sessionRemaining > 0) {
+        countdown.textContent = `Session valid for: ${formatTime(sessionRemaining)}`;
+      } else {
+        countdown.textContent = "Session expired. Redirecting...";
+        localStorage.clear();
+        setTimeout(() => window.location.href = "index.html", 1500);
+      }
     }
 
-    if (data.inUse && data.sessionId !== localSessionId) {
-      alert("Key already in use on another device or browser.");
-      return false;
+    async function periodicKeyValidation() {
+      const key = localStorage.getItem(keyStorage);
+      if (!key) return;
+      const valid = await validateKeyFromFirestore(key);
+      if (!valid) {
+        localStorage.clear();
+        alert("Key expired, invalid, or bound to another user.");
+        window.location.href = "index.html";
+      }
     }
-
-    return true;
-  } catch (e) {
-    console.error(e);
-    return false;
-  }
-}
 
     async function main() {
       const hasKey = await checkKey();
