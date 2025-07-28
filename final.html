@@ -222,16 +222,24 @@
     }
   </style>
 
-    <!-- ✅ Referrer check -->
-    <script>
-    (() => {
-      const allowed = ["linkvertise.com", "link-target.net"];
-      const ref = document.referrer.toLowerCase();
-      if (!allowed.some(site => ref.includes(site))) {
-        window.location.href = "index.html";
-      }
-    })();
-  </script>
+    <!-- ✅ Linkvertise Referrer Check -->
+<script>
+  (function () {
+    const allowedReferrers = [
+      "linkvertise.com",
+      "link-target.net"
+    ];
+
+    const referrer = document.referrer.toLowerCase();
+
+    const isAllowed = allowedReferrers.some(domain => referrer.includes(domain));
+
+    if (!isAllowed) {
+      console.warn("Access denied: invalid referrer.");
+      window.location.href = "index.html"; // Redirect if not from Linkvertise
+    }
+  })();
+</script>
 
   <!-- Firebase SDK -->
   <script type="module">
