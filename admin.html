@@ -22,6 +22,11 @@
       border-radius: 8px;
       cursor: pointer;
       margin-right: 0.5rem;
+      transition: background-color 0.3s ease;
+    }
+    button:disabled {
+      background-color: #666666;
+      cursor: not-allowed;
     }
     #deleteAllBtn {
       background-color: #ff9900;
@@ -44,6 +49,7 @@
       border: 1px solid #00eaff44;
       padding: 0.5rem;
       text-align: center;
+      vertical-align: middle;
     }
     #passwordGate {
       display: flex;
@@ -112,6 +118,7 @@
             <th>Expires At</th>
             <th>In Use</th>
             <th>Session ID</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody id="activeKeyList"></tbody>
@@ -122,7 +129,14 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { 
+      getFirestore, 
+      collection, 
+      getDocs, 
+      deleteDoc, 
+      doc, 
+      updateDoc 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpgv4ZMQ_VKdW565VsDReKGYKJMTVeK58",
@@ -179,7 +193,7 @@
       passwordGate.style.display = "none";
       appDiv.style.display = "block";
       loadKeys();
-      setInterval(loadKeys, 10000); // Auto-refresh
+      setInterval(loadKeys, 10000); // Auto-refresh every 10 seconds
     }
 
     expiredTabBtn.addEventListener("click", () => {
@@ -209,7 +223,12 @@
       for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
         const keyId = docSnap.id;
-        const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
+
+        // Handle expiresAt as Firestore Timestamp or number
+        let expTime = data.expiresAt;
+        if (expTime && typeof expTime.toMillis === "function") {
+          expTime = expTime.toMillis();
+        }
 
         if (typeof expTime !== "number") continue;
 
@@ -224,7 +243,7 @@
           expiredKeyList.appendChild(row);
         } else {
           foundActive = true;
-          const inUse = data.inUse === true ? "✅" : "❌";
+          const inUse = data.inUse ? "✅" : "❌";
           const sessionId = data.sessionId || "—";
           const row = document.createElement("tr");
           row.innerHTML = `
@@ -232,6 +251,7 @@
             <td>${new Date(expTime).toLocaleString()}</td>
             <td>${inUse}</td>
             <td>${sessionId}</td>
+            <td><button onclick="unlockKey('${keyId}', this)">🔓 Unlock</button></td>
           `;
           activeKeyList.appendChild(row);
         }
@@ -241,7 +261,7 @@
         expiredKeyList.innerHTML = `<tr><td colspan="3">✅ No expired keys found</td></tr>`;
       }
       if (!foundActive) {
-        activeKeyList.innerHTML = `<tr><td colspan="4">✅ No active keys found</td></tr>`;
+        activeKeyList.innerHTML = `<tr><td colspan="5">✅ No active keys found</td></tr>`;
       }
     }
 
@@ -258,6 +278,23 @@
       }
     };
 
+    window.unlockKey = async function (keyId, button) {
+      button.disabled = true;
+      button.textContent = "Unlocking...";
+      try {
+        const keyRef = doc(db, "keys", keyId);
+        await updateDoc(keyRef, {
+          inUse: false,
+          sessionId: ""
+        });
+        await loadKeys();
+      } catch (e) {
+        alert("Failed to unlock key: " + e.message);
+        button.disabled = false;
+        button.textContent = "🔓 Unlock";
+      }
+    };
+
     deleteAllBtn.onclick = async () => {
       deleteAllBtn.disabled = true;
       deleteAllBtn.textContent = "Deleting expired keys...";
@@ -269,7 +306,11 @@
 
         for (const docSnap of snapshot.docs) {
           const data = docSnap.data();
-          const expTime = data.expiresAt?.toMillis ? data.expiresAt.toMillis() : data.expiresAt;
+
+          let expTime = data.expiresAt;
+          if (expTime && typeof expTime.toMillis === "function") {
+            expTime = expTime.toMillis();
+          }
 
           if (typeof expTime === "number" && expTime < now) {
             expiredDeletes.push(deleteDoc(doc(db, "keys", docSnap.id)));
