@@ -468,12 +468,27 @@
     }
 
     async function main() {
-      const hasKey = await checkKey();
-      if (!hasKey) showNormalUI();
-      updateTimerUI();
-      setInterval(updateTimerUI, 1000);
-      setInterval(periodicKeyValidation, 60000);
+  const hasKey = await checkKey();
+  if (!hasKey) showNormalUI();
+  updateTimerUI();
+  setInterval(updateTimerUI, 1000);
+  setInterval(periodicKeyValidation, 60000);
+
+  // ✅ Periodic Firestore ping to update lastPing
+  setInterval(async () => {
+    const key = localStorage.getItem(keyStorage);
+    if (!key) return;
+
+    try {
+      const ref = doc(db, "keys", key);
+      await setDoc(ref, {
+        lastPing: Date.now()
+      }, { merge: true });
+    } catch (e) {
+      console.error("Failed to update lastPing:", e);
     }
+  }, 1000);
+}
 
     main();
   </script>
