@@ -72,6 +72,19 @@
     .hidden {
       display: none;
     }
+    #quickLinks {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    #quickLinks button {
+      background-color: #0077ff;
+      margin: 0 0.5rem 1rem 0.5rem;
+      padding: 0.5rem 1.25rem;
+      font-weight: 600;
+    }
+    #quickLinks button:hover {
+      background-color: #005bbb;
+    }
   </style>
 </head>
 <body>
@@ -88,6 +101,12 @@
       Expired Key Cleaner
       <button id="logoutBtn">🔓 Log Out</button>
     </h1>
+
+    <!-- Quick Links -->
+    <div id="quickLinks">
+      <button id="getKeyBtn">🔑 Get Key Directly</button>
+      <button id="discordBtn">📎 Discord</button>
+    </div>
 
     <div id="tabs">
       <button id="expiredTabBtn" style="background-color:#ff9900;">Expired Keys</button>
@@ -167,6 +186,9 @@
     const deleteAllBtn = document.getElementById("deleteAllBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
+    const getKeyBtn = document.getElementById("getKeyBtn");
+    const discordBtn = document.getElementById("discordBtn");
+
     const correctPassword = "OwnerPass12436";
 
     // Auto-login if saved
@@ -187,6 +209,16 @@
     logoutBtn.addEventListener("click", () => {
       localStorage.removeItem("smh_logged_in");
       location.reload();
+    });
+
+    getKeyBtn.addEventListener("click", () => {
+      const url = "https://your-key-page.com"; // Replace with your key page URL
+      window.open(url, "_blank");
+    });
+
+    discordBtn.addEventListener("click", () => {
+      const url = "https://discord.gg/YOURINVITECODE"; // Replace with your Discord invite link
+      window.open(url, "_blank");
     });
 
     function loginSuccess() {
@@ -293,39 +325,6 @@
         button.disabled = false;
         button.textContent = "🔓 Unlock";
       }
-    };
-
-    deleteAllBtn.onclick = async () => {
-      deleteAllBtn.disabled = true;
-      deleteAllBtn.textContent = "Deleting expired keys...";
-
-      try {
-        const snapshot = await getDocs(collection(db, "keys"));
-        const now = Date.now();
-        const expiredDeletes = [];
-
-        for (const docSnap of snapshot.docs) {
-          const data = docSnap.data();
-
-          let expTime = data.expiresAt;
-          if (expTime && typeof expTime.toMillis === "function") {
-            expTime = expTime.toMillis();
-          }
-
-          if (typeof expTime === "number" && expTime < now) {
-            expiredDeletes.push(deleteDoc(doc(db, "keys", docSnap.id)));
-          }
-        }
-
-        await Promise.all(expiredDeletes);
-        await loadKeys();
-        alert(`✅ Deleted ${expiredDeletes.length} expired key(s).`);
-      } catch (e) {
-        alert("❌ Failed to delete expired keys: " + e.message);
-      }
-
-      deleteAllBtn.textContent = "🧹 Delete All Expired Keys";
-      deleteAllBtn.disabled = false;
     };
   </script>
 </body>
