@@ -396,12 +396,11 @@
       const expiresAt = now + KEY_MS;
 
       try {
-        await setDoc(doc(db, "keys", key), {
-          valid: true,
-          expiresAt: expiresAt,
-          boundTo: currentRobloxUserId
-          // inUse and sessionId NOT set here
-        });
+      await setDoc(doc(db, "keys", key), {
+  valid: true,
+  expiresAt: expiresAt,
+  inUse: false
+});
 
         localStorage.setItem(keyStorage, key);
         localStorage.setItem(keyTimeStorage, expiresAt.toString());
