@@ -68,6 +68,7 @@
     #enterPasswordBtn {
       background-color: #0077ff;
       padding: 0.5rem 1.5rem;
+      cursor: pointer;
     }
     .hidden {
       display: none;
@@ -245,7 +246,16 @@
           const inUse = data.inUse ? "✅" : "❌";
           const sessionId = data.sessionId || "—";
           const userId = data.userId || "—";
-          const lastPing = data.lastPing ? new Date(data.lastPing).toLocaleTimeString() : "—";
+
+          // Format lastPing safely (handle Firestore Timestamp or number)
+          let lastPingTime = "—";
+          if (data.lastPing) {
+            if (typeof data.lastPing.toMillis === "function") {
+              lastPingTime = new Date(data.lastPing.toMillis()).toLocaleTimeString();
+            } else if (typeof data.lastPing === "number") {
+              lastPingTime = new Date(data.lastPing).toLocaleTimeString();
+            }
+          }
 
           activeKeyList.innerHTML += `
             <tr>
@@ -254,7 +264,7 @@
               <td>${inUse}</td>
               <td>${sessionId}</td>
               <td>${userId}</td>
-              <td>${lastPing}</td>
+              <td>${lastPingTime}</td>
               <td><button onclick="unlockKey('${keyId}', this)">🔓 Unlock</button></td>
             </tr>`;
         }
@@ -284,16 +294,20 @@
     window.unlockKey = async function (keyId, button) {
       button.disabled = true;
       button.textContent = "Unlocking...";
+
+      const keyRef = doc(db, "keys", keyId);
       try {
-        await updateDoc(doc(db, "keys", keyId), {
+        await updateDoc(keyRef, {
           inUse: false,
           sessionId: "",
           userId: "",
-          lastPing: 0
+          lastPing: null
         });
+
         await loadKeys();
       } catch (e) {
-        alert("Failed to unlock key: " + e.message);
+        console.error("Unlock failed:", e);
+        alert("❌ Failed to unlock key: " + e.message);
         button.disabled = false;
         button.textContent = "🔓 Unlock";
       }
