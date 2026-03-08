@@ -6,7 +6,14 @@
   <title>Script Maniac Hub Key System</title>
 
   <!-- LootLabs Monetization Script -->
-  <script data-cfasync="false" src="//dcbbwymplbhf.cloudfront.net/?wbbcd=1247178"></script>
+<script>
+  window.addEventListener('load', () => {
+    const lootScript = document.createElement('script');
+    lootScript.src = 'https://dcbbwymplbhf.cloudfront.net/?wbbcd=1247178';
+    lootScript.setAttribute('data-cfasync', 'false');
+    document.body.appendChild(lootScript);
+  });
+</script>
 
   <!-- Linkvertise Monetization Script -->
   <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script><script>linkvertise(1365830, {whitelist: ["https://dreadheadscripts.github.io/Key/"], blacklist: []});</script>
